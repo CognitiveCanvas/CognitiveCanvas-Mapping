@@ -1,0 +1,60 @@
+        #d3_container {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
+        html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
+        #canvas {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
+        .drag_line {
+            stroke: #999;
+            stroke-width: 5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .drag_line_hidden {
+            stroke: #999;
+            stroke-width: 0;
+            pointer-events: none;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-width: 5;
+            cursor: crosshair;
+            z-index: 0;
+        }
+
+        .link_selected {
+            stroke: #ff7f0e;
+        }
+
+        .node:hover {
+            fill: #ff9900;
+        }
+
+        .node {
+            z-index: 1;
+            fill: blue;
+        }
+
+        .active_node {
+            fill: orange;
+        }
