@@ -1,30 +1,87 @@
-// force layout
-  var nodes = [];
-  var links = [];
-  var canvas = document.getElementById("canvas")
+/* main.js */
+var nodes = [];
+var links = [];
 
-  var force = d3.layout.force().nodes(nodes).links(links);
-  var clientId;
+var clientId, active_node, dragged_node = null;
 
-  var link = d3.select(canvas).selectAll(".link")
-  var node = d3.select(canvas).selectAll(".node")
+var canvas = document.getElementById("canvas");
+var radius = 20;
 
-  var radius = 20
-  var active_node = null
-  var dragged_node = null
+/* layout.js */
+var force = d3.layout.force().nodes(nodes).links(links);
+var link = d3.select(canvas).selectAll(".link");
+var node = d3.select(canvas).selectAll(".node");
 
-  var mouseDown = 0
-  var mouseUp = 0
-  var mouseMoved = false
-  var singleClickTimer = null
-  var duobleClickDragTimer = null
+/* interact.js */
+var mouseUp, mouseDown = 0;
+var delay = 300;
+var mouseMoved = false;
+var singleClickTimer, duobleClickDragTimer = null;
+var drag_line = null;
+var source_node = null;
+var zoom = null;
 
-  //Initialize drag line
-  var drag_line = null
-  var source_node = null
+/*
+function mouseUpListener(e) {
+  mouseUp++;
 
-  //Event listeners
-  var zoom = null
+}
+*/
+
+/*
+ * Single click interaction
+ * - canvas: add a new node
+ * - existing node: 
+ * - existing link: 
+ */
+function singleClickEvent(e) {
+  let entity = e.target.getAttribute("class").split(" ")[0];
+
+  switch(entity) {
+    case "canvas":
+      addNode(e.clientX, e.clientY, radius);
+      break;
+    case "node":
+      break;
+    case "link":
+      break;
+    default: 
+      break;
+  }
+
+  resetState();
+}
+
+/*
+ * Double click interaction
+ * 
+ */
+function doubleClickEvent(e) {
+  let entity = e.target.getAttribute("class").split(" ")[0];
+
+  switch(entity) {
+  }
+
+  if (className == "node") {
+      x = selection.attr("cx")
+      y = selection.attr("cy")
+      addLabel("node", x - 10, y - 10)
+    }
+    else if (className == "link") {
+      x1 = selection.attr("x1")
+      x2 = selection.attr("x2")
+      y1 = selection.attr("y1")
+      y2 = selection.attr("y2")
+      mx = (parseInt(x1) + parseInt(x2)) / 2
+      my = (parseInt(y1) + parseInt(y2)) / 2
+      addLabel("edge", mx, my)
+    }
+    resetState()
+}
+
+/* TODO: initialize the canvas */
+/* init.js */
+
 
   var node_drag = d3.behavior.drag()
       .on("dragstart", dragStart)
@@ -35,7 +92,6 @@
   //TODO:Add timer to clear things out
   //TODO:Refactor all the mouse event to d3.svg.mouse
 
-
   canvas.addEventListener("mousedown", (e) => {
     mouseDown++
     if(mouseDown === 2 && mouseUp === 1
@@ -45,7 +101,7 @@
     doubleClickDragTimer = setTimeout(() => {
     revealHiddenLine(e)
   },
-    300
+    delay
   )
   }
 
@@ -59,9 +115,10 @@
   )
   {
     singleClickTimer = setTimeout(() => {
+      console.log("single click")
       singleClickEvent(e)
       resetState()
-    }, 300
+    }, delay
   )
   }
   //double click event
@@ -191,20 +248,6 @@
         */
   }
 
-  function singleClickEvent(e) {
-    var selection = d3.select(e.target)
-    if (e.target === canvas) {
-      addNode(e.clientX, e.clientY, radius)
-    } else if (selection.classed("node")) {
-      if (active_node) {
-        active_node.classed("active_node", false)
-        //.attr("fill", node_color)
-      }
-      active_node = selection
-      active_node.classed("active_node", true)
-      //.attr("fill", active_color)
-    }
-  }
 
   function addNode(cx, cy, r) {
     force.stop();
@@ -242,7 +285,7 @@
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   };
 
   function redraw() {
