@@ -7,108 +7,18 @@ var clientId, active_node, dragged_node = null;
 var canvas = document.getElementById("canvas");
 var radius = 20;
 
-/* layout.js */
-var force = d3.layout.force().nodes(nodes).links(links);
-var link = d3.select(canvas).selectAll(".link");
-var node = d3.select(canvas).selectAll(".node");
-
 /* interact.js */
 var mouseUp, mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, duobleClickDragTimer = null;
+
+// drag_line & source_node are stored as html element
 var drag_line = null;
 var source_node = null;
 var zoom = null;
 
-/*
-function mouseUpListener(e) {
-  mouseUp++;
-
-}
-*/
-
-/*
- * Single click interaction
- * - canvas: add a new node
- * - existing node: 
- * - existing link: 
- */
-function singleClickEvent(e) {
-  let entity = e.target.getAttribute("class").split(" ")[0];
-
-  switch(entity) {
-    case "canvas":
-      addNode(e.clientX, e.clientY, radius);
-      break;
-    case "node":
-      break;
-    case "link":
-      break;
-    default: 
-      break;
-  }
-
-  resetState();
-}
-
-/*
- * Double click interaction
- * 
- */
-function doubleClickEvent(e) {
-  let entity = e.target.getAttribute("class").split(" ")[0];
-
-  switch(entity) {
-  }
-
-  if (className == "node") {
-      x = selection.attr("cx")
-      y = selection.attr("cy")
-      addLabel("node", x - 10, y - 10)
-    }
-    else if (className == "link") {
-      x1 = selection.attr("x1")
-      x2 = selection.attr("x2")
-      y1 = selection.attr("y1")
-      y2 = selection.attr("y2")
-      mx = (parseInt(x1) + parseInt(x2)) / 2
-      my = (parseInt(y1) + parseInt(y2)) / 2
-      addLabel("edge", mx, my)
-    }
-    resetState()
-}
-
-/* TODO: initialize the canvas */
-/* init.js */
-
-
-  var node_drag = d3.behavior.drag()
-      .on("dragstart", dragStart)
-      .on("drag", dragMove)
-      .on("dragend", dragEnd);
-
-  //TODO:Clear the count if it is not possible
-  //TODO:Add timer to clear things out
-  //TODO:Refactor all the mouse event to d3.svg.mouse
-
-  canvas.addEventListener("mousedown", (e) => {
-    mouseDown++
-    if(mouseDown === 2 && mouseUp === 1
-  )
-  {
-    clearTimeout(singleClickTimer)
-    doubleClickDragTimer = setTimeout(() => {
-    revealHiddenLine(e)
-  },
-    delay
-  )
-  }
-
-  selectLineSource(e)
-  })
-
-  canvas.addEventListener("mouseup", (e) => {
+canvas.addEventListener("mouseup", (e) => {
     mouseUp++
     //single click event
     if(mouseUp === 1 && mouseDown === 1
@@ -154,6 +64,234 @@ function doubleClickEvent(e) {
   }
   })
 
+function mouseUpListener(e) {
+  mouseUp++;
+
+  if (mouseUp === 1 && mouseDown === 1) {
+    singleClickTimer = setTimeout(() => {
+      console.log("single click");
+      singleClickEvent(e);
+    }, delay);
+  }
+  else if (mouseUp === 2 && mouseDown === 2) {
+    //TODO: double click timer
+    doubleClickEvent(e);
+  }
+  else {
+    resetState();
+  }
+}
+
+/*
+ * Single click interaction
+ * - canvas: add a new node
+ * - existing node:
+ * - existing link: 
+ */
+function singleClickEvent(e) {
+  console.log("single click target", e.target)
+  let entity = e.target.getAttribute("class").split(" ")[0];
+
+  switch(entity) {
+    case "canvas":
+      let addedNode = addNode();
+      drawNode(addedNode, e.clientX, e.clientY, radius);
+      break;
+    case "node":
+      break;
+    case "link":
+      break;
+    default: 
+      break;
+  }
+
+  resetState();
+}
+
+/*
+ * Double click interaction
+ * - canvas:
+ * - existing node: add label
+ * - existing link: add label
+ * 
+ */
+function doubleClickEvent(e) {
+  let entity = e.target.getAttribute("class").split(" ")[0];
+
+  switch(entity) {
+  }
+
+  if (className == "node") {
+      x = selection.attr("cx")
+      y = selection.attr("cy")
+      addLabel("node", x - 10, y - 10)
+    }
+    else if (className == "link") {
+      x1 = selection.attr("x1")
+      x2 = selection.attr("x2")
+      y1 = selection.attr("y1")
+      y2 = selection.attr("y2")
+      mx = (parseInt(x1) + parseInt(x2)) / 2
+      my = (parseInt(y1) + parseInt(y2)) / 2
+      addLabel("edge", mx, my)
+    }
+    resetState()
+}
+
+canvas.addEventListener("contextmenu", (e) => {
+  let className = e.target.getAttribute("class").split(" ")[0];
+
+  if (className != "canvas") {
+    e.preventDefault();
+  }
+  
+  switch(className) {
+    case "node":
+      deleteEntity(nodes, e.target.getAttribute("id"));
+      removeNode(e.target);
+      break;
+    case "link":
+      deleteEntity(links, e.target.getAttribute("id"));
+      removeLink(e.target);
+      break;
+    default:
+      break;
+  }
+  resetState();
+})
+
+/* entity.js */
+function getID() {
+  return clientId + "_" + Date.now();
+}
+
+function addNode() {
+  let node = { type: "node", id: getID() };
+  n = nodes.push(node);
+
+  return node;
+}
+
+function addLink(sourceId, destId) {
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId };
+  l = links.push(link);
+
+  console.log("add link", links);
+  return link;
+}
+
+function deleteEntity(entities, id) {
+  let index = entities.findIndex((n) => n.id === id);
+  if (index > -1) {
+    entities.splice(index, 1);
+  }
+}
+
+function drawNode(node, cx, cy, radius) {
+  let x = parseInt(cx)
+  let y = parseInt(cy)
+
+  d3.select(canvas)
+    .append("g")
+    .attr("class", "node_group")
+    .append("circle")
+    .attr("class", "node")
+    .attr("r", radius)
+    .attr("cx", x)
+    .attr("cy", y)
+    .attr("id", node.id)
+    .attr("xmlns", "http://www.w3.org/2000/svg");
+}
+
+function drawLink(link) {
+  let linkSrcNode = document.getElementById(link.sourceId);
+  let linkDestNode = document.getElementById(link.destId);
+
+  let x1 = linkSrcNode.getAttribute("cx");
+  let y1 = linkSrcNode.getAttribute("cy");
+  let x2 = linkDestNode.getAttribute("cx");
+  let y2 = linkDestNode.getAttribute("cy");
+
+  d3.select(canvas)
+    .insert("g", ":first-child")
+    .attr("class", "link_group")
+    .append("line")
+    .attr("class", "link")
+    .attr("x1", x1)
+    .attr("y1", y1)
+    .attr("x2", x2)
+    .attr("y2", y2)
+    .attr("source_id", link.sourceId)
+    .attr("target_id", link.destId)
+    .attr("xmlns", "http://www.w3.org/2000/svg");
+}
+
+function removeNode(node) {
+  let node_d3 = d3.select(node);
+  let node_id = node_d3.attr("id");
+
+  d3.selectAll(`[source_id=${node_id}]`)
+    .remove();
+
+  d3.selectAll(`[target_id=${node_id}]`)
+    .remove();
+
+  node_d3.remove();
+}
+
+function removeLink(link) {
+  d3.select(link).remove();
+}
+
+/* TODO: initialize the canvas */
+/* init.js */
+webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
+
+function onLoaded(webstrateId, clientId, user) {
+  this.clientId = clientId;
+
+  initDragLine();
+}
+
+function initDragLine() {
+  drag_line = document.getElementById("drag_line");
+  if (drag_line === null) {
+    d3.select(canvas)
+      .append("line")
+      .attr("id", "drag_line")
+      .attr("class", "drag_line")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 0)
+      .attr("y2", 0);
+
+    drag_line = document.getElementById("drag_line");
+  }
+}
+
+  //TODO:Clear the count if it is not possible
+  //TODO:Add timer to clear things out
+  //TODO:Refactor all the mouse event to d3.svg.mouse
+
+  canvas.addEventListener("mousedown", (e) => {
+    mouseDown++
+
+    if(mouseDown === 2 && mouseUp === 1
+  )
+  {
+    clearTimeout(singleClickTimer)
+    doubleClickDragTimer = setTimeout(() => {
+    revealDragLine(e);
+  },
+    delay
+  )
+  }
+
+  selectLineSource(e)
+  })
+
+  
+
   function addLabel(text, cx, cy) {
     var container = document.getElementById("d3_container")
     var label = document.createElement("div")
@@ -185,26 +323,6 @@ function doubleClickEvent(e) {
   }
   })
 
-
-  canvas.addEventListener("contextmenu", (e) => {
-    var selection = d3.select(e.target)
-    if(selection.classed("node") || selection.classed("link")
-  )
-  {
-    selection.remove();
-  }
-  resetState()
-  })
-
-  function revealHiddenLine(e) {
-    var selection = d3.select(e.target)
-
-    if (selection.attr("class").split(" ")[0] === "node") {
-      drag_line.attr("class", "drag_line")
-      source_node = selection;
-    }
-  }
-
   function selectLineSource(e) {
     var selection = d3.select(e.target)
     if (selection.classed("node")) {
@@ -213,142 +331,61 @@ function doubleClickEvent(e) {
   }
 
   function selectLineDest(e) {
-    drag_line.classed("drag_line_hidden", true)
-        .attr("x1", 0)
-        .attr("y1", 0)
-        .attr("x2", 0)
-        .attr("y2", 0)
+    hideDragLine();
     if (dragged_node) {
       dragged_node = null
     }
     var selection = d3.select(e.target)
-    if (source_node && selection.classed("node")) {
-      force.stop();
-      source_node_force = nodes.filter((n) => n.id == source_node.attr("id"))[0]
-      target_force = nodes.filter((n) => n.id == selection.attr("id"))[0]
-      links.push({source: source_node_force, target: target_force});
-      redraw();
+    let sourceNode = d3.select(source_node);
+    if (sourceNode && selection.classed("node")) {
+      let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
+      drawLink(addedLink);
       source_node = null;
     }
   }
 
-  function drawDragLine(e) {
-    drag_line
-        .attr("x1", source_node.attr("cx"))
-        .attr("y1", source_node.attr("cy"))
-        .attr("x2", e.pageX)
-        .attr("y2", e.pageY)
+  function revealDragLine(e) {
+    let selected = e.target;
+    //TODO: rename drag_line to dragLine
+    if (selected.getAttribute("class").split(" ")[0] === "node") {
+      d3.select(drag_line)
+        .classed({"drag_line": true, "drag_line_hidden": false});
+      source_node = selected;
+      console.log("source_node", source_node);
+    }
   }
 
-  function drawDragNode(e) {
-    /*
-    dragged_node
-        .attr("cx", e.pageX)
-        .attr("cy", e.pageY);
-        */
-  }
-
-
-  function addNode(cx, cy, r) {
-    force.stop();
-    var id = clientId + "_" + Date.now();
-    cx = parseInt(cx)
-    cy = parseInt(cy)
-    var node = {x: cx, y: cy, id: id};
-    n = nodes.push(node);
-    console.log(nodes)
-    redraw()
-  }
-
-  function dragStart(d, i) {
-    force.stop();
-  }
-
-  function dragMove(d, i) {
-    console.log("eventDx", d3.event.dx);
-    d.px += d3.event.dx;
-    d.py += d3.event.dy;
-    d.x += d3.event.dx;
-    d.y += d3.event.dy;
-    tick();
-  }
-
-  function dragEnd(d, i) {
-    d.fixed = true;
-    tick();
-    force.resume();
-  }
-
-  function tick() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-  };
-
-  function redraw() {
-
-    //redraw links first
-    link = link.data(links);
-
-    console.log(links)
-
-    link.enter().insert("line", ":first-child")
-        .attr("class", "link")
-        .attr("x1", (d) => {return d.source.x; })
-        .attr("y1", (d) => {return d.source.y; })
-        .attr("x2", (d) => {return d.target.x; })
-        .attr("y2", (d) => {return d.target.y; })
-        .attr("source_id", (d) => {return d.source.id})
-        .attr("target_id", (d) => {return d.target.id})
-        .attr("xmlns", "http://www.w3.org/2000/svg");
-
-    link.exit().remove();
-
-    console.log(node)
-    // redraw node
-    node = node.data(nodes);
-
-    node.enter().append("circle")
-        .attr("class", "node")
-        .attr("r", 30)
-        .attr("cx", (d) => {return d.x;})
-        .attr("cy", (d) => {return d.y;})
-        .attr("id", (d) => {return d.id})
-        .attr("xmlns", "http://www.w3.org/2000/svg");
-
-    node.exit().remove();
-    force.resume();
-  }
-
-  function onLoaded(webstrateId, clientId, user) {
-    // TODO: Each client should have its own drag_line
-    // and only visible to itself
-
-    drag_line = d3.select(canvas).append("line")
-        .attr("class", "drag_line")
+  function hideDragLine() {
+    let dragLine = d3.select(drag_line)
+    dragLine.classed({"drag_line_hidden": true, "drag_line": false})
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 0)
-        .attr("y2", 0);
-
-    this.clientId = clientId;
-
-    //TODO: this is a total hack, need a more elegant way
-    node[0].forEach((d) => {
-      let cx = parseInt(d.cx.baseVal.value);
-    let cy = parseInt(d.cy.baseVal.value);
-         nodes.push({x: x, sy: cy, id: d.id});
-    console.log(nodes)
-    });
-
-    node.call(node_drag);
-
-    force.on("tick", tick);
-
-    force.start();
+        .attr("y2", 0)
   }
 
-  webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
+function drawDragLine(e) {
+  let sourceNode = d3.select(source_node);
+  let dragLine = d3.select(drag_line);
+
+  dragLine.attr("x1", sourceNode.attr("cx"))
+          .attr("y1", sourceNode.attr("cy"))
+          .attr("x2", e.pageX)
+          .attr("y2", e.pageY)
+}
+
+function drawDragNode(e) {
+  let selected_id = dragged_node.attr("id");
+
+  d3.selectAll(`[source_id=${selected_id}]`)
+    .attr("x1", e.pageX)
+    .attr("y1", e.pageY);
+
+  d3.selectAll(`[target_id=${selected_id}]`)
+    .attr("x2", e.pageX)
+    .attr("y2", e.pageY);
+
+  dragged_node
+      .attr("cx", e.pageX)
+      .attr("cy", e.pageY);
+}
