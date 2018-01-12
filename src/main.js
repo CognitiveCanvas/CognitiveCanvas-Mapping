@@ -8,7 +8,8 @@ var canvas = document.getElementById("canvas");
 var radius = 20;
 
 /* interact.js */
-var mouseUp, mouseDown = 0;
+var mouseUp = 0;
+var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, duobleClickDragTimer = null;
@@ -18,20 +19,62 @@ var drag_line = null;
 var source_node = null;
 var zoom = null;
 
-  canvas.addEventListener("mousemove", (e) => {
-  if (mouseDown > 0) {
-    mouseMoved = true
-  }
+canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
+canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
+canvas.addEventListener("contextmenu", (e) => rightClickListener(e));
+canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 
+function mouseUpListener(e) {
+  mouseUp++;
+
+  console.log("mouse up", mouseUp);
+
+  if (mouseUp === 1 && mouseDown === 1) {
+    singleClickTimer = setTimeout(() => {
+      console.log("single click");
+      singleClickEvent(e);
+    }, delay);
+
+    if (mouseMoved) {
+      resetState();
+    }
+  }
+  else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
+    console.log("double click");
+    doubleClickEvent(e);
+  }
+  else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
+    console.log("double click drag")
+    selectLineDest(e);
+  }
+  else {
+    resetState();
+  }
+}
+
+function mouseDownListener(e) {
+  mouseDown++;
+
+  console.log("mouse down", mouseDown);
   if (mouseDown === 1) {
-    drawDragNode(e)
+    selectDragNode(e);
   }
-  else if (mouseDown === 2) {
-    drawDragLine(e)
+  else if (mouseDown === 2 && mouseUp === 1) {
+    clearTimeout(singleClickTimer);
+    selectSrcNode(e);
+    doubleClickDragTimer = setTimeout(() => {
+      let className = e.target.getAttribute("class").split(" ")[0];
+      if (className === "node") {
+        revealDragLine();
+      }
+    }, delay);
   }
-  })
+  else {
+    resetState();
+  }
+}
 
-  canvas.addEventListener("contextmenu", (e) => {
+function rightClickListener(e) {
   let className = e.target.getAttribute("class").split(" ")[0];
 
   if (className != "canvas") {
@@ -51,46 +94,20 @@ var zoom = null;
       break;
   }
   resetState();
-})
+}
 
-  canvas.addEventListener("mousedown", (e) => {
-    mouseDown++
-
-    if(mouseDown === 2 && mouseUp === 1
-  )
-  {
-    clearTimeout(singleClickTimer)
-    doubleClickDragTimer = setTimeout(() => {
-    revealDragLine(e);
-  },
-    delay
-  )
+function mouseMoveListener(e) {
+  console.log("mouse moved");
+  if (mouseDown > 0) {
+    mouseMoved = true
   }
 
-  selectLineSource(e)
-  })
-
-canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
-
-function mouseUpListener(e) {
-  mouseUp++;
-
-  if (mouseUp === 1 && mouseDown === 1) {
-    singleClickTimer = setTimeout(() => {
-      console.log("single click");
-      singleClickEvent(e);
-    }, delay);
+  if (mouseDown === 1 && mouseUp === 0) {
+    console.log("trigger drawDragNode")
+    drawDragNode(e);
   }
-  else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
-    console.log("double click");
-    doubleClickEvent(e);
-  }
-  else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
-    console.log("double click drag")
-    selectLineDest(e);
-  }
-  else {
-    resetState();
+  else if (mouseDown === 2) {
+    drawDragLine(e)
   }
 }
 
@@ -101,7 +118,6 @@ function mouseUpListener(e) {
  * - existing link: 
  */
 function singleClickEvent(e) {
-  console.log("single click target", e.target)
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   switch(entity) {
@@ -129,6 +145,7 @@ function singleClickEvent(e) {
  * 
  */
 function doubleClickEvent(e) {
+  clearTimeout(doubleClickDragTimer);
   let selection = d3.select(e.target);
   let className = selection.attr("class").split(" ")[0]
 
@@ -264,31 +281,27 @@ function initDragLine() {
   }
 }
 
-  //TODO:Clear the count if it is not possible
-  //TODO:Add timer to clear things out
-  //TODO:Refactor all the mouse event to d3.svg.mouse
+function addLabel(text, cx, cy) {
+  var container = document.getElementById("d3_container")
+  var label = document.createElement("div");
+  label.appendChild(document.createTextNode(text));
+  label.setAttribute("contenteditable", "true");
+  label.style.position = "absolute";
+  label.setAttribute("z-index", "1");
+  label.style.left = cx + "px";
+  label.style.top = cy + "px";
+  container.appendChild(label);
+}
 
-  
+function resetState() {
+  mouseDown = 0;
+  mouseUp = 0;
+  mouseMoved = false;
+  source_node = null;
+  dragged_node = null;
+}
 
-  function addLabel(text, cx, cy) {
-    var container = document.getElementById("d3_container")
-    var label = document.createElement("div")
-    label.appendChild(document.createTextNode(text))
-    label.setAttribute("contenteditable", "true")
-    label.style.position = "absolute"
-    label.setAttribute("z-index", "1")
-    label.style.left = cx + "px"
-    label.style.top = cy + "px"
-    container.appendChild(label)
-  }
-
-  function resetState() {
-    mouseDown = 0
-    mouseUp = 0
-    mouseMoved = false
-  }
-
-function selectLineSource(e) {
+function selectDragNode(e) {
   var selection = d3.select(e.target)
   if (selection.classed("node")) {
     dragged_node = selection
@@ -310,14 +323,9 @@ function selectLineDest(e) {
   resetState();
 }
 
-function revealDragLine(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
-    
-  if (className === "node") {
-    d3.select(drag_line)
-      .classed({"drag_line": true, "drag_line_hidden": false});
-    source_node = e.target;
-  }
+function revealDragLine() {
+  d3.select(drag_line)
+    .classed({"drag_line": true, "drag_line_hidden": false});
 }
 
 function hideDragLine() {
@@ -327,6 +335,10 @@ function hideDragLine() {
           .attr("y1", 0)
           .attr("x2", 0)
           .attr("y2", 0)
+}
+
+function selectSrcNode(e) {
+  source_node = e.target;
 }
 
 function drawDragLine(e) {
@@ -340,17 +352,19 @@ function drawDragLine(e) {
 }
 
 function drawDragNode(e) {
-  let selected_id = dragged_node.attr("id");
+  if (dragged_node != null) {
+    let selected_id = dragged_node.attr("id");
 
-  d3.selectAll(`[source_id=${selected_id}]`)
-    .attr("x1", e.pageX)
-    .attr("y1", e.pageY);
+    d3.selectAll(`[source_id=${selected_id}]`)
+      .attr("x1", e.pageX)
+      .attr("y1", e.pageY);
 
-  d3.selectAll(`[target_id=${selected_id}]`)
-    .attr("x2", e.pageX)
-    .attr("y2", e.pageY);
+    d3.selectAll(`[target_id=${selected_id}]`)
+      .attr("x2", e.pageX)
+      .attr("y2", e.pageY);
 
-  dragged_node
+    dragged_node
       .attr("cx", e.pageX)
       .attr("cy", e.pageY);
+  }
 }
