@@ -27,8 +27,6 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 function mouseUpListener(e) {
   mouseUp++;
 
-  console.log("mouse up", mouseUp);
-
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
       console.log("single click");
@@ -55,7 +53,6 @@ function mouseUpListener(e) {
 function mouseDownListener(e) {
   mouseDown++;
 
-  console.log("mouse down", mouseDown);
   if (mouseDown === 1) {
     selectDragNode(e);
   }
@@ -80,15 +77,15 @@ function rightClickListener(e) {
   if (className != "canvas") {
     e.preventDefault();
   }
-  
+
   switch(className) {
-    case "node":
-      deleteEntity(nodes, e.target.getAttribute("id"));
-      removeNode(e.target);
+    case "node-rep":
+      deleteEntity(nodes, e.target.parentNode.getAttribute("id"));
+      removeNode(e.target.parentNode);
       break;
-    case "link":
-      deleteEntity(links, e.target.getAttribute("id"));
-      removeLink(e.target);
+    case "link-rep":
+      deleteEntity(links, e.target.parentNode.getAttribute("id"));
+      removeLink(e.target.parentNode);
       break;
     default:
       break;
@@ -97,7 +94,6 @@ function rightClickListener(e) {
 }
 
 function mouseMoveListener(e) {
-  console.log("mouse moved");
   if (mouseDown > 0) {
     mouseMoved = true
   }
@@ -205,13 +201,13 @@ function drawNode(node, cx, cy, radius) {
 
   d3.select(canvas)
     .append("g")
-    .attr("class", "node_group")
-    .append("circle")
     .attr("class", "node")
+    .attr("id", node.id)
+    .append("circle")
+    .attr("class", "node-rep")
     .attr("r", radius)
     .attr("cx", x)
     .attr("cy", y)
-    .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
@@ -226,15 +222,16 @@ function drawLink(link) {
 
   d3.select(canvas)
     .insert("g", ":first-child")
-    .attr("class", "link_group")
-    .append("line")
     .attr("class", "link")
+    .attr("id", link.id)
+    .attr("source_id", link.sourceId)
+    .attr("target_id", link.destId)
+    .append("line")
+    .attr("class", "link-rep")
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
-    .attr("source_id", link.sourceId)
-    .attr("target_id", link.destId)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
