@@ -64,7 +64,7 @@ function mouseDownListener(e) {
     selectSrcNode(e);
     doubleClickDragTimer = setTimeout(() => {
       let className = e.target.getAttribute("class").split(" ")[0];
-      if (className === "node") {
+      if (className === "node-rep") {
         revealDragLine();
       }
     }, delay);
@@ -108,7 +108,7 @@ function mouseMoveListener(e) {
     var selection = d3.select(e.target);
     if(dragged_object){
       var selection = d3.select(dragged_object);
-      if(selection.classed("node")){
+      if(selection.classed("node-rep")){
         drawDragNode(e);
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
@@ -224,7 +224,6 @@ function drawNode(node, cx, cy, radius) {
     .attr("id", node.id)
     .attr("transform", "translate("+x+","+y+")")
     .append("circle")
-    .append("circle")
     .attr("class", "node-rep")
     .attr("r", radius)
     .attr("cx", 0)
@@ -241,6 +240,9 @@ function drawLink(link) {
   let y1 = getNodePosition(linkSrcNode)[1];
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
+
+  console.log("linkSrcNode", linkSrcNode)
+
 
   d3.select(canvas)
     .insert("g", ":first-child")
@@ -323,7 +325,7 @@ function resetState() {
 
 function selectDraggedObject(e) {
   var selection = d3.select(e.target)
-  if (selection.classed("node")) {
+  if (selection.classed("node-rep")) {
     dragged_object = e.target;
   } else if(selection.classed("selection_area")){
     dragged_object = e.target;
@@ -339,7 +341,7 @@ function selectLineDest(e) {
   }
   var selection = d3.select(e.target)
   let sourceNode = d3.select(source_node);
-  if (sourceNode && selection.classed("node")) {
+  if (sourceNode && selection.classed("node-rep")) {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
     drawLink(addedLink);
     source_node = null;
@@ -362,7 +364,7 @@ function hideDragLine() {
 }
 
 function selectSrcNode(e) {
-  source_node = e.target;
+  source_node = e.target.parentNode;
 }
 
 function drawDragLine(e) {
@@ -464,16 +466,16 @@ function translateNode(node, x, y, relative=false){
 
   let selected_id = d3.select(node).attr("id");
 
-    d3.selectAll(`[source_id=${selected_id}]`)
-      .attr("x1", x)
-      .attr("y1", y);
+  d3.selectAll(`[source_id=${selected_id}] > [class="link-rep"]`)
+    .attr("x1", x)
+    .attr("y1", y);
 
-    d3.selectAll(`[target_id=${selected_id}]`)
-      .attr("x2", x)
-      .attr("y2", y);
+  d3.selectAll(`[target_id=${selected_id}] > [class="link-rep"]`)
+    .attr("x2", x)
+    .attr("y2", y);
 
 }
 
 function getNodePosition(node){
-  return d3.transform(d3.select(node.parentNode).attr("transform")).translate;
+  return d3.transform(d3.select(node).attr("transform")).translate;
 }
