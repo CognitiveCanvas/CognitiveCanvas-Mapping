@@ -2,7 +2,8 @@
 var nodes = [];
 var links = [];
 
-var clientId, active_node, dragged_node = null;
+var clientId, active_node, dragged_object = null;
+var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
 var radius = 20;
@@ -17,6 +18,7 @@ var singleClickTimer, duobleClickDragTimer = null;
 // drag_line & source_node are stored as html element
 var drag_line = null;
 var source_node = null;
+var selection_area = null;
 var zoom = null;
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
@@ -52,9 +54,10 @@ function mouseUpListener(e) {
 
 function mouseDownListener(e) {
   mouseDown++;
+  e.preventDefault();
 
   if (mouseDown === 1) {
-    selectDragNode(e);
+    selectDraggedObject(e);
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
@@ -87,6 +90,9 @@ function rightClickListener(e) {
       deleteEntity(links, e.target.parentNode.getAttribute("id"));
       removeLink(e.target.parentNode);
       break;
+    case "selection_area":
+      d3.select(e.target).remove();
+      break;
     default:
       break;
   }
@@ -99,8 +105,17 @@ function mouseMoveListener(e) {
   }
 
   if (mouseDown === 1 && mouseUp === 0) {
-    console.log("trigger drawDragNode")
-    drawDragNode(e);
+    var selection = d3.select(e.target);
+    if(dragged_object){
+      var selection = d3.select(dragged_object);
+      if(selection.classed("node")){
+        drawDragNode(e);
+      }else if(selection.classed("selection_area")){
+        moveGroup(selection.node(), e.pageX, e.pageY);
+      }
+    }else if(selection.classed("canvas")){
+      drawSelectionArea(e);
+    }
   }
   else if (mouseDown === 2) {
     drawDragLine(e)
@@ -116,17 +131,21 @@ function mouseMoveListener(e) {
 function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
-  switch(entity) {
-    case "canvas":
-      let addedNode = addNode();
-      drawNode(addedNode, e.clientX, e.clientY, radius);
-      break;
-    case "node":
-      break;
-    case "link":
-      break;
-    default: 
-      break;
+  if(selection_area){
+    createGroup();
+  } else{
+    switch(entity) {
+      case "canvas":
+        let addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, radius);
+        break;
+      case "node":
+        break;
+      case "link":
+        break;
+      default: 
+        break;
+    }
   }
 
   resetState();
@@ -203,11 +222,14 @@ function drawNode(node, cx, cy, radius) {
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
+    .attr("transform", "translate("+x+","+y+")")
+    .append("circle")
     .append("circle")
     .attr("class", "node-rep")
     .attr("r", radius)
-    .attr("cx", x)
-    .attr("cy", y)
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
@@ -215,10 +237,10 @@ function drawLink(link) {
   let linkSrcNode = document.getElementById(link.sourceId);
   let linkDestNode = document.getElementById(link.destId);
 
-  let x1 = linkSrcNode.getAttribute("cx");
-  let y1 = linkSrcNode.getAttribute("cy");
-  let x2 = linkDestNode.getAttribute("cx");
-  let y2 = linkDestNode.getAttribute("cy");
+  let x1 = getNodePosition(linkSrcNode)[0];
+  let y1 = getNodePosition(linkSrcNode)[1];
+  let x2 = getNodePosition(linkDestNode)[0];
+  let y2 = getNodePosition(linkDestNode)[1];
 
   d3.select(canvas)
     .insert("g", ":first-child")
@@ -295,20 +317,25 @@ function resetState() {
   mouseUp = 0;
   mouseMoved = false;
   source_node = null;
-  dragged_node = null;
+  dragged_object = null;
+  drag_offset = [0,0];
 }
 
-function selectDragNode(e) {
+function selectDraggedObject(e) {
   var selection = d3.select(e.target)
   if (selection.classed("node")) {
-    dragged_node = selection
+    dragged_object = e.target;
+  } else if(selection.classed("selection_area")){
+    dragged_object = e.target;
+    var dragged_group = d3.select(dragged_object);
+    drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
 }
 
 function selectLineDest(e) {
   hideDragLine();
-  if (dragged_node) {
-    dragged_node = null
+  if (dragged_object) {
+    dragged_object = null
   }
   var selection = d3.select(e.target)
   let sourceNode = d3.select(source_node);
@@ -339,29 +366,114 @@ function selectSrcNode(e) {
 }
 
 function drawDragLine(e) {
-  let sourceNode = d3.select(source_node);
+  let sourceNode = source_node;
   let dragLine = d3.select(drag_line);
 
-  dragLine.attr("x1", sourceNode.attr("cx"))
-          .attr("y1", sourceNode.attr("cy"))
+  dragLine.attr("x1", getNodePosition(sourceNode)[0])
+          .attr("y1", getNodePosition(sourceNode)[1])
           .attr("x2", e.pageX)
           .attr("y2", e.pageY)
 }
 
 function drawDragNode(e) {
-  if (dragged_node != null) {
-    let selected_id = dragged_node.attr("id");
+  if (dragged_object != null) {
+    let selected_id = d3.select(dragged_object).attr("id");
+
+    translateNode(dragged_object, e.pageX, e.pageY);
+  }
+}
+
+function drawSelectionArea(e){
+    //console.log("Drawing Selection Area");
+    if (!selection_area){
+        selection_area = d3.select(canvas).insert("rect", ":first-child")
+            .classed("selection_area", true)
+            .attr("x", e.pageX)
+            .attr("y", e.pageY)
+            .attr("width", 0)
+            .attr("height", 0)
+        //console.log("selection is created");
+    }
+    selection_area
+        .attr("width", e.pageX - selection_area.attr("x"))
+        .attr("height", e.pageY - selection_area.attr("y"));
+    //console.log("selection area drawn");
+}
+    
+function createGroup(){
+  console.log("creating group");
+  var left = selection_area.attr("x");
+  var right = left + selection_area.attr("width");
+  var top = selection_area.attr("y");
+  var bottom = top + selection_area.attr("height");
+
+  var grouped_nodes = d3.selectAll(".node")
+  var children_ids = [];
+  console.log(grouped_nodes)
+  grouped_nodes.filter( function() {
+      var position = getNodePosition(this);
+      var x = position[0];
+      var y = position[1];
+      return x >= left
+          && x <= right
+          && y >= top 
+          && y <= bottom;
+      });
+  console.log(grouped_nodes)
+  grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
+  selection_area.attr("children_ids", children_ids.join(" "));
+  
+  selection_area = null;
+  dragged_object = null;
+}
+
+function moveGroup(group, x, y){
+  var group = d3.select(group);
+  var nodeIds = group.attr("children_ids").split(" ");
+
+  var xMove = x - group.attr("x") + drag_offset[0];
+  var yMove = y - group.attr("y") + drag_offset[1];
+
+  for(i = 0; i < nodeIds.length; i++){
+    let nodeId = nodeIds[i];
+    var node = d3.select('#'+ nodeId);
+    translateNode(node.node(), xMove, yMove, true);
+  }
+
+  group.attr("x", x + drag_offset[0]);
+  group.attr("y", y + drag_offset[1]);
+}
+
+//TODO: Improve efficiency
+//Helper Function to move a node group
+/**
+node: the node to move along with its links
+x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead 
+y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead 
+**/
+function translateNode(node, x, y, relative=false){
+  //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
+  if(relative){
+    var position = getNodePosition(node);
+    x += position[0];
+    y += position[1];
+  }
+
+  var g = d3.select(node.parentNode);
+  g.attr("transform", "translate(" + x + "," + y + ")");
+
+  let selected_id = d3.select(node).attr("id");
 
     d3.selectAll(`[source_id=${selected_id}]`)
-      .attr("x1", e.pageX)
-      .attr("y1", e.pageY);
+      .attr("x1", x)
+      .attr("y1", y);
 
     d3.selectAll(`[target_id=${selected_id}]`)
-      .attr("x2", e.pageX)
-      .attr("y2", e.pageY);
+      .attr("x2", x)
+      .attr("y2", y);
 
-    dragged_node
-      .attr("cx", e.pageX)
-      .attr("cy", e.pageY);
-  }
+}
+
+function getNodePosition(node){
+  return d3.transform(d3.select(node.parentNode).attr("transform")).translate;
 }
