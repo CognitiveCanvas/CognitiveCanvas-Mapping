@@ -115,10 +115,10 @@ function mouseMoveListener(e) {
       if(selection.classed("node")){
         drawDragNode(e);
       }else if(selection.classed("selection_area")){
-        moveGroup(selection.node(), e.pageX, e.pageY);
+        //moveGroup(selection.node(), e.pageX, e.pageY);
       }
     }else if(selection.classed("canvas")){
-      drawSelectionArea(e);
+      //drawSelectionArea(e);
     }
   }
   else if (mouseDown === 2) {
@@ -136,7 +136,7 @@ function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
-    createGroup();
+    //createGroup();
   } else{
     switch(entity) {
       case "canvas":
@@ -172,7 +172,7 @@ function doubleClickEvent(e) {
     case "node":
       x = selection.attr("cx");
       y = selection.attr("cy");
-      addLabel("node", x - 10, y - 10);
+      addLabels("node", e.target);
       break;
     case "link":
       x1 = selection.attr("x1");
@@ -302,16 +302,19 @@ function initDragLine() {
 }
 
 function addLabel(text, cx, cy) {
-  var container = document.getElementById("d3_container")
-  var label = document.createElement("div");
-  label.appendChild(document.createTextNode(text));
-  label.setAttribute("contenteditable", "true");
-  label.style.position = "absolute";
-  label.setAttribute("z-index", "1");
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
-  container.appendChild(label);
+  // var container = document.getElementById("d3_container")
+  // var label = document.createElement("div");
+  // label.appendChild(document.createTextNode(text));
+  // label.setAttribute("contenteditable", "true");
+  // label.style.position = "absolute";
+  // label.setAttribute("z-index", "1");
+  // label.style.left = cx + "px";
+  // label.style.top = cy + "px";
+  // container.appendChild(label);
+  console.log('old label maker')
 }
+
+
 
 function resetState() {
   mouseDown = 0;
@@ -402,7 +405,7 @@ function drawSelectionArea(e){
 }
     
 function createGroup(){
-  console.log("creating group");
+  /*console.log("creating group");
   var left = selection_area.attr("x");
   var right = left + selection_area.attr("width");
   var top = selection_area.attr("y");
@@ -425,11 +428,12 @@ function createGroup(){
   selection_area.attr("children_ids", children_ids.join(" "));
   
   selection_area = null;
-  dragged_object = null;
+  dragged_object = null;*/
+  console.log('creating the group')
 }
 
 function moveGroup(group, x, y){
-  var group = d3.select(group);
+  /*var group = d3.select(group);
   var nodeIds = group.attr("children_ids").split(" ");
 
   var xMove = x - group.attr("x") + drag_offset[0];
@@ -442,7 +446,7 @@ function moveGroup(group, x, y){
   }
 
   group.attr("x", x + drag_offset[0]);
-  group.attr("y", y + drag_offset[1]);
+  group.attr("y", y + drag_offset[1]);*/
 }
 
 //TODO: Improve efficiency

@@ -1,4 +1,4 @@
-var panning = 1;
+/*var panning = 1;
 
 var svg = d3.select(".canvas");
   	.call(d3.behavior.zoom()
@@ -8,4 +8,4 @@ var svg = d3.select(".canvas");
   	})
     .on("zoomstart", function() {
       panning=0;
-    }))
+    }))*/
