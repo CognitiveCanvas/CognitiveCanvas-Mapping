@@ -50,11 +50,6 @@ body {
     fill: #ff9900;
 }
 
-.node {
-    z-index: 1;
-    fill: blue;
-}
-
 .active_node {
     fill: orange;
 }

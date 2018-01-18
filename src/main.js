@@ -7,6 +7,8 @@ var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
 var radius = 20;
+var defaultShape = "circle";
+var defaultColor = "#f00";
 
 /* interact.js */
 var mouseUp = 0;
@@ -137,7 +139,7 @@ function singleClickEvent(e) {
     switch(entity) {
       case "canvas":
         let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
         break;
@@ -214,7 +216,7 @@ function deleteEntity(entities, id) {
   }
 }
 
-function drawNode(node, cx, cy, radius) {
+function drawNode(node, cx, cy, shape, radius, color) {
   let x = parseInt(cx)
   let y = parseInt(cy)
 
@@ -223,8 +225,10 @@ function drawNode(node, cx, cy, radius) {
     .attr("class", "node")
     .attr("id", node.id)
     .attr("transform", "translate("+x+","+y+")")
-    .append("circle")
+    .append(shape)
     .attr("class", "node-rep")
+    .style("fill", color)
+    .style("z-index", 1)
     .attr("r", radius)
     .attr("cx", 0)
     .attr("cy", 0)
@@ -282,7 +286,7 @@ webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, cl
 
 function onLoaded(webstrateId, clientId, user) {
   this.clientId = clientId;
-
+  getDefaultStyle();
   initDragLine();
 }
 
@@ -299,6 +303,20 @@ function initDragLine() {
       .attr("y2", 0);
 
     drag_line = document.getElementById("drag_line");
+  }
+}
+
+function getDefaultStyle() {
+  let defaultStyle = document.getElementsByTagName("default-style")[0];
+
+  if (defaultStyle) {
+    defaultShape = defaultStyle.getAttribute("shape") 
+                  ? defaultStyle.getAttribute("shape")
+                  : defaultShape;
+
+    defaultColor = defaultStyle.getAttribute("color") 
+                  ? defaultStyle.getAttribute("color")
+                  : defaultColor;
   }
 }
 
@@ -410,7 +428,7 @@ function createGroup(){
   var bottom = top + selection_area.attr("height");
 
   var grouped_nodes = d3.selectAll(".node")
-  var children_ids = [];
+  //var children_ids = [];
   console.log(grouped_nodes)
   grouped_nodes.filter( function() {
       var position = getNodePosition(this);
@@ -478,4 +496,46 @@ function translateNode(node, x, y, relative=false){
 
 function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
+}
+
+/* data.js */
+//TODO: set data attribute in the head
+function initDataDiv() {
+  let dataCollection = document.createElement("data-collection");
+  document.getElementsByTagName('body')[0].appendChild(dataCollection);
+
+  return dataCollection;
+}
+
+function initDefaultStyleElemt() {
+  let dataCollection = document.getElementsByTagName("data-collection")[0];
+
+  if (!dataCollection) {
+    dataCollection = initDataDiv();
+  }
+
+  let defaultStyleElement = document.createElement("default-style");
+  dataCollection.appendChild(defaultStyleElement);
+
+  return defaultStyleElement;
+}
+
+function setDefaultStyledData(attr, data) {
+  let defaultStyleElement = document.getElementsByTagName("default-style")[0];
+
+  if (!defaultStyleElement) {
+    defaultStyleElement = initDefaultStyleElemt();
+  }
+
+  defaultStyleElement.setAttribute(attr, data);
+}
+
+function setDefaultNodeShape(shape) {
+  defaultShape = shape;
+  setDefaultStyledData("shape", shape);
+}
+
+function setDefaultNodeColor(color) {
+  defaultColor = color;
+  setDefaultStyledData("color", color);
 }
