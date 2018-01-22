@@ -31,7 +31,7 @@ function mouseUpListener(e) {
 
   //console.log("mouse up", mouseUp);
 
-  if (mouseUp === 1 && mouseDown === 1 && panning<10) {
+  if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
       console.log("single click");
       singleClickEvent(e);
