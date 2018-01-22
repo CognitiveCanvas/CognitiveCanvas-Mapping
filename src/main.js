@@ -161,9 +161,9 @@ function singleClickEvent(e) {
  */
 function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
-  let selection = d3.select(e.target);
+  let selection = d3.select(e.target.parentNode);
   let className = selection.attr("class").split(" ")[0]
-
+  console.log(className);
   switch(className) {
     case "node":
       x = selection.attr("cx");
@@ -177,7 +177,7 @@ function doubleClickEvent(e) {
       y2 = selection.attr("y2");
       mx = (parseInt(x1) + parseInt(x2)) / 2;
       my = (parseInt(y1) + parseInt(y2)) / 2;
-      addLabel("edge", mx, my);
+      addLabels("edge", e.target);
       break;
     default:
       break;

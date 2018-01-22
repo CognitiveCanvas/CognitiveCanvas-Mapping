@@ -67,5 +67,8 @@ body {
 }
 
 .blackText{
-    fill: red
+    color: green;
+    fill: green;
+    stroke-width: 1;
+    stroke: green;
 }
