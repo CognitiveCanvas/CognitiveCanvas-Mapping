@@ -201,6 +201,79 @@ function mouseMoveListener(e) {
   }
 }
 
+
+function mouseOverListener(e) {
+  let className = e.target.getAttribute("class").split(" ")[0];
+  
+  switch(className) {
+    case "node":
+      mouseHoverNode = true;
+      hoveredNode = e.target.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredNode)){
+          if (nodes.find(x => x.id === hoveredNode).content){
+          var addressToFrame = "http://webstrates.ucsd.edu/" + hoveredNode;
+              
+          var wrapper = document.createElement('div');
+          wrapper.setAttribute("id", "showing");
+
+          var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+              
+          wrapper.innerHTML = toFrame;
+              
+          document.body.appendChild(wrapper);
+        }
+      }
+      break;
+    case "link":
+      mouseHoverEdge = true;
+      break;
+    default:
+      break;
+  }
+}
+
+function mouseOutListener(e) {
+  let className = e.target.getAttribute("class").split(" ")[0];
+  
+  switch(className) {
+    case "node":
+      if (nodes.find(x => x.id === hoveredNode)) {  
+        if (nodes.find(x => x.id === hoveredNode).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }
+                
+      mouseHoverNode = false;
+      hoveredNode = null;
+      break;
+    case "link":
+      mouseHoverEdge = false;
+      break;
+    default:
+      break;
+  }
+}
+
+function keyPressListener(e) {
+  var keyCode = e.which;
+    
+  if (keyCode == 97) {
+
+    if (mouseHoverNode){
+      addNodeContent(e);
+    }
+    else if (mouseHoverEdge){
+      addEdgeContent(e);
+    }
+    
+  }
+    
+}
+
+
 /*
  * Single click interaction
  * - canvas: add a new node
@@ -272,7 +345,7 @@ function getID() {
 }
 
 function addNode() {
-  let node = { type: "node", id: getID(), content: false  };
+  let node = { type: "node", id: getID(), content: false };
   n = nodes.push(node);
 
   return node;
