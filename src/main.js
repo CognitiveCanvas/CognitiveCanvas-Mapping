@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, active_node, dragged_object = null;
+var clientId, active_node, dragged_node = null;
 var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
@@ -106,78 +106,6 @@ function rightClickListener(e) {
   resetState();
 }
 
-
-function mouseOverListener(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
-  
-  switch(className) {
-    case "node":
-      mouseHoverNode = true;
-      hoveredNode = e.target.getAttribute("id");
-      if (nodes.find(x => x.id === hoveredNode)){
-          if (nodes.find(x => x.id === hoveredNode).content){
-          var addressToFrame = "http://webstrates.ucsd.edu/" + hoveredNode;
-              
-          var wrapper = document.createElement('div');
-          wrapper.setAttribute("id", "showing");
-
-          var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
-              
-          wrapper.innerHTML = toFrame;
-              
-          document.body.appendChild(wrapper);
-        }
-      }
-      break;
-    case "link":
-      mouseHoverEdge = true;
-      break;
-    default:
-      break;
-  }
-}
-
-function mouseOutListener(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
-  
-  switch(className) {
-    case "node":
-      if (nodes.find(x => x.id === hoveredNode)) {  
-        if (nodes.find(x => x.id === hoveredNode).content){
-          var elem = document.getElementById("showing");
-          if (elem) {
-            elem.parentNode.removeChild(elem);
-          }
-        }
-      }
-                
-      mouseHoverNode = false;
-      hoveredNode = null;
-      break;
-    case "link":
-      mouseHoverEdge = false;
-      break;
-    default:
-      break;
-  }
-}
-
-function keyPressListener(e) {
-  var keyCode = e.which;
-    
-  if (keyCode == 97) {
-
-    if (mouseHoverNode){
-      addNodeContent(e);
-    }
-    else if (mouseHoverEdge){
-      addEdgeContent(e);
-    }
-    
-  }
-    
-}
-
 function mouseMoveListener(e) {
   if (mouseDown > 0) {
     mouseMoved = true
@@ -273,7 +201,6 @@ function keyPressListener(e) {
     
 }
 
-
 /*
  * Single click interaction
  * - canvas: add a new node
@@ -283,21 +210,17 @@ function keyPressListener(e) {
 function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
-  if(selection_area){
-    createGroup();
-  } else{
-    switch(entity) {
-      case "canvas":
-        let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
-        break;
-      case "node":
-        break;
-      case "link":
-        break;
-      default: 
-        break;
-    }
+  switch(entity) {
+    case "canvas":
+      let addedNode = addNode();
+      drawNode(addedNode, e.clientX, e.clientY, radius);
+      break;
+    case "node":
+      break;
+    case "link":
+      break;
+    default: 
+      break;
   }
 
   resetState();
@@ -339,6 +262,8 @@ function doubleClickEvent(e) {
 }
 
 
+
+
 /* entity.js */
 function getID() {
   return clientId + "_" + Date.now();
@@ -372,14 +297,12 @@ function drawNode(node, cx, cy, radius) {
 
   d3.select(canvas)
     .append("g")
-    .attr("class", "node")
-    .attr("id", node.id)
-    .attr("transform", "translate("+x+","+y+")")
+    .attr("class", "node_group")
     .append("circle")
-    .attr("class", "node-rep")
+    .attr("class", "node")
     .attr("r", radius)
-    .attr("cx", 0)
-    .attr("cy", 0)
+    .attr("cx", x)
+    .attr("cy", y)
     .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
@@ -388,26 +311,22 @@ function drawLink(link) {
   let linkSrcNode = document.getElementById(link.sourceId);
   let linkDestNode = document.getElementById(link.destId);
 
-  let x1 = getNodePosition(linkSrcNode)[0];
-  let y1 = getNodePosition(linkSrcNode)[1];
-  let x2 = getNodePosition(linkDestNode)[0];
-  let y2 = getNodePosition(linkDestNode)[1];
-
-  console.log("linkSrcNode", linkSrcNode)
-
+  let x1 = linkSrcNode.getAttribute("cx");
+  let y1 = linkSrcNode.getAttribute("cy");
+  let x2 = linkDestNode.getAttribute("cx");
+  let y2 = linkDestNode.getAttribute("cy");
 
   d3.select(canvas)
     .insert("g", ":first-child")
-    .attr("class", "link")
-    .attr("id", link.id)
-    .attr("source_id", link.sourceId)
-    .attr("target_id", link.destId)
+    .attr("class", "link_group")
     .append("line")
-    .attr("class", "link-rep")
+    .attr("class", "link")
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
+    .attr("source_id", link.sourceId)
+    .attr("target_id", link.destId)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
@@ -537,26 +456,6 @@ function drawDragNode(e) {
   }
 }
 
-
-function addNodeContent(e) {
-    var nodeId = hoveredNode;
-    
-    var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredNode;
-    
-    var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
-    
-    // Don't know why the elements does not append. TODO
-    var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
-    
-    nodes.find(x => x.id === hoveredNode).content = true;
-    
-}
-
-function addEdgeContent(e) {
-    console.log("addEdgeContent Triggered!");
-}
-
-
 function drawSelectionArea(e){
     //console.log("Drawing Selection Area");
     if (!selection_area){
@@ -650,4 +549,22 @@ function translateNode(node, x, y, relative=false){
 
 function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
+}
+
+function addNodeContent(e) {
+    var nodeId = hoveredNode;
+    
+    var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredNode;
+    
+    var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
+    
+    // Don't know why the elements does not append. TODO
+    var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
+    
+    nodes.find(x => x.id === hoveredNode).content = true;
+    
+}
+
+function addEdgeContent(e) {
+    console.log("addEdgeContent Triggered!");
 }
