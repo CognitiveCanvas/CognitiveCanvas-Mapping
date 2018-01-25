@@ -14,10 +14,8 @@ var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, duobleClickDragTimer = null;
-var mouseHoverNode = false;
-var hoveredNode = null;
-var mouseHoverEdge = false;
-var hoveredEdge = null;
+var mouseHoverEle = false;
+var hoveredEle = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
@@ -135,25 +133,22 @@ function mouseOverListener(e) {
   
   switch(className) {
     case "node":
-      mouseHoverNode = true;
-      hoveredNode = e.target.getAttribute("id");
-      if (nodes.find(x => x.id === hoveredNode)){
-          if (nodes.find(x => x.id === hoveredNode).content){
-          var addressToFrame = "http://webstrates.ucsd.edu/" + hoveredNode;
-              
-          var wrapper = document.createElement('div');
-          wrapper.setAttribute("id", "showing");
-
-          var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
-              
-          wrapper.innerHTML = toFrame;
-              
-          document.body.appendChild(wrapper);
+      mouseHoverEle = true;
+      hoveredEle = e.target.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+          if (nodes.find(x => x.id === hoveredEle).content){
+            showContent(hoveredEle);
         }
       }
       break;
     case "link":
-      mouseHoverEdge = true;
+      mouseHoverEle = true;
+      hoveredEle = e.target.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+          if (nodes.find(x => x.id === hoveredEle).content){
+          showContent(hoveredEle);
+        }
+      }
       break;
     default:
       break;
@@ -165,40 +160,40 @@ function mouseOutListener(e) {
   
   switch(className) {
     case "node":
-      if (nodes.find(x => x.id === hoveredNode)) {  
-        if (nodes.find(x => x.id === hoveredNode).content){
+      if (nodes.find(x => x.id === hoveredEle)) {  
+        if (nodes.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }     
+      break;
+    case "link":
+      if (nodes.find(x => x.id === hoveredEle)) {  
+        if (nodes.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("showing");
           if (elem) {
             elem.parentNode.removeChild(elem);
           }
         }
       }
-                
-      mouseHoverNode = false;
-      hoveredNode = null;
-      break;
-    case "link":
-      mouseHoverEdge = false;
       break;
     default:
       break;
   }
+  mouseHoverEle = false;
+  hoveredEle = null;
 }
 
 function keyPressListener(e) {
   var keyCode = e.which;
-    
-  if (keyCode == 97) {
-
-    if (mouseHoverNode){
-      addNodeContent(e);
-    }
-    else if (mouseHoverEdge){
-      addEdgeContent(e);
-    }
-    
+  
+  switch(keyCode) {
+    case 97:
+      if (mouseHoverEle) addEleContent(e);
   }
-    
+   
 }
 
 /*
@@ -325,6 +320,7 @@ function drawLink(link) {
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
+    .attr("id", link.id)
     .attr("source_id", link.sourceId)
     .attr("target_id", link.destId)
     .attr("xmlns", "http://www.w3.org/2000/svg");
@@ -551,20 +547,23 @@ function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
 }
 
-function addNodeContent(e) {
-    var nodeId = hoveredNode;
+function addEleContent(e) {
+  var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
+
+  var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
     
-    var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredNode;
+  // Don't know why the elements does not append. TODO
+  var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
     
-    var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
-    
-    // Don't know why the elements does not append. TODO
-    var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
-    
-    nodes.find(x => x.id === hoveredNode).content = true;
+  nodes.find(x => x.id === hoveredEle).content = true;
     
 }
 
-function addEdgeContent(e) {
-    console.log("addEdgeContent Triggered!");
+function showContent(ele) {
+    var addressToFrame = "http://webstrates.ucsd.edu/" + ele;
+    var wrapper = document.createElement('div');
+    wrapper.setAttribute("id", "showing");
+    var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+    wrapper.innerHTML = toFrame;
+    document.body.appendChild(wrapper);
 }
