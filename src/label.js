@@ -29,8 +29,7 @@ function addLabel(text, target){
 
   switch(name){
     case "node":
-      var translation = target.parentNode.getAttribute("transform");
-      translation = translation.substring(9).replace("(", "").replace(")","").split(",");
+      translation = getNodePosition(target.parentNode);
       cx = translation[0] - 10;
       cy = translation[1] - 10;
       break;
@@ -51,7 +50,7 @@ function addLabel(text, target){
   label.style.top = cy + "px";
   label.setAttribute("contenteditable", "true");
   label.onkeypress = (e) => {
-    console.log(e.key)
+    //console.log(e.key)
     switch(e.key){
       case "Enter":
         var txt = label.textContent;
