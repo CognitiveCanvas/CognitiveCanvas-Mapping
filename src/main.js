@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, active_node, dragged_node = null;
+var clientId, active_node, dragged_object = null;
 var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
