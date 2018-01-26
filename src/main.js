@@ -7,6 +7,11 @@ var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
 var radius = 20;
+var height = 40;
+var width = 40;
+var defaultSize = null;
+var defaultShape = "circle";
+var defaultColor = "#f00";
 
 /* interact.js */
 var mouseUp = 0;
@@ -207,18 +212,21 @@ function singleClickEvent(e) {
   } else if(dragged_object){
     //console.log("single click while there is a dragged object");
   } else {
+    let addedNode = null;
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        drawNode(addNode, e.clientX, e.clientY, radius);
+        addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
         break;
       case "link":
         break;
       case "selection_area":
-        drawNode(addNode, e.clientX, e.clientY, radius);
-        addNodeToGroup(addNode, e.target);
+        addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        addNodeToGroup(addedNode, e.target);
         break;
       default:
         break;
@@ -291,22 +299,44 @@ function deleteEntity(entities, id) {
   }
 }
 
-function drawNode(node, cx, cy, radius) {
+function drawNode(node, cx, cy, shape, radius, color) {
   let x = parseInt(cx)
   let y = parseInt(cy)
 
+  if (shape === "circle") {
   d3.select(canvas)
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
     .attr("transform", "translate("+x+","+y+")")
-    .append("circle")
+    .append(shape)
     .attr("class", "node-rep")
+    .style("fill", color)
+    .style("z-index", 1)
     .attr("r", radius)
     .attr("cx", 0)
     .attr("cy", 0)
     .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
+  }
+
+  if (shape === "rect") {
+    d3.select(canvas)
+    .append("g")
+    .attr("class", "node")
+    .attr("id", node.id)
+    .attr("transform", "translate("+x+","+y+")")
+    .append(shape)
+    .attr("class", "node-rep")
+    .style("fill", color)
+    .style("z-index", 1)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("id", node.id)
+    .attr("xmlns", "http://www.w3.org/2000/svg");
+  }
 }
 
 function drawLink(link) {
@@ -367,8 +397,9 @@ webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, cl
 
 function onLoaded(webstrateId, clientId, user) {
   this.clientId = clientId;
-
+  getDefaultStyle();
   initDragLine();
+  initDataElement();
 }
 
 function initDragLine() {
@@ -384,6 +415,20 @@ function initDragLine() {
       .attr("y2", 0);
 
     drag_line = document.getElementById("drag_line");
+  }
+}
+
+function getDefaultStyle() {
+  let defaultStyle = document.getElementsByTagName(DEFAULT_STYLE)[0];
+
+  if (defaultStyle) {
+    defaultShape = defaultStyle.getAttribute("shape") 
+                  ? defaultStyle.getAttribute("shape")
+                  : defaultShape;
+
+    defaultColor = defaultStyle.getAttribute("color") 
+                  ? defaultStyle.getAttribute("color")
+                  : defaultColor;
   }
 }
 
@@ -511,7 +556,6 @@ function drawSelectionArea(e){
 }
     
 function createGroup(){
-
   //console.log("creating group");
   var left = Number(selection_area.attr("x"));
   var right = left + Number(selection_area.attr("width"));
