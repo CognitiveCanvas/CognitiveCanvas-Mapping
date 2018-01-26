@@ -14,7 +14,6 @@ var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, doubleClickDragTimer = null;
-var mouseHoverEle = false;
 var hoveredEle = null;
 
 // drag_line & source_node are stored as html element
@@ -133,7 +132,6 @@ function mouseOverListener(e) {
     
   switch(className) {
     case "node":
-      mouseHoverEle = true;
       hoveredEle = e.target.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
           if (nodes.find(x => x.id === hoveredEle).content){
@@ -142,7 +140,6 @@ function mouseOverListener(e) {
       }
       break;
     case "link":
-      mouseHoverEle = true;
       hoveredEle = e.target.getAttribute("id");
       if (links.find(x => x.id === hoveredEle)){
           if (links.find(x => x.id === hoveredEle).content){
@@ -182,7 +179,6 @@ function mouseOutListener(e) {
     default:
       break;
   }
-  mouseHoverEle = false;
   hoveredEle = null;
 }
 
@@ -191,7 +187,7 @@ function keyPressListener(e) {
   
   switch(keyCode) {
     case 97:
-      if (mouseHoverEle) addEleContent(e);
+      if (hoveredEle) addEleContent(e);
   }
    
 }
@@ -214,17 +210,15 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
+        drawNode(addNode, e.clientX, e.clientY, radius);
         break;
       case "node":
         break;
       case "link":
         break;
       case "selection_area":
-        var addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
-        addNodeToGroup(addedNode, e.target);
+        drawNode(addNode, e.clientX, e.clientY, radius);
+        addNodeToGroup(addNode, e.target);
         break;
       default:
         break;
