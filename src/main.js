@@ -14,6 +14,7 @@ var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, doubleClickDragTimer = null;
+var hoveredEle = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
@@ -25,6 +26,9 @@ canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
 canvas.addEventListener("contextmenu", (e) => rightClickListener(e));
 canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
+canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
+canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
+window.addEventListener("keypress", (e) => keyPressListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
@@ -122,6 +126,72 @@ function mouseMoveListener(e) {
   }
 }
 
+
+function mouseOverListener(e) {
+  let className = e.target.getAttribute("class").split("-")[0];
+    
+  switch(className) {
+    case "node":
+      hoveredEle = e.target.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+          if (nodes.find(x => x.id === hoveredEle).content){
+            showContent(hoveredEle);
+        }
+      }
+      break;
+    case "link":
+      hoveredEle = e.target.getAttribute("id");
+      if (links.find(x => x.id === hoveredEle)){
+          if (links.find(x => x.id === hoveredEle).content){
+          showContent(hoveredEle);
+        }
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+function mouseOutListener(e) {
+  let className = e.target.getAttribute("class").split("-")[0];
+  
+  switch(className) {
+    case "node":
+      if (nodes.find(x => x.id === hoveredEle)) {  
+        if (nodes.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }     
+      break;
+    case "link":
+      if (links.find(x => x.id === hoveredEle)) {  
+        if (links.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }
+      break;
+    default:
+      break;
+  }
+  hoveredEle = null;
+}
+
+function keyPressListener(e) {
+  var keyCode = e.which;
+  
+  switch(keyCode) {
+    case 97:
+      if (hoveredEle) addEleContent(e);
+  }
+   
+}
+
 /*
  * Single click interaction
  * - canvas: add a new node
@@ -140,17 +210,15 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
+        drawNode(addNode, e.clientX, e.clientY, radius);
         break;
       case "node":
         break;
       case "link":
         break;
       case "selection_area":
-        var addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
-        addNodeToGroup(addedNode, e.target);
+        drawNode(addNode, e.clientX, e.clientY, radius);
+        addNodeToGroup(addNode, e.target);
         break;
       default:
         break;
@@ -194,20 +262,22 @@ function doubleClickEvent(e) {
 }
 
 
+
+
 /* entity.js */
 function getID() {
   return clientId + "_" + Date.now();
 }
 
 function addNode() {
-  let node = { type: "node", id: getID() };
+  let node = { type: "node", id: getID(), content: false };
   n = nodes.push(node);
 
   return node;
 }
 
 function addLink(sourceId, destId) {
-  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId };
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: false };
   l = links.push(link);
 
   //console.log("add link", links);
@@ -259,6 +329,7 @@ function drawLink(link) {
     .attr("target_id", link.destId)
     .append("line")
     .attr("class", "link-rep")
+    .attr("id", link.id)
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
@@ -525,4 +596,34 @@ function translateNode(node, x, y, relative=false){
 
 function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
+}
+
+function addEleContent(e) {
+  var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
+
+  var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
+    
+  // Don't know why the elements does not append. TODO
+  var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
+    
+  if (nodes.find(x => x.id === hoveredEle)) {
+    nodes.find(x => x.id === hoveredEle).content = true;
+  }
+  else if (links.find(x => x.id === hoveredEle)) {
+    links.find(x => x.id === hoveredEle).content = true;
+  }
+  else {
+      console.warn("Node/Link NOT FOUND");
+  }
+  
+    
+}
+
+function showContent(ele) {
+    var addressToFrame = "http://webstrates.ucsd.edu/" + ele;
+    var wrapper = document.createElement('div');
+    wrapper.setAttribute("id", "showing");
+    var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+    wrapper.innerHTML = toFrame;
+    document.body.appendChild(wrapper);
 }
