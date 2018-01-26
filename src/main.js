@@ -18,31 +18,35 @@ var mouseUp = 0;
 var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
-var singleClickTimer, duobleClickDragTimer = null;
+var singleClickTimer, doubleClickDragTimer = null;
+var hoveredEle = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
 var source_node = null;
 var selection_area = null;
-var zoom = null;
+var zoom = null; 
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
 canvas.addEventListener("contextmenu", (e) => rightClickListener(e));
 canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
+canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
+canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
+window.addEventListener("keypress", (e) => keyPressListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
+
+  if(mouseUp === 1 && dragged_object && !mouseMoved ){
+    dragged_object = null;
+  }
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
       console.log("single click");
       singleClickEvent(e);
     }, delay);
-
-    if (mouseMoved) {
-      resetState();
-    }
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
     console.log("double click");
@@ -108,23 +112,89 @@ function mouseMoveListener(e) {
   if (mouseDown > 0) {
     mouseMoved = true
   }
-
   if (mouseDown === 1 && mouseUp === 0) {
-    var selection = d3.select(e.target);
     if(dragged_object){
       var selection = d3.select(dragged_object);
-      if(selection.classed("node-rep")){
+      if(selection.classed("node")){
         drawDragNode(e);
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else if(selection.classed("canvas")){
+    }else{
+      console.log("drawing selection area");
       drawSelectionArea(e);
+
     }
   }
   else if (mouseDown === 2) {
-    drawDragLine(e)
+    drawDragLine(e);
   }
+}
+
+
+function mouseOverListener(e) {
+  let className = e.target.getAttribute("class").split("-")[0];
+    
+  switch(className) {
+    case "node":
+      hoveredEle = e.target.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+          if (nodes.find(x => x.id === hoveredEle).content){
+            showContent(hoveredEle);
+        }
+      }
+      break;
+    case "link":
+      hoveredEle = e.target.getAttribute("id");
+      if (links.find(x => x.id === hoveredEle)){
+          if (links.find(x => x.id === hoveredEle).content){
+          showContent(hoveredEle);
+        }
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+function mouseOutListener(e) {
+  let className = e.target.getAttribute("class").split("-")[0];
+  
+  switch(className) {
+    case "node":
+      if (nodes.find(x => x.id === hoveredEle)) {  
+        if (nodes.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }     
+      break;
+    case "link":
+      if (links.find(x => x.id === hoveredEle)) {  
+        if (links.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("showing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }
+      break;
+    default:
+      break;
+  }
+  hoveredEle = null;
+}
+
+function keyPressListener(e) {
+  var keyCode = e.which;
+  
+  switch(keyCode) {
+    case 97:
+      if (hoveredEle) addEleContent(e);
+  }
+   
 }
 
 /*
@@ -137,18 +207,25 @@ function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
+    //console.log("single click while there is a selection area");
     createGroup();
-  } else{
+  } else if(dragged_object){
+    //console.log("single click while there is a dragged object");
+  } else {
+    //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        drawNode(addNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
         break;
       case "link":
         break;
-      default: 
+      case "selection_area":
+        drawNode(addNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        addNodeToGroup(addNode, e.target);
+        break;
+      default:
         break;
     }
   }
@@ -166,14 +243,12 @@ function singleClickEvent(e) {
  */
 function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
-  let selection = d3.select(e.target);
+  let selection = d3.select(e.target.parentNode);
   let className = selection.attr("class").split(" ")[0]
-
+  console.log(className);
   switch(className) {
     case "node":
-      x = selection.attr("cx");
-      y = selection.attr("cy");
-      addLabel("node", x - 10, y - 10);
+      addLabel("node", e.target);
       break;
     case "link":
       x1 = selection.attr("x1");
@@ -182,7 +257,7 @@ function doubleClickEvent(e) {
       y2 = selection.attr("y2");
       mx = (parseInt(x1) + parseInt(x2)) / 2;
       my = (parseInt(y1) + parseInt(y2)) / 2;
-      addLabel("edge", mx, my);
+      addLabel("edge", e.target);
       break;
     default:
       break;
@@ -192,23 +267,25 @@ function doubleClickEvent(e) {
 }
 
 
+
+
 /* entity.js */
 function getID() {
   return clientId + "_" + Date.now();
 }
 
 function addNode() {
-  let node = { type: "node", id: getID() };
+  let node = { type: "node", id: getID(), content: false };
   n = nodes.push(node);
 
   return node;
 }
 
 function addLink(sourceId, destId) {
-  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId };
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: false };
   l = links.push(link);
 
-  console.log("add link", links);
+  //console.log("add link", links);
   return link;
 }
 
@@ -268,7 +345,7 @@ function drawLink(link) {
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
 
-  console.log("linkSrcNode", linkSrcNode)
+  //console.log("linkSrcNode", linkSrcNode)
 
 
   d3.select(canvas)
@@ -279,6 +356,7 @@ function drawLink(link) {
     .attr("target_id", link.destId)
     .append("line")
     .attr("class", "link-rep")
+    .attr("id", link.id)
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
@@ -295,6 +373,13 @@ function removeNode(node) {
 
   d3.selectAll(`[target_id=${node_id}]`)
     .remove();
+
+
+  d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
+    .each(function(){
+      let group = d3.select(this);
+      group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
+    });
 
   node_d3.remove();
 }
@@ -345,30 +430,36 @@ function getDefaultStyle() {
 }
 
 function addLabel(text, cx, cy) {
-  var container = document.getElementById("d3_container")
-  var label = document.createElement("div");
-  label.appendChild(document.createTextNode(text));
-  label.setAttribute("contenteditable", "true");
-  label.style.position = "absolute";
-  label.setAttribute("z-index", "1");
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
-  container.appendChild(label);
+  // var container = document.getElementById("d3_container")
+  // var label = document.createElement("div");
+  // label.appendChild(document.createTextNode(text));
+  // label.setAttribute("contenteditable", "true");
+  // label.style.position = "absolute";
+  // label.setAttribute("z-index", "1");
+  // label.style.left = cx + "px";
+  // label.style.top = cy + "px";
+  // container.appendChild(label);
+  console.log('old label maker')
 }
 
+
+
 function resetState() {
+  //console.log("state was reset");
   mouseDown = 0;
   mouseUp = 0;
   mouseMoved = false;
   source_node = null;
   dragged_object = null;
   drag_offset = [0,0];
+  clearTimeout(singleClickTimer);
+  clearTimeout(doubleClickDragTimer);
 }
 
 function selectDraggedObject(e) {
   var selection = d3.select(e.target)
   if (selection.classed("node-rep")) {
-    dragged_object = e.target;
+    dragged_object = e.target.parentNode;
   } else if(selection.classed("selection_area")){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
@@ -420,6 +511,7 @@ function drawDragLine(e) {
 }
 
 function drawDragNode(e) {
+  //console.log("drawing drag node");
   if (dragged_object != null) {
     let selected_id = d3.select(dragged_object).attr("id");
 
@@ -428,8 +520,8 @@ function drawDragNode(e) {
 }
 
 function drawSelectionArea(e){
-    //console.log("Drawing Selection Area");
     if (!selection_area){
+      //console.log("Creating Selection Area");
         selection_area = d3.select(canvas).insert("rect", ":first-child")
             .classed("selection_area", true)
             .attr("x", e.pageX)
@@ -438,42 +530,58 @@ function drawSelectionArea(e){
             .attr("height", 0)
         //console.log("selection is created");
     }
-    selection_area
-        .attr("width", e.pageX - selection_area.attr("x"))
-        .attr("height", e.pageY - selection_area.attr("y"));
+    var rectX = Number(selection_area.attr("x"));
+    var rectY = Number(selection_area.attr("y"));
+    var width = Number(selection_area.attr("width"));
+    var height = Number(selection_area.attr("height"));
+    var midX = rectX + width / 2;
+    var midY = rectY + height / 2;
+
+    if( e.pageX > midX ){
+      selection_area.attr("width", e.pageX - rectX);
+    } else{
+      selection_area.attr("width", rectX - e.pageX + width);
+      selection_area.attr("x", e.pageX);
+    }
+    if( e.pageY > midY ){
+      selection_area.attr("height", e.pageY - rectY);
+    } else{
+      selection_area.attr("height", rectY - e.pageY + height);
+      selection_area.attr("y", e.pageY);
+    }
     //console.log("selection area drawn");
 }
     
 function createGroup(){
-  console.log("creating group");
-  var left = selection_area.attr("x");
-  var right = left + selection_area.attr("width");
-  var top = selection_area.attr("y");
-  var bottom = top + selection_area.attr("height");
+  //console.log("creating group");
+  var left = Number(selection_area.attr("x"));
+  var right = left + Number(selection_area.attr("width"));
+  var top = Number(selection_area.attr("y"));
+  var bottom = top + Number(selection_area.attr("height"));
 
-  var grouped_nodes = d3.selectAll(".node")
-  //var children_ids = [];
-  console.log(grouped_nodes)
-  grouped_nodes.filter( function() {
-      var position = getNodePosition(this);
-      var x = position[0];
-      var y = position[1];
-      return x >= left
-          && x <= right
-          && y >= top 
-          && y <= bottom;
-      });
-  console.log(grouped_nodes)
+  var allNodes = d3.selectAll(".node")
+  var children_ids = [];
+  //console.log(grouped_nodes);
+  //console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
+  var grouped_nodes = allNodes.filter( function() {
+    var position = getNodePosition(this);
+    var x = position[0];
+    var y = position[1];
+    //console.log("x: ", x, ", y: ", y);
+    return x >= left && x <= right && y >= top && y <= bottom;
+  });
+  //console.log(grouped_nodes)
   grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
   selection_area.attr("children_ids", children_ids.join(" "));
   
   selection_area = null;
   dragged_object = null;
+  console.log('creating the group')
 }
 
 function moveGroup(group, x, y){
   var group = d3.select(group);
-  var nodeIds = group.attr("children_ids").split(" ");
+  var nodeIds = group.attr("children_ids").split(" ").filter(x => x);
 
   var xMove = x - group.attr("x") + drag_offset[0];
   var yMove = y - group.attr("y") + drag_offset[1];
@@ -486,6 +594,15 @@ function moveGroup(group, x, y){
 
   group.attr("x", x + drag_offset[0]);
   group.attr("y", y + drag_offset[1]);
+}
+
+function addNodeToGroup(node, group){
+  let new_children_ids = String(group.getAttribute("children_ids"))
+    .split(" ")
+    .filter(x => x);
+  new_children_ids.push(node.id);
+  new_children_ids = new_children_ids.join(' ');
+  group.setAttribute("children_ids", new_children_ids);
 }
 
 //TODO: Improve efficiency
@@ -503,7 +620,7 @@ function translateNode(node, x, y, relative=false){
     y += position[1];
   }
 
-  var g = d3.select(node.parentNode);
+  var g = d3.select(node);
   g.attr("transform", "translate(" + x + "," + y + ")");
 
   let selected_id = d3.select(node).attr("id");
@@ -522,4 +639,32 @@ function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
 }
 
+function addEleContent(e) {
+  var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
 
+  var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
+    
+  // Don't know why the elements does not append. TODO
+  var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
+    
+  if (nodes.find(x => x.id === hoveredEle)) {
+    nodes.find(x => x.id === hoveredEle).content = true;
+  }
+  else if (links.find(x => x.id === hoveredEle)) {
+    links.find(x => x.id === hoveredEle).content = true;
+  }
+  else {
+      console.warn("Node/Link NOT FOUND");
+  }
+  
+    
+}
+
+function showContent(ele) {
+    var addressToFrame = "http://webstrates.ucsd.edu/" + ele;
+    var wrapper = document.createElement('div');
+    wrapper.setAttribute("id", "showing");
+    var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+    wrapper.innerHTML = toFrame;
+    document.body.appendChild(wrapper);
+}
