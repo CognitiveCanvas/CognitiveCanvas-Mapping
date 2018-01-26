@@ -7,6 +7,11 @@ var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
 var radius = 20;
+var height = 40;
+var width = 40;
+var defaultSize = null;
+var defaultShape = "circle";
+var defaultColor = "#f00";
 
 /* interact.js */
 var mouseUp = 0;
@@ -28,8 +33,6 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
-
-  //console.log("mouse up", mouseUp);
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
@@ -58,7 +61,6 @@ function mouseDownListener(e) {
   mouseDown++;
   e.preventDefault();
 
-  //console.log("mouse down", mouseDown);
   if (mouseDown === 1) {
     selectDraggedObject(e);
   }
@@ -67,7 +69,7 @@ function mouseDownListener(e) {
     selectSrcNode(e);
     doubleClickDragTimer = setTimeout(() => {
       let className = e.target.getAttribute("class").split(" ")[0];
-      if (className === "node") {
+      if (className === "node-rep") {
         revealDragLine();
       }
     }, delay);
@@ -83,15 +85,15 @@ function rightClickListener(e) {
   if (className != "canvas") {
     e.preventDefault();
   }
-  
+
   switch(className) {
-    case "node":
-      deleteEntity(nodes, e.target.getAttribute("id"));
-      removeNode(e.target);
+    case "node-rep":
+      deleteEntity(nodes, e.target.parentNode.getAttribute("id"));
+      removeNode(e.target.parentNode);
       break;
-    case "link":
-      deleteEntity(links, e.target.getAttribute("id"));
-      removeLink(e.target);
+    case "link-rep":
+      deleteEntity(links, e.target.parentNode.getAttribute("id"));
+      removeLink(e.target.parentNode);
       break;
     case "selection_area":
       d3.select(e.target).remove();
@@ -103,7 +105,6 @@ function rightClickListener(e) {
 }
 
 function mouseMoveListener(e) {
-  //console.log("mouse moved");
   if (mouseDown > 0) {
     mouseMoved = true
   }
@@ -112,7 +113,7 @@ function mouseMoveListener(e) {
     var selection = d3.select(e.target);
     if(dragged_object){
       var selection = d3.select(dragged_object);
-      if(selection.classed("node")){
+      if(selection.classed("node-rep")){
         drawDragNode(e);
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
@@ -141,7 +142,7 @@ function singleClickEvent(e) {
     switch(entity) {
       case "canvas":
         let addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, radius);
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
         break;
@@ -218,21 +219,44 @@ function deleteEntity(entities, id) {
   }
 }
 
-function drawNode(node, cx, cy, radius) {
+function drawNode(node, cx, cy, shape, radius, color) {
   let x = parseInt(cx)
   let y = parseInt(cy)
 
+  if (shape === "circle") {
   d3.select(canvas)
     .append("g")
-    .attr("class", "node_group")
-    .attr("transform", "translate("+x+","+y+")")
-    .append("circle")
     .attr("class", "node")
+    .attr("id", node.id)
+    .attr("transform", "translate("+x+","+y+")")
+    .append(shape)
+    .attr("class", "node-rep")
+    .style("fill", color)
+    .style("z-index", 1)
     .attr("r", radius)
     .attr("cx", 0)
     .attr("cy", 0)
     .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
+  }
+
+  if (shape === "rect") {
+    d3.select(canvas)
+    .append("g")
+    .attr("class", "node")
+    .attr("id", node.id)
+    .attr("transform", "translate("+x+","+y+")")
+    .append(shape)
+    .attr("class", "node-rep")
+    .style("fill", color)
+    .style("z-index", 1)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("id", node.id)
+    .attr("xmlns", "http://www.w3.org/2000/svg");
+  }
 }
 
 function drawLink(link) {
@@ -244,17 +268,21 @@ function drawLink(link) {
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
 
+  console.log("linkSrcNode", linkSrcNode)
+
+
   d3.select(canvas)
     .insert("g", ":first-child")
-    .attr("class", "link_group")
-    .append("line")
     .attr("class", "link")
+    .attr("id", link.id)
+    .attr("source_id", link.sourceId)
+    .attr("target_id", link.destId)
+    .append("line")
+    .attr("class", "link-rep")
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
-    .attr("source_id", link.sourceId)
-    .attr("target_id", link.destId)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
@@ -281,8 +309,9 @@ webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, cl
 
 function onLoaded(webstrateId, clientId, user) {
   this.clientId = clientId;
-
+  getDefaultStyle();
   initDragLine();
+  initDataElement();
 }
 
 function initDragLine() {
@@ -298,6 +327,20 @@ function initDragLine() {
       .attr("y2", 0);
 
     drag_line = document.getElementById("drag_line");
+  }
+}
+
+function getDefaultStyle() {
+  let defaultStyle = document.getElementsByTagName(DEFAULT_STYLE)[0];
+
+  if (defaultStyle) {
+    defaultShape = defaultStyle.getAttribute("shape") 
+                  ? defaultStyle.getAttribute("shape")
+                  : defaultShape;
+
+    defaultColor = defaultStyle.getAttribute("color") 
+                  ? defaultStyle.getAttribute("color")
+                  : defaultColor;
   }
 }
 
@@ -324,7 +367,7 @@ function resetState() {
 
 function selectDraggedObject(e) {
   var selection = d3.select(e.target)
-  if (selection.classed("node")) {
+  if (selection.classed("node-rep")) {
     dragged_object = e.target;
   } else if(selection.classed("selection_area")){
     dragged_object = e.target;
@@ -340,7 +383,7 @@ function selectLineDest(e) {
   }
   var selection = d3.select(e.target)
   let sourceNode = d3.select(source_node);
-  if (sourceNode && selection.classed("node")) {
+  if (sourceNode && selection.classed("node-rep")) {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
     drawLink(addedLink);
     source_node = null;
@@ -363,7 +406,7 @@ function hideDragLine() {
 }
 
 function selectSrcNode(e) {
-  source_node = e.target;
+  source_node = e.target.parentNode;
 }
 
 function drawDragLine(e) {
@@ -409,7 +452,7 @@ function createGroup(){
   var bottom = top + selection_area.attr("height");
 
   var grouped_nodes = d3.selectAll(".node")
-  var children_ids = [];
+  //var children_ids = [];
   console.log(grouped_nodes)
   grouped_nodes.filter( function() {
       var position = getNodePosition(this);
@@ -465,16 +508,18 @@ function translateNode(node, x, y, relative=false){
 
   let selected_id = d3.select(node).attr("id");
 
-    d3.selectAll(`[source_id=${selected_id}]`)
-      .attr("x1", x)
-      .attr("y1", y);
+  d3.selectAll(`[source_id=${selected_id}] > [class="link-rep"]`)
+    .attr("x1", x)
+    .attr("y1", y);
 
-    d3.selectAll(`[target_id=${selected_id}]`)
-      .attr("x2", x)
-      .attr("y2", y);
+  d3.selectAll(`[target_id=${selected_id}] > [class="link-rep"]`)
+    .attr("x2", x)
+    .attr("y2", y);
 
 }
 
 function getNodePosition(node){
-  return d3.transform(d3.select(node.parentNode).attr("transform")).translate;
+  return d3.transform(d3.select(node).attr("transform")).translate;
 }
+
+
