@@ -20,6 +20,7 @@ body {
     height: 100%;
     width: 100%;
     margin: 0;
+    position: absolute;
 }
 
 .drag_line {
@@ -63,4 +64,10 @@ body {
     stroke: green;
     fill: green;
     fill-opacity: .5;  
+}
+
+.label{
+    stroke-width: 1;
+    fill: green;
+    stroke-color: green;
 }
