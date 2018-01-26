@@ -13,13 +13,13 @@ var mouseUp = 0;
 var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
-var singleClickTimer, duobleClickDragTimer = null;
+var singleClickTimer, doubleClickDragTimer = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
 var source_node = null;
 var selection_area = null;
-var zoom = null;
+var zoom = null; 
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
@@ -29,15 +29,15 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 function mouseUpListener(e) {
   mouseUp++;
 
+  if(mouseUp === 1 && dragged_object && !mouseMoved ){
+    dragged_object = null;
+  }
+
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
       console.log("single click");
       singleClickEvent(e);
     }, delay);
-
-    if (mouseMoved) {
-      resetState();
-    }
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
     console.log("double click");
@@ -103,22 +103,21 @@ function mouseMoveListener(e) {
   if (mouseDown > 0) {
     mouseMoved = true
   }
-
   if (mouseDown === 1 && mouseUp === 0) {
-    var selection = d3.select(e.target);
     if(dragged_object){
       var selection = d3.select(dragged_object);
-      if(selection.classed("node-rep")){
+      if(selection.classed("node")){
         drawDragNode(e);
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else if(selection.classed("canvas")){
+    }else{
+      console.log("drawing selection area");
       drawSelectionArea(e);
     }
   }
   else if (mouseDown === 2) {
-    drawDragLine(e)
+    drawDragLine(e);
   }
 }
 
@@ -132,18 +131,27 @@ function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
+    //console.log("single click while there is a selection area");
     createGroup();
-  } else{
+  } else if(dragged_object){
+    //console.log("single click while there is a dragged object");
+  } else {
+    //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        let addedNode = addNode();
+        var addedNode = addNode();
         drawNode(addedNode, e.clientX, e.clientY, radius);
         break;
       case "node":
         break;
       case "link":
         break;
-      default: 
+      case "selection_area":
+        var addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, radius);
+        addNodeToGroup(addedNode, e.target);
+        break;
+      default:
         break;
     }
   }
@@ -165,7 +173,7 @@ function doubleClickEvent(e) {
   let className = selection.attr("class").split(" ")[0]
 
   switch(className) {
-    case "node":
+    case "node-rep":
       x = selection.attr("cx");
       y = selection.attr("cy");
       addLabel("node", x - 10, y - 10);
@@ -203,7 +211,7 @@ function addLink(sourceId, destId) {
   let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId };
   l = links.push(link);
 
-  console.log("add link", links);
+  //console.log("add link", links);
   return link;
 }
 
@@ -241,7 +249,7 @@ function drawLink(link) {
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
 
-  console.log("linkSrcNode", linkSrcNode)
+  //console.log("linkSrcNode", linkSrcNode)
 
 
   d3.select(canvas)
@@ -268,6 +276,13 @@ function removeNode(node) {
 
   d3.selectAll(`[target_id=${node_id}]`)
     .remove();
+
+
+  d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
+    .each(function(){
+      let group = d3.select(this);
+      group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
+    });
 
   node_d3.remove();
 }
@@ -315,18 +330,21 @@ function addLabel(text, cx, cy) {
 }
 
 function resetState() {
+  //console.log("state was reset");
   mouseDown = 0;
   mouseUp = 0;
   mouseMoved = false;
   source_node = null;
   dragged_object = null;
   drag_offset = [0,0];
+  clearTimeout(singleClickTimer);
+  clearTimeout(doubleClickDragTimer);
 }
 
 function selectDraggedObject(e) {
   var selection = d3.select(e.target)
   if (selection.classed("node-rep")) {
-    dragged_object = e.target;
+    dragged_object = e.target.parentNode;
   } else if(selection.classed("selection_area")){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
@@ -378,6 +396,7 @@ function drawDragLine(e) {
 }
 
 function drawDragNode(e) {
+  //console.log("drawing drag node");
   if (dragged_object != null) {
     let selected_id = d3.select(dragged_object).attr("id");
 
@@ -386,8 +405,8 @@ function drawDragNode(e) {
 }
 
 function drawSelectionArea(e){
-    //console.log("Drawing Selection Area");
     if (!selection_area){
+      //console.log("Creating Selection Area");
         selection_area = d3.select(canvas).insert("rect", ":first-child")
             .classed("selection_area", true)
             .attr("x", e.pageX)
@@ -396,32 +415,47 @@ function drawSelectionArea(e){
             .attr("height", 0)
         //console.log("selection is created");
     }
-    selection_area
-        .attr("width", e.pageX - selection_area.attr("x"))
-        .attr("height", e.pageY - selection_area.attr("y"));
+    var rectX = Number(selection_area.attr("x"));
+    var rectY = Number(selection_area.attr("y"));
+    var width = Number(selection_area.attr("width"));
+    var height = Number(selection_area.attr("height"));
+    var midX = rectX + width / 2;
+    var midY = rectY + height / 2;
+
+    if( e.pageX > midX ){
+      selection_area.attr("width", e.pageX - rectX);
+    } else{
+      selection_area.attr("width", rectX - e.pageX + width);
+      selection_area.attr("x", e.pageX);
+    }
+    if( e.pageY > midY ){
+      selection_area.attr("height", e.pageY - rectY);
+    } else{
+      selection_area.attr("height", rectY - e.pageY + height);
+      selection_area.attr("y", e.pageY);
+    }
     //console.log("selection area drawn");
 }
     
 function createGroup(){
-  console.log("creating group");
-  var left = selection_area.attr("x");
-  var right = left + selection_area.attr("width");
-  var top = selection_area.attr("y");
-  var bottom = top + selection_area.attr("height");
+  //console.log("creating group");
+  var left = Number(selection_area.attr("x"));
+  var right = left + Number(selection_area.attr("width"));
+  var top = Number(selection_area.attr("y"));
+  var bottom = top + Number(selection_area.attr("height"));
 
-  var grouped_nodes = d3.selectAll(".node")
+  var allNodes = d3.selectAll(".node")
   var children_ids = [];
-  console.log(grouped_nodes)
-  grouped_nodes.filter( function() {
-      var position = getNodePosition(this);
-      var x = position[0];
-      var y = position[1];
-      return x >= left
-          && x <= right
-          && y >= top 
-          && y <= bottom;
-      });
-  console.log(grouped_nodes)
+  //console.log(grouped_nodes);
+  //console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
+  var grouped_nodes = allNodes.filter( function() {
+    var position = getNodePosition(this);
+    var x = position[0];
+    var y = position[1];
+    //console.log("x: ", x, ", y: ", y);
+    return x >= left && x <= right && y >= top && y <= bottom;
+  });
+  //console.log(grouped_nodes)
   grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
   selection_area.attr("children_ids", children_ids.join(" "));
   
@@ -431,7 +465,7 @@ function createGroup(){
 
 function moveGroup(group, x, y){
   var group = d3.select(group);
-  var nodeIds = group.attr("children_ids").split(" ");
+  var nodeIds = group.attr("children_ids").split(" ").filter(x => x);
 
   var xMove = x - group.attr("x") + drag_offset[0];
   var yMove = y - group.attr("y") + drag_offset[1];
@@ -444,6 +478,15 @@ function moveGroup(group, x, y){
 
   group.attr("x", x + drag_offset[0]);
   group.attr("y", y + drag_offset[1]);
+}
+
+function addNodeToGroup(node, group){
+  let new_children_ids = String(group.getAttribute("children_ids"))
+    .split(" ")
+    .filter(x => x);
+  new_children_ids.push(node.id);
+  new_children_ids = new_children_ids.join(' ');
+  group.setAttribute("children_ids", new_children_ids);
 }
 
 //TODO: Improve efficiency
@@ -461,7 +504,7 @@ function translateNode(node, x, y, relative=false){
     y += position[1];
   }
 
-  var g = d3.select(node.parentNode);
+  var g = d3.select(node);
   g.attr("transform", "translate(" + x + "," + y + ")");
 
   let selected_id = d3.select(node).attr("id");
