@@ -114,6 +114,7 @@ function mouseMoveListener(e) {
     }else{
       console.log("drawing selection area");
       drawSelectionArea(e);
+
     }
   }
   else if (mouseDown === 2) {
@@ -139,7 +140,7 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        var addedNode = addNode();
+        let addedNode = addNode();
         drawNode(addedNode, e.clientX, e.clientY, radius);
         break;
       case "node":
@@ -169,14 +170,12 @@ function singleClickEvent(e) {
  */
 function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
-  let selection = d3.select(e.target);
+  let selection = d3.select(e.target.parentNode);
   let className = selection.attr("class").split(" ")[0]
-
+  console.log(className);
   switch(className) {
-    case "node-rep":
-      x = selection.attr("cx");
-      y = selection.attr("cy");
-      addLabel("node", x - 10, y - 10);
+    case "node":
+      addLabel("node", e.target);
       break;
     case "link":
       x1 = selection.attr("x1");
@@ -185,7 +184,7 @@ function doubleClickEvent(e) {
       y2 = selection.attr("y2");
       mx = (parseInt(x1) + parseInt(x2)) / 2;
       my = (parseInt(y1) + parseInt(y2)) / 2;
-      addLabel("edge", mx, my);
+      addLabel("edge", e.target);
       break;
     default:
       break;
@@ -318,16 +317,19 @@ function initDragLine() {
 }
 
 function addLabel(text, cx, cy) {
-  var container = document.getElementById("d3_container")
-  var label = document.createElement("div");
-  label.appendChild(document.createTextNode(text));
-  label.setAttribute("contenteditable", "true");
-  label.style.position = "absolute";
-  label.setAttribute("z-index", "1");
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
-  container.appendChild(label);
+  // var container = document.getElementById("d3_container")
+  // var label = document.createElement("div");
+  // label.appendChild(document.createTextNode(text));
+  // label.setAttribute("contenteditable", "true");
+  // label.style.position = "absolute";
+  // label.setAttribute("z-index", "1");
+  // label.style.left = cx + "px";
+  // label.style.top = cy + "px";
+  // container.appendChild(label);
+  console.log('old label maker')
 }
+
+
 
 function resetState() {
   //console.log("state was reset");
@@ -438,6 +440,7 @@ function drawSelectionArea(e){
 }
     
 function createGroup(){
+
   //console.log("creating group");
   var left = Number(selection_area.attr("x"));
   var right = left + Number(selection_area.attr("width"));
@@ -461,6 +464,7 @@ function createGroup(){
   
   selection_area = null;
   dragged_object = null;
+  console.log('creating the group')
 }
 
 function moveGroup(group, x, y){
