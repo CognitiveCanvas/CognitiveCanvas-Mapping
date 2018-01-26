@@ -174,18 +174,16 @@ function doubleClickEvent(e) {
 
   switch(className) {
     case "node-rep":
-      x = selection.attr("cx");
-      y = selection.attr("cy");
-      addLabel("node", x - 10, y - 10);
+      addLabel("node", e.target);
       break;
-    case "link":
+    case "link-rep":
       x1 = selection.attr("x1");
       x2 = selection.attr("x2");
       y1 = selection.attr("y1");
       y2 = selection.attr("y2");
       mx = (parseInt(x1) + parseInt(x2)) / 2;
       my = (parseInt(y1) + parseInt(y2)) / 2;
-      addLabel("edge", mx, my);
+      addLabel("edge", e.target);
       break;
     default:
       break;

@@ -64,3 +64,9 @@ body {
     fill: green;
     fill-opacity: .5;  
 }
+
+.label{
+    stroke-width: 1;
+    fill: green;
+    stroke-color: green;
+}
