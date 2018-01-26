@@ -140,7 +140,7 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        var addedNode = addNode();
+        let addedNode = addNode();
         drawNode(addedNode, e.clientX, e.clientY, radius);
         break;
       case "node":
