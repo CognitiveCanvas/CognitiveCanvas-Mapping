@@ -25,7 +25,13 @@ var hoveredEle = null;
 var drag_line = null;
 var source_node = null;
 var selection_area = null;
-var zoom = null; 
+var zoom = null;
+
+// quick add vars
+var quickAdd = false;
+var quickAddX = 0;
+var quickAddY = 0;
+var quickAddDist = 70;
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
@@ -134,7 +140,7 @@ function mouseMoveListener(e) {
 
 function mouseOverListener(e) {
   let className = e.target.getAttribute("class").split("-")[0];
-    
+
   switch(className) {
     case "node":
       hoveredEle = e.target.getAttribute("id");
@@ -159,20 +165,20 @@ function mouseOverListener(e) {
 
 function mouseOutListener(e) {
   let className = e.target.getAttribute("class").split("-")[0];
-  
+
   switch(className) {
     case "node":
-      if (nodes.find(x => x.id === hoveredEle)) {  
+      if (nodes.find(x => x.id === hoveredEle)) {
         if (nodes.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("showing");
           if (elem) {
             elem.parentNode.removeChild(elem);
           }
         }
-      }     
+      }
       break;
     case "link":
-      if (links.find(x => x.id === hoveredEle)) {  
+      if (links.find(x => x.id === hoveredEle)) {
         if (links.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("showing");
           if (elem) {
@@ -189,19 +195,37 @@ function mouseOutListener(e) {
 
 function keyPressListener(e) {
   var keyCode = e.which;
-  
+
   switch(keyCode) {
-    case 97:
+    case 9: // Tab
+      if (quickAdd) {
+        e.preventDefault();
+        quickAddX += quickAddDist;
+        let addedNode = addNode();
+        drawNode(addedNode, quickAddX, quickAddY, radius);
+      }
+      break;
+    case 13: // Enter
+      if (quickAdd) {
+        quickAddY += quickAddDist;
+        let addedNode = addNode();
+        drawNode(addedNode, quickAddX, quickAddY, radius);
+      }
+      break;
+    case 81: // Q
+      quickAdd = !quickAdd;
+      break
+    case 97: // #1
       if (hoveredEle) addEleContent(e);
+      break;
   }
-   
 }
 
 /*
  * Single click interaction
  * - canvas: add a new node
  * - existing node:
- * - existing link: 
+ * - existing link:
  */
 function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
@@ -217,6 +241,8 @@ function singleClickEvent(e) {
     switch(entity) {
       case "canvas":
         addedNode = addNode();
+        quickAddX = e.clientX;
+        quickAddY = e.clientY;
         drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
@@ -242,7 +268,7 @@ function singleClickEvent(e) {
  * - canvas:
  * - existing node: add label
  * - existing link: add label
- * 
+ *
  */
 function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
@@ -422,11 +448,11 @@ function getDefaultStyle() {
   let defaultStyle = document.getElementsByTagName(DEFAULT_STYLE)[0];
 
   if (defaultStyle) {
-    defaultShape = defaultStyle.getAttribute("shape") 
+    defaultShape = defaultStyle.getAttribute("shape")
                   ? defaultStyle.getAttribute("shape")
                   : defaultShape;
 
-    defaultColor = defaultStyle.getAttribute("color") 
+    defaultColor = defaultStyle.getAttribute("color")
                   ? defaultStyle.getAttribute("color")
                   : defaultColor;
   }
@@ -554,7 +580,7 @@ function drawSelectionArea(e){
     }
     //console.log("selection area drawn");
 }
-    
+
 function createGroup(){
   //console.log("creating group");
   var left = Number(selection_area.attr("x"));
@@ -576,7 +602,7 @@ function createGroup(){
   //console.log(grouped_nodes)
   grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
   selection_area.attr("children_ids", children_ids.join(" "));
-  
+
   selection_area = null;
   dragged_object = null;
   console.log('creating the group')
@@ -612,8 +638,8 @@ function addNodeToGroup(node, group){
 //Helper Function to move a node group
 /**
 node: the node to move along with its links
-x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead 
-y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead 
+x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
+y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
 **/
 function translateNode(node, x, y, relative=false){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
@@ -646,10 +672,10 @@ function addEleContent(e) {
   var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
 
   var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
-    
+
   // Don't know why the elements does not append. TODO
   var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
-    
+
   if (nodes.find(x => x.id === hoveredEle)) {
     nodes.find(x => x.id === hoveredEle).content = true;
   }
@@ -659,8 +685,8 @@ function addEleContent(e) {
   else {
       console.warn("Node/Link NOT FOUND");
   }
-  
-    
+
+
 }
 
 function showContent(ele) {
