@@ -13,7 +13,7 @@ var mouseUp = 0;
 var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
-var singleClickTimer, duobleClickDragTimer = null;
+var singleClickTimer, doubleClickDragTimer = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
@@ -117,7 +117,7 @@ function mouseMoveListener(e) {
     }
   }
   else if (mouseDown === 2) {
-    drawDragLine(e)
+    drawDragLine(e);
   }
 }
 
@@ -128,9 +128,6 @@ function mouseMoveListener(e) {
  * - existing link: 
  */
 function singleClickEvent(e) {
-  if(mouseUp != 1 || mouseDown != 1){
-    return;
-  }
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
@@ -152,12 +149,7 @@ function singleClickEvent(e) {
       case "selection_area":
         var addedNode = addNode();
         drawNode(addedNode, e.clientX, e.clientY, radius);
-        let new_children_ids = String(e.target.getAttribute("children_ids"))
-          .split(" ")
-          .filter(x => x);
-        new_children_ids.push(addedNode.id);
-        new_children_ids = new_children_ids.join(' ');
-        e.target.setAttribute("children_ids", new_children_ids);
+        addNodeToGroup(addedNode, e.target);
         break;
       default:
         break;
@@ -345,6 +337,8 @@ function resetState() {
   source_node = null;
   dragged_object = null;
   drag_offset = [0,0];
+  clearTimeout(singleClickTimer);
+  clearTimeout(doubleClickDragTimer);
 }
 
 function selectDraggedObject(e) {
@@ -484,6 +478,15 @@ function moveGroup(group, x, y){
 
   group.attr("x", x + drag_offset[0]);
   group.attr("y", y + drag_offset[1]);
+}
+
+function addNodeToGroup(node, group){
+  let new_children_ids = String(group.getAttribute("children_ids"))
+    .split(" ")
+    .filter(x => x);
+  new_children_ids.push(node.id);
+  new_children_ids = new_children_ids.join(' ');
+  group.setAttribute("children_ids", new_children_ids);
 }
 
 //TODO: Improve efficiency
