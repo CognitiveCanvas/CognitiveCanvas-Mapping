@@ -1,3 +1,10 @@
+/*
+ * This function is used to get current spatial layout
+ * of node from exsiting canvas. (Including nodes not
+ * in current view)
+ *
+ * @return {JSON}: - stringfy json of layout data
+ */
 function getNodeSpatialLayout() {
   let nodeSpatialLayout = [];
   let nodeElements = document.getElementsByClassName("node");
@@ -11,10 +18,12 @@ function getNodeSpatialLayout() {
     }));
   }
 
-  console.log(nodeSpatialLayout.join());
   return nodeSpatialLayout;
 }
 
+/**
+ * Save the node layout on current canvas
+ */
 function saveNodeSpatialLayout() {
   //Check if data node spatial layout block exists
   initHTMLElement(DATA_COLLECTION, SPATIAL_LAYOUT, true);

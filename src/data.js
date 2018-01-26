@@ -1,4 +1,4 @@
-/*
+/**
  * This function is used to initialize customize
  * HTML element.
  *
@@ -7,6 +7,8 @@
  * - elementName: tag name of the new element 
  * - checkExisting: true if we need to check whether it has an 
  *                  element with same tag in the dom already
+ *
+ * @return {HTML Element}: - newly initialized/existed node
  */
 function initHTMLElement(parentNode, tagName, checkExisting) {
   let element = checkExisting
@@ -28,14 +30,14 @@ function initHTMLElement(parentNode, tagName, checkExisting) {
   return element;
 }
 
-/*
+/**
  * Initialize data element which holds all data
  */
 function initDataElement() {
   initHTMLElement("body", DATA_COLLECTION, true)
 }
 
-/*
+/**
  * This function is used to set attribute of a particular 
  * element in the DOM.
  *

@@ -1,4 +1,4 @@
-/*
+/**
  * Set default style element and set corresponding 
  * variable to the style.
  *
@@ -14,7 +14,7 @@ function setDefaultStyleData(attr, data) {
 	setElementAttribute(styleElement, attr, data);
 }
 
-/*
+/**
  * Set default shape
  * - shape: shape you want to update
  */
@@ -23,7 +23,7 @@ function setDefaultShape(shape) {
 	defaultShape = shape;
 }
 
-/*
+/**
  * Set default color
  * - color: color you want to update
  */
