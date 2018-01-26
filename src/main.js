@@ -212,18 +212,21 @@ function singleClickEvent(e) {
   } else if(dragged_object){
     //console.log("single click while there is a dragged object");
   } else {
+    let addedNode = null;
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        drawNode(addNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         break;
       case "node":
         break;
       case "link":
         break;
       case "selection_area":
-        drawNode(addNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
-        addNodeToGroup(addNode, e.target);
+        addedNode = addNode();
+        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        addNodeToGroup(addedNode, e.target);
         break;
       default:
         break;
