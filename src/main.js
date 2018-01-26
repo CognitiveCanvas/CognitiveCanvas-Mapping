@@ -13,7 +13,7 @@ var mouseUp = 0;
 var mouseDown = 0;
 var delay = 300;
 var mouseMoved = false;
-var singleClickTimer, duobleClickDragTimer = null;
+var singleClickTimer, doubleClickDragTimer = null;
 var mouseHoverEle = false;
 var hoveredEle = null;
 
@@ -128,8 +128,8 @@ function mouseMoveListener(e) {
 
 
 function mouseOverListener(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
-  
+  let className = e.target.getAttribute("class").split("-")[0];
+    
   switch(className) {
     case "node":
       mouseHoverEle = true;
@@ -143,8 +143,8 @@ function mouseOverListener(e) {
     case "link":
       mouseHoverEle = true;
       hoveredEle = e.target.getAttribute("id");
-      if (nodes.find(x => x.id === hoveredEle)){
-          if (nodes.find(x => x.id === hoveredEle).content){
+      if (links.find(x => x.id === hoveredEle)){
+          if (links.find(x => x.id === hoveredEle).content){
           showContent(hoveredEle);
         }
       }
@@ -155,7 +155,7 @@ function mouseOverListener(e) {
 }
 
 function mouseOutListener(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
+  let className = e.target.getAttribute("class").split("-")[0];
   
   switch(className) {
     case "node":
@@ -169,8 +169,8 @@ function mouseOutListener(e) {
       }     
       break;
     case "link":
-      if (nodes.find(x => x.id === hoveredEle)) {  
-        if (nodes.find(x => x.id === hoveredEle).content){
+      if (links.find(x => x.id === hoveredEle)) {  
+        if (links.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("showing");
           if (elem) {
             elem.parentNode.removeChild(elem);
@@ -203,6 +203,7 @@ function keyPressListener(e) {
  */
 function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
+
   if(selection_area){
     //console.log("single click while there is a selection area");
     createGroup();
@@ -227,7 +228,6 @@ function singleClickEvent(e) {
       default:
         break;
     }
-
   }
 
   resetState();
@@ -284,7 +284,7 @@ function addNode() {
 }
 
 function addLink(sourceId, destId) {
-  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId };
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: false };
   l = links.push(link);
 
   //console.log("add link", links);
@@ -304,12 +304,14 @@ function drawNode(node, cx, cy, radius) {
 
   d3.select(canvas)
     .append("g")
-    .attr("class", "node_group")
-    .append("circle")
     .attr("class", "node")
+    .attr("id", node.id)
+    .attr("transform", "translate("+x+","+y+")")
+    .append("circle")
+    .attr("class", "node-rep")
     .attr("r", radius)
-    .attr("cx", x)
-    .attr("cy", y)
+    .attr("cx", 0)
+    .attr("cy", 0)
     .attr("id", node.id)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
@@ -325,18 +327,20 @@ function drawLink(link) {
 
   //console.log("linkSrcNode", linkSrcNode)
 
+
   d3.select(canvas)
     .insert("g", ":first-child")
-    .attr("class", "link_group")
-    .append("line")
     .attr("class", "link")
+    .attr("id", link.id)
+    .attr("source_id", link.sourceId)
+    .attr("target_id", link.destId)
+    .append("line")
+    .attr("class", "link-rep")
+    .attr("id", link.id)
     .attr("x1", x1)
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
-    .attr("id", link.id)
-    .attr("source_id", link.sourceId)
-    .attr("target_id", link.destId)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 }
 
@@ -604,7 +608,16 @@ function addEleContent(e) {
   // Don't know why the elements does not append. TODO
   var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
     
-  nodes.find(x => x.id === hoveredEle).content = true;
+  if (nodes.find(x => x.id === hoveredEle)) {
+    nodes.find(x => x.id === hoveredEle).content = true;
+  }
+  else if (links.find(x => x.id === hoveredEle)) {
+    links.find(x => x.id === hoveredEle).content = true;
+  }
+  else {
+      console.warn("Node/Link NOT FOUND");
+  }
+  
     
 }
 
