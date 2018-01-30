@@ -64,6 +64,13 @@ function mouseUpListener(e) {
 function mouseDownListener(e) {
   mouseDown++;
   e.preventDefault();
+  if(temp_label_div){
+    console.log("a label is being edited");
+    d3.select(temp_label_div).classed("shaking", false);
+    setTimeout(function(){ d3.select(temp_label_div).classed("shaking", true)}, 1);
+    resetState();
+    return;
+  }
 
   if (mouseDown === 1) {
     selectDraggedObject(e);
@@ -251,7 +258,7 @@ function doubleClickEvent(e) {
   console.log(className);
   switch(className) {
     case "node":
-      addLabel("node", e.target);
+      addLabel("node", selection.node() );
       break;
     case "link":
       x1 = selection.attr("x1");
@@ -304,39 +311,40 @@ function drawNode(node, cx, cy, shape, radius, color) {
   let y = parseInt(cy)
 
   if (shape === "circle") {
-  d3.select(canvas)
-    .append("g")
-    .attr("class", "node")
-    .attr("id", node.id)
-    .attr("transform", "translate("+x+","+y+")")
-    .append(shape)
-    .attr("class", "node-rep")
-    .style("fill", color)
-    .style("z-index", 1)
-    .attr("r", radius)
-    .attr("cx", 0)
-    .attr("cy", 0)
-    .attr("id", node.id)
-    .attr("xmlns", "http://www.w3.org/2000/svg");
+    var nodeG = d3.select(canvas)
+      .append("g")
+      .attr("class", "node")
+      .attr("id", node.id)
+      .attr("transform", "translate("+x+","+y+")");
+    nodeG
+      .append(shape)
+      .attr("class", "node-rep")
+      .style("fill", color)
+      .style("z-index", 1)
+      .attr("r", radius)
+      .attr("cx", 0)
+      .attr("cy", 0)
+      .attr("xmlns", "http://www.w3.org/2000/svg");
   }
 
   if (shape === "rect") {
-    d3.select(canvas)
-    .append("g")
-    .attr("class", "node")
-    .attr("id", node.id)
-    .attr("transform", "translate("+x+","+y+")")
-    .append(shape)
-    .attr("class", "node-rep")
-    .style("fill", color)
-    .style("z-index", 1)
-    .attr("width", width)
-    .attr("height", height)
-    .attr("cx", 0)
-    .attr("cy", 0)
-    .attr("id", node.id)
-    .attr("xmlns", "http://www.w3.org/2000/svg");
+    var nodeG = d3.select(canvas)
+      .append("g")
+      .attr("class", "node")
+      .attr("id", node.id)
+      .attr("transform", "translate("+x+","+y+")");
+    nodeG
+      .append(shape)
+      .attr("class", "node-rep")
+      .style("fill", color)
+      .style("z-index", 1)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("cx", 0)
+      .attr("cy", 0)
+      .attr("xmlns", "http://www.w3.org/2000/svg");
   }
+  addLabel("Node Name", nodeG.node());
 }
 
 function drawLink(link) {
@@ -431,21 +439,6 @@ function getDefaultStyle() {
                   : defaultColor;
   }
 }
-
-function addLabel(text, cx, cy) {
-  // var container = document.getElementById("d3_container")
-  // var label = document.createElement("div");
-  // label.appendChild(document.createTextNode(text));
-  // label.setAttribute("contenteditable", "true");
-  // label.style.position = "absolute";
-  // label.setAttribute("z-index", "1");
-  // label.style.left = cx + "px";
-  // label.style.top = cy + "px";
-  // container.appendChild(label);
-  console.log('old label maker')
-}
-
-
 
 function resetState() {
   //console.log("state was reset");
