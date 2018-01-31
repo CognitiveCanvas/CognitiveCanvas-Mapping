@@ -145,7 +145,7 @@ function mouseOverListener(e) {
     case "node":
       hoveredEle = e.target.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
-        if (nodes.find(x => x.id === hoveredEle).content){
+        if (nodes.find(x => x.id === hoveredEle).content === "true"){
             showContent(hoveredEle);
         }
       }
@@ -153,7 +153,7 @@ function mouseOverListener(e) {
     case "link":
       hoveredEle = e.target.getAttribute("id");
       if (links.find(x => x.id === hoveredEle)){
-        if (links.find(x => x.id === hoveredEle).content){
+        if (links.find(x => x.id === hoveredEle).content === "true"){
           showContent(hoveredEle);
         }
       }
@@ -304,14 +304,14 @@ function getID() {
 }
 
 function addNode() {
-  let node = { type: "node", id: getID(), content: false };
+  let node = { type: "node", id: getID(), content: "false" };
   n = nodes.push(node);
 
   return node;
 }
 
 function addLink(sourceId, destId) {
-  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: false };
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: "false" };
   l = links.push(link);
 
   //console.log("add link", links);
@@ -334,7 +334,7 @@ function drawNode(node, cx, cy, shape, radius, color) {
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
-    .attr("content", false)
+    .attr("content", "false")
     .attr("transform", "translate("+x+","+y+")")
     .append(shape)
     .attr("class", "node-rep")
@@ -352,7 +352,7 @@ function drawNode(node, cx, cy, shape, radius, color) {
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
-    .attr("content", false)
+    .attr("content", "false")
     .attr("transform", "translate("+x+","+y+")")
     .append(shape)
     .attr("class", "node-rep")
@@ -385,7 +385,7 @@ function drawLink(link) {
     .attr("id", link.id)
     .attr("source_id", link.sourceId)
     .attr("target_id", link.destId)
-    .attr("content", false)
+    .attr("content", "false")
     .append("line")
     .attr("class", "link-rep")
     .attr("id", link.id)
@@ -440,18 +440,13 @@ function reloadElement() {
     let currNodeEle = NodeEleCollection[i];
     let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
     n = nodes.push(node);
-    console.log(currNodeEle.getAttribute("content") === "false");
   }
     
   for (j = 0; j < EdgeEleCollection.length; j++) {
     let currEdgeEle = EdgeEleCollection[j];
     let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
     l = links.push(link);
-    console.log(currEdgeEle.getAttribute("content") === "false");
   }
-    
-    console.log(nodes);
-    console.log(links);
 }
 
 function initDragLine() {
@@ -703,10 +698,16 @@ function addEleContent(e) {
   var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
 
   if (nodes.find(x => x.id === hoveredEle)) {
-    nodes.find(x => x.id === hoveredEle).content = true;
+    nodes.find(x => x.id === hoveredEle).content = "true";
+    if (document.getElementById(hoveredEle)) { //Prevent finding null to error out the entire page;
+      document.getElementById(hoveredEle).setAttribute("content","true");
+    }
   }
   else if (links.find(x => x.id === hoveredEle)) {
-    links.find(x => x.id === hoveredEle).content = true;
+    links.find(x => x.id === hoveredEle).content = "true";
+    if (document.getElementById(hoveredEle)) { 
+      document.getElementById(hoveredEle).setAttribute("content","true");
+    }
   }
   else {
       console.warn("Node/Link NOT FOUND");
