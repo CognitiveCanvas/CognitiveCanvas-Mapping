@@ -216,8 +216,7 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+        addNode(e.clientX, e.clientY);
         break;
       case "node":
         break;
@@ -225,7 +224,6 @@ function singleClickEvent(e) {
         break;
       case "selection_area":
         addedNode = addNode();
-        drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
         addNodeToGroup(addedNode, e.target);
         break;
       default:
@@ -269,18 +267,23 @@ function doubleClickEvent(e) {
   resetState()
 }
 
-
-
-
 /* entity.js */
 function getID() {
   return clientId + "_" + Date.now();
 }
 
-function addNode() {
-  let node = { type: "node", id: getID(), content: false };
+function addNode(x, y) {
+  let node = { type: "node", 
+               id: getID(), 
+               x: x,
+               y: y,
+               shape: defaultShape,
+               color:defaultColor,
+               radius: radius,
+               content: false };
   n = nodes.push(node);
-
+  redraw();
+  console.log(nodes);
   return node;
 }
 
@@ -298,6 +301,36 @@ function deleteEntity(entities, id) {
     entities.splice(index, 1);
   }
 }
+
+function redraw() {
+  console.log("here");
+  let nodeElements = d3.select(canvas)
+                       .selectAll("node")
+                       .data(nodes);
+
+  //Update existing
+  
+  //Append new
+  nodeElements.enter()
+       .append("g")
+       .attr("class", "node")
+       .attr("id", n => n.id)
+       .attr("transform", n => "translate("+ n.x+","+ n.y+")")
+       .append("circle")
+       .attr("class", "node-rep")
+       .style("fill", n => n.color)
+       .style("z-index", 1)
+       .attr("r", n => n.radius)
+       .attr("cx", 0)
+       .attr("cy", 0)
+       .attr("id", n => n.id)
+       .attr("xmlns", "http://www.w3.org/2000/svg");
+
+  //Remove deleted
+  nodeElements.exit()
+       .remove();
+}
+
 
 function drawNode(node, cx, cy, shape, radius, color) {
   let x = parseInt(cx)
@@ -431,21 +464,6 @@ function getDefaultStyle() {
                   : defaultColor;
   }
 }
-
-function addLabel(text, cx, cy) {
-  // var container = document.getElementById("d3_container")
-  // var label = document.createElement("div");
-  // label.appendChild(document.createTextNode(text));
-  // label.setAttribute("contenteditable", "true");
-  // label.style.position = "absolute";
-  // label.setAttribute("z-index", "1");
-  // label.style.left = cx + "px";
-  // label.style.top = cy + "px";
-  // container.appendChild(label);
-  console.log('old label maker')
-}
-
-
 
 function resetState() {
   //console.log("state was reset");
