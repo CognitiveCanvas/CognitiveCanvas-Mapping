@@ -145,7 +145,7 @@ function mouseOverListener(e) {
     case "node":
       hoveredEle = e.target.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
-          if (nodes.find(x => x.id === hoveredEle).content){
+        if (nodes.find(x => x.id === hoveredEle).content){
             showContent(hoveredEle);
         }
       }
@@ -153,7 +153,7 @@ function mouseOverListener(e) {
     case "link":
       hoveredEle = e.target.getAttribute("id");
       if (links.find(x => x.id === hoveredEle)){
-          if (links.find(x => x.id === hoveredEle).content){
+        if (links.find(x => x.id === hoveredEle).content){
           showContent(hoveredEle);
         }
       }
@@ -334,6 +334,7 @@ function drawNode(node, cx, cy, shape, radius, color) {
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
+    .attr("content", false)
     .attr("transform", "translate("+x+","+y+")")
     .append(shape)
     .attr("class", "node-rep")
@@ -351,6 +352,7 @@ function drawNode(node, cx, cy, shape, radius, color) {
     .append("g")
     .attr("class", "node")
     .attr("id", node.id)
+    .attr("content", false)
     .attr("transform", "translate("+x+","+y+")")
     .append(shape)
     .attr("class", "node-rep")
@@ -383,6 +385,7 @@ function drawLink(link) {
     .attr("id", link.id)
     .attr("source_id", link.sourceId)
     .attr("target_id", link.destId)
+    .attr("content", false)
     .append("line")
     .attr("class", "link-rep")
     .attr("id", link.id)
@@ -426,6 +429,29 @@ function onLoaded(webstrateId, clientId, user) {
   getDefaultStyle();
   initDragLine();
   initDataElement();
+  reloadElement();
+}
+
+function reloadElement() {
+  let NodeEleCollection = document.getElementsByClassName("node");
+  let EdgeEleCollection = document.getElementsByClassName("link"); 
+  
+  for (i = 0; i < NodeEleCollection.length; i++) {
+    let currNodeEle = NodeEleCollection[i];
+    let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
+    n = nodes.push(node);
+    console.log(currNodeEle.getAttribute("content") === "false");
+  }
+    
+  for (j = 0; j < EdgeEleCollection.length; j++) {
+    let currEdgeEle = EdgeEleCollection[j];
+    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
+    l = links.push(link);
+    console.log(currEdgeEle.getAttribute("content") === "false");
+  }
+    
+    console.log(nodes);
+    console.log(links);
 }
 
 function initDragLine() {
