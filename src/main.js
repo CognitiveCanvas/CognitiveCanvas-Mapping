@@ -11,7 +11,8 @@ var height = 40;
 var width = 40;
 var defaultSize = null;
 var defaultShape = "circle";
-var defaultColor = "#f00";
+var defaultColor = "rgba(46, 127, 195, 0.2)";
+var editId = null;
 
 /* interact.js */
 var mouseUp = 0;
@@ -302,36 +303,6 @@ function deleteEntity(entities, id) {
   }
 }
 
-function redraw() {
-  console.log("here");
-  let nodeElements = d3.select(canvas)
-                       .selectAll("node")
-                       .data(nodes);
-
-  //Update existing
-  
-  //Append new
-  nodeElements.enter()
-       .append("g")
-       .attr("class", "node")
-       .attr("id", n => n.id)
-       .attr("transform", n => "translate("+ n.x+","+ n.y+")")
-       .append("circle")
-       .attr("class", "node-rep")
-       .style("fill", n => n.color)
-       .style("z-index", 1)
-       .attr("r", n => n.radius)
-       .attr("cx", 0)
-       .attr("cy", 0)
-       .attr("id", n => n.id)
-       .attr("xmlns", "http://www.w3.org/2000/svg");
-
-  //Remove deleted
-  nodeElements.exit()
-       .remove();
-}
-
-
 function drawNode(node, cx, cy, shape, radius, color) {
   let x = parseInt(cx)
   let y = parseInt(cy)
@@ -422,47 +393,6 @@ function removeNode(node) {
 
 function removeLink(link) {
   d3.select(link).remove();
-}
-
-/* TODO: initialize the canvas */
-/* init.js */
-webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
-
-function onLoaded(webstrateId, clientId, user) {
-  this.clientId = clientId;
-  getDefaultStyle();
-  initDragLine();
-  initDataElement();
-}
-
-function initDragLine() {
-  drag_line = document.getElementById("drag_line");
-  if (drag_line === null) {
-    d3.select(canvas)
-      .append("line")
-      .attr("id", "drag_line")
-      .attr("class", "drag_line")
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-      .attr("y2", 0);
-
-    drag_line = document.getElementById("drag_line");
-  }
-}
-
-function getDefaultStyle() {
-  let defaultStyle = document.getElementsByTagName(DEFAULT_STYLE)[0];
-
-  if (defaultStyle) {
-    defaultShape = defaultStyle.getAttribute("shape") 
-                  ? defaultStyle.getAttribute("shape")
-                  : defaultShape;
-
-    defaultColor = defaultStyle.getAttribute("color") 
-                  ? defaultStyle.getAttribute("color")
-                  : defaultColor;
-  }
 }
 
 function resetState() {

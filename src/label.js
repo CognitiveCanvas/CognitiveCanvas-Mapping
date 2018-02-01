@@ -18,6 +18,7 @@ function addLabel(text, target){
   label.appendChild(document.createTextNode(text));
   label.style.position = "absolute";
   label.setAttribute("z-index", "1");
+  label.setAttribute("id", editId);
 
   var cx = 0;
   var cy = 0;
@@ -30,8 +31,8 @@ function addLabel(text, target){
   switch(name){
     case "node":
       translation = getNodePosition(target.parentNode);
-      cx = translation[0] - 10;
-      cy = translation[1] - 10;
+      cx = translation[0];
+      cy = translation[1];
       break;
 
     case "link":
@@ -46,9 +47,25 @@ function addLabel(text, target){
     default:
       break;
   }
+
   label.style.left = cx + "px";
   label.style.top = cy + "px";
   label.setAttribute("contenteditable", "true");
+
+  label.addEventListener("input", () => {
+    if (name === "node") {
+      let labelSize = document.getElementById(editId).getBoundingClientRect(); 
+      let labelLeft = cx - labelSize.width / 2;
+      let labelTop = cy - labelSize.height / 2;
+      label.style.left = labelLeft + "px";
+      label.style.top = labelTop + "px";
+
+      if (labelSize.width > d3.select(target).attr("r") * 2 - 10) {
+        d3.select(target)
+          .attr("r", labelSize.width / 2 + 5)
+      }
+    }
+  })
   label.onkeypress = (e) => {
     //console.log(e.key)
     switch(e.key){
@@ -58,8 +75,9 @@ function addLabel(text, target){
         cy = -10;
         switch(name){
           case "node":
-            cx = -10;
-            cy = -10;
+            let labelSize = document.getElementById(editId).getBoundingClientRect(); 
+            cx = 0;
+            cy = 0;
             break;
           case "link":
             x1 = target.getAttribute("x1");
@@ -73,8 +91,11 @@ function addLabel(text, target){
         }
         // Add the text inside svg with the new text
         d3.select(target.parentNode).append("text")
+                .attr("text-anchor", "middle")
                 .attr("x", cx+"px")
                 .attr("y", cy+"px")
+                .attr("font-family", "Helvetica")
+                .attr("font-size", "20px")
                 .text(txt)
                 .classed("label", true)
                 .attr("id", d3.select(target.parentNode).attr("id")+"_text")
