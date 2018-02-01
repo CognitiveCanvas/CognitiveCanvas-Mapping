@@ -51,16 +51,16 @@ function mouseUpListener(e) {
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
-      //console.log("single click");
+      console.log("single click");
       singleClickEvent(e);
     }, delay);
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
-    //console.log("double click");
+    console.log("double click");
     doubleClickEvent(e);
   }
   else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
-    //console.log("double click drag")
+    console.log("double click drag")
     selectLineDest(e);
   }
   else {
@@ -135,7 +135,7 @@ function mouseMoveListener(e) {
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
     }else{
-      //console.log("drawing selection area");
+      console.log("drawing selection area");
       drawSelectionArea(e);
 
     }
@@ -241,13 +241,13 @@ function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
-    //console.log("single click while there is a selection area");
+    console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
-    //console.log("single click while there is a dragged object");
+    console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
-    //console.log("regular single click");
+    console.log("regular single click");
     switch(entity) {
       case "canvas":
         addedNode = addNode();
@@ -575,11 +575,11 @@ function drawSelectionArea(e){
       selection_area.attr("height", rectY - e.pageY + height);
       selection_area.attr("y", e.pageY);
     }
-    //console.log("selection area drawn");
+    console.log("selection area drawn");
 }
 
 function createGroup(){
-  //console.log("creating group");
+  console.log("creating group");
   var left = Number(selection_area.attr("x"));
   var right = left + Number(selection_area.attr("width"));
   var top = Number(selection_area.attr("y"));
