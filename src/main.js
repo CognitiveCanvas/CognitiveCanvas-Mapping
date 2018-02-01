@@ -44,16 +44,16 @@ function mouseUpListener(e) {
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
-      console.log("single click");
+      //console.log("single click");
       singleClickEvent(e);
     }, delay);
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
-    console.log("double click");
+    //console.log("double click");
     doubleClickEvent(e);
   }
   else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
-    console.log("double click drag")
+    //console.log("double click drag")
     selectLineDest(e);
   }
   else {
@@ -121,7 +121,7 @@ function mouseMoveListener(e) {
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
     }else{
-      console.log("drawing selection area");
+      //console.log("drawing selection area");
       drawSelectionArea(e);
 
     }
@@ -248,7 +248,7 @@ function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
   let selection = d3.select(e.target.parentNode);
   let className = selection.attr("class").split(" ")[0]
-  console.log(className);
+  //console.log(className);
   switch(className) {
     case "node":
       addLabel("node", e.target);
@@ -442,7 +442,7 @@ function addLabel(text, cx, cy) {
   // label.style.left = cx + "px";
   // label.style.top = cy + "px";
   // container.appendChild(label);
-  console.log('old label maker')
+  //console.log('old label maker')
 }
 
 
