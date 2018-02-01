@@ -67,16 +67,14 @@ function addLabel(text, node){
   }
 
   label.onkeypress = (e) => {
-    console.log(e.key)
-    console.log(e.shiftKey)
     switch(e.key){
       case "Enter":
         if (e.shiftKey) {
           document.execCommand('insertHTML', false, '<br>');
         }
         else {
-          var txt = label.textContent;
-          console.log("txt", txt);
+          var txt = label.innerText.split("\n");
+          console.log(txt);
           cx = 0;
           cy = 0;
           switch(name){
@@ -95,14 +93,25 @@ function addLabel(text, node){
               break;
           }
           // Add the text inside svg with the new text
-          d3.select(node).append("text")
-                  .attr("text-anchor", "middle")
-                  .attr("x", cx+"px")
-                  .attr("y", cy+"px")
-                  .attr("font-family", "Helvetica")
-                  .text(txt)
-                  .classed("label", true)
-                  .attr("id", d3.select(node).attr("id")+"_text")
+          var textSVG = d3.select(node).append("text")
+                          .attr("text-anchor", "middle")
+                          .attr("x", cx+"px")
+                          .attr("y", cy+"px")
+                          .attr("font-family", "Helvetica")
+                          .classed("label", true)
+                          .attr("id", d3.select(node).attr("id")+"_text")
+
+          for (let t in txt) {
+            console.log(t);
+            let tspan = textSVG
+                          .append("tspan")
+                          .text(txt[t])
+                          .attr("x", 0);
+            if (t > 0) {
+              tspan.attr("dy", 15);
+            }
+          }
+
           // Remove the outside editable div
           label.remove();
           temp_label_div = null;
