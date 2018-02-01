@@ -14,6 +14,7 @@ var defaultRadius = 20;
 var defaultShape = "circle";
 var defaultColor = "rgba(46, 127, 195, 0.1)";
 var editId = null;
+var styleNode = null;
 
 /* interact.js */
 var mouseUp = 0;
@@ -257,10 +258,12 @@ function singleClickEvent(e) {
     //console.log("regular single click");
     switch(entity) {
       case "canvas":
-        let addedNode = addNode(e.clientX, e.clientY);
+        addedNode = addNode(e.clientX, e.clientY);
         addLabel("Node Name", document.getElementById(addedNode.id));
         break;
-      case "node":
+      case "node-rep":
+        styleNode = e.target;
+        console.log("styleNode", styleNode);
         break;
       case "link":
         break;
