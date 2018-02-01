@@ -26,7 +26,7 @@ function getNodeSpatialLayout() {
  */
 function saveNodeSpatialLayout() {
   //Check if data node spatial layout block exists
-  initHTMLElement(DATA_COLLECTION, SPATIAL_LAYOUT, true);
+  initHTMLElement(DATA_COLLECTION, SPATIAL_LAYOUT, true); 
 
   let layoutData = initHTMLElement(SPATIAL_LAYOUT, SPATIAL_LAYOUT_DP, false);
   setElementAttribute(layoutData, "timestamp", Date.now());
