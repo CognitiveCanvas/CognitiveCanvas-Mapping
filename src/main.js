@@ -148,10 +148,10 @@ function mouseMoveListener(e) {
 
 function mouseOverListener(e) {
   let className = e.target.getAttribute("class").split("-")[0];
-
+  
   switch(className) {
     case "node":
-      hoveredEle = e.target.getAttribute("id");
+      hoveredEle = e.target.parentElement.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
         if (nodes.find(x => x.id === hoveredEle).content === "true"){
             showContent(hoveredEle);
@@ -159,7 +159,7 @@ function mouseOverListener(e) {
       }
       break;
     case "link":
-      hoveredEle = e.target.getAttribute("id");
+      hoveredEle = e.target.parentElement.getAttribute("id");
       if (links.find(x => x.id === hoveredEle)){
         if (links.find(x => x.id === hoveredEle).content === "true"){
           showContent(hoveredEle);

@@ -1,7 +1,18 @@
 #d3_container {
     height: 100%;
-    width: 100%;
+    width: 75%;
     margin: 0;
+}
+
+#content_container {
+    height: 100%;
+    width: 25%;
+    float: right;
+    overflow: auto;
+}
+
+#content_header {
+
 }
 
 html {
@@ -18,7 +29,7 @@ body {
 
 #canvas {
     height: 100%;
-    width: 100%;
+    width: 75%;
     margin: 0;
     position: absolute;
 }
