@@ -6,13 +6,13 @@ var clientId, active_node, dragged_object = null;
 var drag_offset = [0, 0];
 
 var canvas = document.getElementById("canvas");
-var radius = 20;
+var radius = 40;
 var height = 40;
 var width = 40;
 var defaultSize = null;
 var defaultRadius = 20;
 var defaultShape = "circle";
-var defaultColor = "rgba(46, 127, 195, 0.2)";
+var defaultColor = "rgba(46, 127, 195, 0.1)";
 var editId = null;
 
 /* interact.js */

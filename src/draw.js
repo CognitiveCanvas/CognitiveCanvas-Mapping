@@ -15,6 +15,8 @@ function redraw() {
        .attr("class", "node-rep")
        .style("fill", n => n.color)
        .style("z-index", 1)
+       .style("stroke", "#25AEC8")
+       .style("stroke-width", "3px")
        .attr("r", n => n.radius)
        .attr("cx", 0)
        .attr("cy", 0)
