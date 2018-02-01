@@ -701,6 +701,10 @@ function getNodePosition(node){
 }
 
 
+
+/*
+ * Original AddEleContent before the SideBar Design. Left here for reference.
+ */
 /*
 function addEleContent(e) {
   var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
@@ -730,39 +734,36 @@ function addEleContent(e) {
 } */
 
 function addEleContent(e) {
-  console.log("Trying to add Content for "+hoveredEle);
   let newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
-    
   let wrapper = document.createElement('div');
   wrapper.setAttribute("id", "addContentWrapper");
-  let toFrame = '<iframe id="addWindow" src="'+ newNodeAddress + '" style="width: 95%; height: 400px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+  
+  let toFrame = '<iframe id="addWindow" src="'+ newNodeAddress + '" style="width: 95%; height: 350px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
   let addNoteButton = '<button type="button" id="addNoteBtn" onclick="appendNote()">Add Sticky Note</button> ';
   let closeButton = '<button type="button" id="closeWindowBtn" onclick="closeContentWindow()">Close Content Window</button> ';
   wrapper.innerHTML = toFrame + addNoteButton + closeButton;
   document.getElementById("content_container").appendChild(wrapper);
 
   addEleToList(e);
-
-  console.log("Add Note to iframe!");
-  appendNote(e);
     
   addWindowOpen = true;
 
 }
 
 function closeContentWindow() {
-  let parentEle = document.getElementById("addContentWrapper");
+  let wrapper = document.getElementById("addContentWrapper");
   let childOne = document.getElementById("addWindow");
   let childTwo = document.getElementById("addNoteBtn");
   let childThree = document.getElementById("closeWindowBtn");
-  parentEle.removeChild(childOne);
-  parentEle.removeChild(childTwo);
-  parentEle.removeChild(childThree);
+  childOne.parentNode.removeChild(childOne);
+  childTwo.parentNode.removeChild(childTwo);
+  childThree.parentNode.removeChild(childThree);
+  wrapper.parentNode.removeChild(wrapper);
   addWindowOpen = false;
 }
 
 function appendNote() {
-  let appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 235px;min-height: 235px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div>';    
+  let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 235px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';    
   let addWindow = document.getElementById("addWindow");
   addWindow.contentWindow.document.body.innerHTML += appendElement;
 }
@@ -789,7 +790,7 @@ function showContent(ele) {
     let addressToFrame = "http://webstrates.ucsd.edu/" + ele;
     let wrapper = document.createElement('div');
     wrapper.setAttribute("id", "showing");
-    let toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+    let toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;right: 8px;bottom: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
     wrapper.innerHTML = toFrame;
     document.body.appendChild(wrapper);
 }
