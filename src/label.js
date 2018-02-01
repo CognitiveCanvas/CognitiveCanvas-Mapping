@@ -66,7 +66,7 @@ function addLabel(text, node){
       break;
   }
 
-  label.onkeypress = (e) => {
+  label.onkeydown = (e) => {
     switch(e.key){
       case "Enter":
         if (e.shiftKey) {
@@ -105,8 +105,12 @@ function addLabel(text, node){
             console.log(t);
             let tspan = textSVG
                           .append("tspan")
-                          .text(txt[t])
-                          .attr("x", 0);
+                          .text(txt[t]);
+
+            if (name === "node") {
+              tspan.attr("x", 0);
+            }
+            
             if (t > 0) {
               tspan.attr("dy", 15);
             }
