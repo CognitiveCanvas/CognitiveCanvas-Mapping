@@ -148,6 +148,9 @@ function mouseMoveListener(e) {
 
 
 function mouseOverListener(e) {
+  if (e.target.tagName === "tspan") {
+    return;
+  }
   let className = e.target.getAttribute("class").split("-")[0];
 
   switch(className) {
@@ -173,6 +176,9 @@ function mouseOverListener(e) {
 }
 
 function mouseOutListener(e) {
+  if (e.target.tagName === "tspan") {
+    return;
+  }
   let className = e.target.getAttribute("class").split("-")[0];
 
   switch(className) {
