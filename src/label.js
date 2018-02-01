@@ -15,8 +15,7 @@ function addLabel(text, node){
   // Adding an editable div outside
   var container = document.getElementById("d3_container");
   var label = document.createElement("div");
-  label.style.position = "absolute";
-  label.setAttribute("z-index", "1");
+  d3.select(label).classed("label-input", true);
   var textNode = label.appendChild(document.createElement("input"));
   textNode.value = text;
   temp_label_div = label;
@@ -32,15 +31,16 @@ function addLabel(text, node){
   switch(name){
     case "node":
       translation = getNodePosition(node);
-      cx = translation[0] - 10;
-      cy = translation[1] - 10;
+      cx = translation[0];
+      cy = translation[1];
       break;
 
     case "link":
-      x1 = node.getAttribute("x1");
-      x2 = node.getAttribute("x2");
-      y1 = node.getAttribute("y1");
-      y2 = node.getAttribute("y2");
+      let line = d3.select(node).select(".link-rep");
+      x1 = line.attr("x1");
+      x2 = line.attr("x2");
+      y1 = line.attr("y1");
+      y2 = line.attr("y2");
       cx = parseFloat(parseFloat(parseFloat(x1) + parseFloat(x2)) / 2.0);
       cy = parseFloat(parseFloat(parseFloat(y1) + parseFloat(y2)) / 2.0);
       break;
@@ -50,26 +50,26 @@ function addLabel(text, node){
   }
   label.style.left = cx + "px";
   label.style.top = cy + "px";
-  label.setAttribute("contenteditable", "true");
+  
   label.onkeypress = (e) => {
     //console.log(e.key)
     switch(e.key){
       case "Enter":
+      case "Tab":
         var txt = textNode.value;
-        cx = -10;
-        cy = -10;
+        cx = 0;
+        cy = 0;
         switch(name){
           case "node":
-            cx = -10;
-            cy = -10;
-            break;
+            break; 
           case "link":
-            x1 = node.getAttribute("x1");
-            x2 = node.getAttribute("x2");
-            y1 = node.getAttribute("y1");
-            y2 = node.getAttribute("y2");
-            cx = parseFloat(parseFloat(parseFloat(x1) + parseFloat(x2)) / 2.0 - 10);
-            cy = parseFloat(parseFloat(parseFloat(y1) + parseFloat(y2)) / 2.0 - 10);
+            let line = d3.select(node).select(".link-rep");
+            x1 = line.attr("x1");
+            x2 = line.attr("x2");
+            y1 = line.attr("y1");
+            y2 = line.attr("y2");
+            cx = (parseFloat(x1) + parseFloat(x2)) / 2.0 ;
+            cy = (parseFloat(y1) + parseFloat(y2)) / 2.0 ;
             break;
           default:
             break;
