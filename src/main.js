@@ -740,8 +740,9 @@ function addEleContent(e) {
   
   let toFrame = '<iframe id="addWindow" src="'+ newNodeAddress + '" style="width: 95%; height: 350px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
   let addNoteButton = '<button type="button" id="addNoteBtn" onclick="appendNote()">Add Sticky Note</button> ';
+  let addPicButton = '<input type="file" id="addPicBtn" onchange="appendPic()"> ';
   let closeButton = '<button type="button" id="closeWindowBtn" onclick="closeContentWindow()">Close Content Window</button> ';
-  wrapper.innerHTML = toFrame + addNoteButton + closeButton;
+  wrapper.innerHTML = toFrame + addNoteButton + addPicButton + closeButton;
   document.getElementById("content_container").appendChild(wrapper);
 
   addEleToList(e);
@@ -754,18 +755,37 @@ function closeContentWindow() {
   let wrapper = document.getElementById("addContentWrapper");
   let childOne = document.getElementById("addWindow");
   let childTwo = document.getElementById("addNoteBtn");
+  let childFour = document.getElementById("addPicBtn");
   let childThree = document.getElementById("closeWindowBtn");
   childOne.parentNode.removeChild(childOne);
   childTwo.parentNode.removeChild(childTwo);
+  childFour.parentNode.removeChild(childFour);
   childThree.parentNode.removeChild(childThree);
   wrapper.parentNode.removeChild(wrapper);
   addWindowOpen = false;
 }
 
 function appendNote() {
-  let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 235px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';    
+  let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 100px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';    
   let addWindow = document.getElementById("addWindow");
   addWindow.contentWindow.document.body.innerHTML += appendElement;
+}
+
+function appendPic() {
+  let appendElement = '<img src="" width="235" alt="Loading Image..."><br>';    
+  let addWindow = document.getElementById("addWindow");
+  addWindow.contentWindow.document.body.innerHTML += appendElement;
+    
+  let preview = addWindow.contentWindow.document.querySelector('img'); //selects the query named img
+  let file    = document.querySelector('input[type=file]').files[0];
+  let reader  = new FileReader();
+
+  reader.onloadend = function () {
+    preview.src = reader.result;
+  }
+
+  if (file) reader.readAsDataURL(file); //reads the data as a URL
+  else preview.src = "";
 }
 
 function addEleToList(e) {
