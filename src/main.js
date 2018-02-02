@@ -701,38 +701,6 @@ function getNodePosition(node){
 }
 
 
-
-/*
- * Original AddEleContent before the SideBar Design. Left here for reference.
- */
-/*
-function addEleContent(e) {
-  var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
-
-  var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
-
-  // Don't know why the elements does not append. TODO
-  var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
-
-  if (nodes.find(x => x.id === hoveredEle)) {
-    nodes.find(x => x.id === hoveredEle).content = "true";
-    if (document.getElementById(hoveredEle)) { //Prevent finding null to error out the entire page;
-      document.getElementById(hoveredEle).setAttribute("content","true");
-    }
-  }
-  else if (links.find(x => x.id === hoveredEle)) {
-    links.find(x => x.id === hoveredEle).content = "true";
-    if (document.getElementById(hoveredEle)) { 
-      document.getElementById(hoveredEle).setAttribute("content","true");
-    }
-  }
-  else {
-      console.warn("Node/Link NOT FOUND");
-  }
-
-
-} */
-
 function addEleContent(e) {
   let newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
   let wrapper = document.createElement('div');
@@ -776,7 +744,8 @@ function appendPic() {
   let addWindow = document.getElementById("addWindow");
   addWindow.contentWindow.document.body.innerHTML += appendElement;
     
-  let preview = addWindow.contentWindow.document.querySelector('img'); //selects the query named img
+  let imgList = addWindow.contentWindow.document.querySelectorAll('img'); //selects the query named img
+  let preview = imgList[imgList.length-1];
   let file    = document.querySelector('input[type=file]').files[0];
   let reader  = new FileReader();
 
