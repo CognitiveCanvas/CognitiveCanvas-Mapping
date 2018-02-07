@@ -718,6 +718,10 @@ function addEleContent(e) {
   addWindowOpen = true;
 }
 
+/*
+ * Add Conent Alternative Way
+ * (Break AddPic Functionality, need exploration later) 
+ */
 //function addEleContent(e) {
 //  let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
 //  let wrapper = document.createElement('div');
@@ -751,6 +755,7 @@ function addEleContent(e) {
 //  wrapper.appendChild(addNoteButton);
 //  wrapper.appendChild(addPicButton);
 //  wrapper.appendChild(closeButton);
+//  
 //  
 //  document.getElementById("content_container").appendChild(wrapper);
 //  addEleToList(e);    
@@ -789,11 +794,6 @@ function appendPic() {
   let file    = document.querySelector('input[type=file]').files[0];
   let reader  = new FileReader();
     
-  console.log(imgList);
-  console.log(preview);
-  console.log(file);
-  console.log(reader);
-
   reader.onloadend = function () {
     preview.src = reader.result;
   }
