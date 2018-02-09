@@ -26,6 +26,35 @@ function checkLabelExisted(node) {
   return text;
 }
 
+/**
+ * Scale n
+ * @param  {[type]} label [description]
+ * @param  {[type]} node  [description]
+ * @param  {[type]} cx    [description]
+ * @param  {[type]} cy    [description]
+ * @return {[type]}       [description]
+ */
+function scaleNode(label, node, cx, cy) {
+  let labelSize = document.getElementById(editId).getBoundingClientRect(); 
+  let labelLeft = cx - labelSize.width / 2;
+  let labelTop = cy - labelSize.height / 2;
+  label.style.left = labelLeft + "px";
+  label.style.top = labelTop + "px";
+
+  let nodeRep = node.children[0];
+
+  if (d3.select(nodeRep).attr("r") <= MAX_RADIUS) {
+    if (labelSize.width > d3.select(nodeRep).attr("r") * 2 - 12) {
+      d3.select(nodeRep)
+        .attr("r", labelSize.width / 2 + 6);
+    }
+  } 
+  else {
+    d3.select(label)
+      .attr("max", d3.select(nodeRep).attr("r") * 2 - 12);
+  }
+}
+
 function addLabel(text, node){
 
   console.log("adding labels");
@@ -136,25 +165,4 @@ function addLabel(text, node){
   let labelTop = cy - labelSize.height / 2;
   label.style.left = labelLeft + "px";
   label.style.top = labelTop + "px";
-}
-
-function scaleNode(label, node, cx, cy) {
-  let labelSize = document.getElementById(editId).getBoundingClientRect(); 
-  let labelLeft = cx - labelSize.width / 2;
-  let labelTop = cy - labelSize.height / 2;
-  label.style.left = labelLeft + "px";
-  label.style.top = labelTop + "px";
-
-  let nodeRep = node.children[0];
-
-  if (d3.select(nodeRep).attr("r") <= MAX_RADIUS) {
-    if (labelSize.width > d3.select(nodeRep).attr("r") * 2 - 12) {
-      d3.select(nodeRep)
-        .attr("r", labelSize.width / 2 + 6);
-    }
-  } 
-  else {
-    d3.select(label)
-      .attr("max", d3.select(nodeRep).attr("r") * 2 - 12);
-  }
 }
