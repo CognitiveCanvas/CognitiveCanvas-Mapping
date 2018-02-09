@@ -22,6 +22,7 @@ var mouseMoved = false;
 var singleClickTimer, doubleClickDragTimer = null;
 var hoveredEle = null;
 var addWindowOpen = false;
+var drawing_enabled = false;
 
 // drag_line & source_node are stored as html element
 var drag_line = null;
@@ -443,6 +444,7 @@ function onLoaded(webstrateId, clientId, user) {
   initDragLine();
   initDataElement();
   reloadElement();
+  initToolPalette();
 }
 
 function reloadElement() {
@@ -836,4 +838,25 @@ function previewContent(ele) {
     toFrame.appendChild(warningTxt);
     wrapper.appendChild(toFrame);
     document.body.appendChild(wrapper);
+}
+
+function initToolPalette() {
+    var toolPalette = document.createElement("transient");
+    toolPalette.setAttribute("id", "tool-palette");
+    document.body.appendChild(toolPalette);
+}
+
+function toggleDrawFunc() {
+  let pad = document.getElementById("d3_container");
+  let toggltBtn = document.getElementById("toggle_touch_drawing");
+    
+  if (drawing_enabled) {
+    pad.setAttribute("class", "");
+    toggltBtn.innerHTML = "Disable Drawing!";
+  } 
+  else {
+    pad.setAttribute("class", "drawable");
+    toggltBtn.innerHTML = "Enable Drawing!";
+  }
+  drawing_enabled = !drawing_enabled;
 }
