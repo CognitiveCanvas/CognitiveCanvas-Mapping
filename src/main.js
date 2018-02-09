@@ -841,20 +841,24 @@ function previewContent(ele) {
 }
 
 function initToolPalette() {
-    var toolPalette = document.createElement("transient");
+    let toolPalette = document.createElement("transient");
     toolPalette.setAttribute("id", "tool-palette");
     document.body.appendChild(toolPalette);
+    document.getElementById("tool-palette").style.visibility = "hidden";
 }
 
 function toggleDrawFunc() {
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
-    
+  let toolPalette = document.getElementById("tool-palette");
+
   if (drawing_enabled) {
+    toolPalette.style.visibility = "hidden";
     pad.setAttribute("class", "");
     toggltBtn.innerHTML = "Disable Drawing!";
   } 
   else {
+    toolPalette.style.visibility = "visible";
     pad.setAttribute("class", "drawable");
     toggltBtn.innerHTML = "Enable Drawing!";
   }

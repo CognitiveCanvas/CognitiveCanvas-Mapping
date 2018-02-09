@@ -134,6 +134,13 @@ body {
     opacity: 0.0;
 }
 
+#toggle_touch_drawing {
+    width:  10vw;
+    height: 10vw;
+    font-size: 15;
+    border-radius: 50%;
+}
+
 .drag_line {
     stroke: #999;
     stroke-width: 5;

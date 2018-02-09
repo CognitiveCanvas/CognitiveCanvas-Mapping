@@ -205,6 +205,7 @@ webstrate.on("loaded", function() {;
             return drawingTools;
         }
         const toolPalette = createToolPalette();
+        
 
         const getPenPoint = (event, touch) => {
             let transformable = event.target.closest('.transformable') || event.target.closest('.transformable-local');
@@ -255,11 +256,6 @@ webstrate.on("loaded", function() {;
             let touch = event.touches[0];
 
             if (touch.force === 0) return;
-
-            if (!toolPalette.isVisible()) {
-                toolPalette.show();
-                return;
-            }
 
             if (event.target.closest('.instrument-tool')) return;
 
