@@ -242,13 +242,13 @@ function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
-    //console.log("single click while there is a selection area");
+    console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
-    //console.log("single click while there is a dragged object");
+    console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
-    //console.log("regular single click");
+    console.log("regular single click");
     switch(entity) {
       case "canvas":
         addedNode = addNode();
@@ -285,7 +285,7 @@ function doubleClickEvent(e) {
   clearTimeout(doubleClickDragTimer);
   let selection = d3.select(e.target.parentNode);
   let className = selection.attr("class").split(" ")[0]
-  console.log(className);
+  //console.log(className);
   switch(className) {
     case "node":
       addLabel("node", selection.node() );
@@ -597,11 +597,11 @@ function drawSelectionArea(e){
       selection_area.attr("height", rectY - e.pageY + height);
       selection_area.attr("y", e.pageY);
     }
-    //console.log("selection area drawn");
+    console.log("selection area drawn");
 }
 
 function createGroup(){
-  //console.log("creating group");
+  console.log("creating group");
   var left = Number(selection_area.attr("x"));
   var right = left + Number(selection_area.attr("width"));
   var top = Number(selection_area.attr("y"));
