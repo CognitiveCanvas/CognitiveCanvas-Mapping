@@ -5,7 +5,7 @@ var links = [];
 var clientId, active_node, dragged_object = null;
 var drag_offset = [0, 0];
 
-var canvas = document.getElementById("canvas");
+var canvas = document.getElementById("#canvas");
 var radius = 20;
 var height = 40;
 var width = 40;
@@ -33,6 +33,9 @@ var quickAdd = false;
 var quickAddX = 0;
 var quickAddY = 0;
 var quickAddDist = 70;
+
+var panMode = false;
+
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
@@ -134,7 +137,7 @@ function mouseMoveListener(e) {
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else{
+    }else if(!panMode){
       console.log("drawing selection area");
       drawSelectionArea(e);
 
@@ -227,6 +230,9 @@ function keyPressListener(e) {
       break
     case "1": // #1
       if (hoveredEle) addEleContent(e);
+      break;
+    case "z":
+      panMode = !panMode;
       break;
   }
 }

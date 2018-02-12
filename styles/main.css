@@ -22,6 +22,14 @@ body {
     margin: 0;
     position: absolute;
 }
+/*
+#canvas_viewport {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    position: absolute;
+}*/
+
 
 .drag_line {
     stroke: #999;
