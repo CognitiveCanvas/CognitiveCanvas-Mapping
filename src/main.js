@@ -20,6 +20,9 @@ var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, doubleClickDragTimer = null;
 
+var hoveredEle = null;
+var addWindowOpen = false;
+
 // drag_line & source_node are stored as html element
 var drag_line = null; 
 var source_node = null;
@@ -140,24 +143,23 @@ function mouseMoveListener(e) {
 
 
 function mouseOverListener(e) {
-  let className = e.target.getAttribute("class").split("-")[0];
-
+  let className = e.target.getAttribute("class").split(" ")[0];
+  
   switch(className) {
-    case "node":
     case "node-rep":
     case "label":
-      hoveredEle = e.target.getAttribute("id");
+      hoveredEle = e.target.parentElement.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
-          if (nodes.find(x => x.id === hoveredEle).content){
-            showContent(hoveredEle);
+        if (nodes.find(x => x.id === hoveredEle).content === "true"){
+            previewContent(hoveredEle);
         }
       }
       break;
-    case "link":
-      hoveredEle = e.target.getAttribute("id");
+    case "link-rep":
+      hoveredEle = e.target.parentElement.getAttribute("id");
       if (links.find(x => x.id === hoveredEle)){
-          if (links.find(x => x.id === hoveredEle).content){
-          showContent(hoveredEle);
+        if (links.find(x => x.id === hoveredEle).content === "true"){
+          previewContent(hoveredEle);
         }
       }
       break;
@@ -173,7 +175,7 @@ function mouseOutListener(e) {
     case "node":
       if (nodes.find(x => x.id === hoveredEle)) {
         if (nodes.find(x => x.id === hoveredEle).content){
-          var elem = document.getElementById("showing");
+          var elem = document.getElementById("previewing");
           if (elem) {
             elem.parentNode.removeChild(elem);
           }
@@ -183,7 +185,7 @@ function mouseOutListener(e) {
     case "link":
       if (links.find(x => x.id === hoveredEle)) {
         if (links.find(x => x.id === hoveredEle).content){
-          var elem = document.getElementById("showing");
+          var elem = document.getElementById("previewing");
           if (elem) {
             elem.parentNode.removeChild(elem);
           }
@@ -241,7 +243,7 @@ function keyPressListener(e) {
       quickAdd = !quickAdd;
       break
     case "1": // #1
-      if (hoveredEle) addEleContent(e);
+      if (hoveredEle && !addWindowOpen) addEleContent(e);
       break;
     default:
       //Edit a node's label if one node is selected and an alphanumeric key is pressed
@@ -357,14 +359,14 @@ function getID() {
 }
 
 function addNode() {
-  let node = { type: "node", id: getID(), content: false };
+  let node = { type: "node", id: getID(), content: "false" };
   n = nodes.push(node);
 
   return node;
 }
 
 function addLink(sourceId, destId) {
-  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: false };
+  let link = { type: "link", id: getID(), sourceId: sourceId, destId: destId, content: "false" };
   l = links.push(link);
 
   //console.log("add link", links);
@@ -387,6 +389,7 @@ function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=
       .append("g")
       .attr("class", "node")
       .attr("id", node.id)
+      .attr("content", "false")
       .attr("transform", "translate("+x+","+y+")");
     nodeG
       .append(shape)
@@ -404,6 +407,7 @@ function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=
       .append("g")
       .attr("class", "node")
       .attr("id", node.id)
+      .attr("content", "false")
       .attr("transform", "translate("+x+","+y+")");
     nodeG
       .append(shape)
@@ -435,7 +439,8 @@ function drawLink(link) {
     .attr("class", "link")
     .attr("id", link.id)
     .attr("source_id", link.sourceId)
-    .attr("target_id", link.destId);
+    .attr("target_id", link.destId)
+    .attr("content", "false");
   linkG
     .append("line")
     .attr("class", "link-rep")
@@ -486,6 +491,24 @@ function onLoaded(webstrateId, clientId, user) {
   getDefaultStyle();
   initDragLine();
   initDataElement();
+  reloadElement();
+}
+
+function reloadElement() {
+  let NodeEleCollection = document.getElementsByClassName("node");
+  let EdgeEleCollection = document.getElementsByClassName("link"); 
+  
+  for (i = 0; i < NodeEleCollection.length; i++) {
+    let currNodeEle = NodeEleCollection[i];
+    let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
+    n = nodes.push(node);
+  }
+    
+  for (j = 0; j < EdgeEleCollection.length; j++) {
+    let currEdgeEle = EdgeEleCollection[j];
+    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
+    l = links.push(link);
+  }
 }
 
 function initDragLine() {
@@ -646,32 +669,140 @@ function getNodePosition(node){
   return d3.transform( node.attr("transform") ).translate;
 }
 
+
 function addEleContent(e) {
-  var newNodeAddress = "http://webstrates.ucsd.edu/" + hoveredEle;
+  let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
+  let wrapper = document.createElement('div');
+  wrapper.setAttribute("id", "addContentWrapper");
+  
+  let toFrame = '<iframe id="addWindow" src="'+ newNodeAddress + '"><p>ERROR: Your browser does not support iframes.</p></iframe>';
+  let addNoteButton = '<button type="button" id="addNoteBtn" onclick="appendNote()">Add Sticky Note</button> ';
+  let addPicButton = '<input type="file" id="addPicBtn" onchange="appendPic()"> ';
+  let closeButton = '<button type="button" id="closeWindowBtn" onclick="closeContentWindow()">Close Content Window</button> ';
+  
+  wrapper.innerHTML = toFrame + addNoteButton + addPicButton + closeButton;
+  
+  document.getElementById("content_container").appendChild(wrapper);
+  addEleToList(e);    
+  addWindowOpen = true;
+}
 
-  var appendElement = '<div class="note" contenteditable="true" style="position: absolute;left: 8px;top: 8px;width: 200px;min-height: 200px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 24pt;word-wrap: break-word;"></div>'
+/*
+ * Add Conent Alternative Way
+ * (Break AddPic Functionality, need exploration later) 
+ */
+//function addEleContent(e) {
+//  let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
+//  let wrapper = document.createElement('div');
+//  wrapper.setAttribute("id", "addContentWrapper");
+//  
+//  let toFrame = document.createElement('iframe');
+//  toFrame.setAttribute("id", "addWindow");
+//  toFrame.setAttribute("src", newNodeAddress);
+//  let warningTxt = document.createElement('p');
+//  warningTxt.innerHTML = "ERROR: Your browser does not support iframes.";
+//  toFrame.appendChild(warningTxt);
+//  
+//  let addNoteButton = document.createElement('button');
+//  addNoteButton.setAttribute("id", "addNoteBtn");
+//  addNoteButton.setAttribute("type", "button");
+//  addNoteButton.setAttribute("onclick", "appendNote()");
+//  addNoteButton.innerHTML = "Add Sticky Note";
+//    
+//  let addPicButton = document.createElement('input');
+//  addPicButton.setAttribute("id", "addPicBtn");
+//  addPicButton.setAttribute("type", "file");
+//  addPicButton.setAttribute("onclick", "appendPic()");
+//    
+//  let closeButton = document.createElement('button');
+//  closeButton.setAttribute("id", "closeWindowBtn");
+//  closeButton.setAttribute("type", "button");
+//  closeButton.setAttribute("onclick", "closeContentWindow()");
+//  closeButton.innerHTML = "Close Content Window";
+//  
+//  wrapper.appendChild(toFrame);
+//  wrapper.appendChild(addNoteButton);
+//  wrapper.appendChild(addPicButton);
+//  wrapper.appendChild(closeButton);
+//  
+//  
+//  document.getElementById("content_container").appendChild(wrapper);
+//  addEleToList(e);    
+//  addWindowOpen = true;
+//}
 
-  // Don't know why the elements does not append. TODO
-  var openWindow = window.open(newNodeAddress).document.body.innerHTML += appendElement;
+function closeContentWindow() {
+  let wrapper = document.getElementById("addContentWrapper");
+  let windowFrame = document.getElementById("addWindow");
+  let noteBtn = document.getElementById("addNoteBtn");
+  let picBtn = document.getElementById("addPicBtn");
+  let closeBtn = document.getElementById("closeWindowBtn");
+  windowFrame.parentNode.removeChild(windowFrame);
+  noteBtn.parentNode.removeChild(noteBtn);
+  picBtn.parentNode.removeChild(picBtn);
+  closeBtn.parentNode.removeChild(closeBtn);
+  wrapper.parentNode.removeChild(wrapper);
+  addWindowOpen = false;
+}
 
+function appendNote() {
+  let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 100px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';  
+  let addWindow = document.getElementById("addWindow");
+  addWindow.contentWindow.document.body.innerHTML += appendElement;
+}
+
+function appendPic() {  
+  let appendElement = document.createElement('img');
+  appendElement.setAttribute("width", "235");
+  appendElement.setAttribute("alt", "Loading Image...");
+  let addWindow = document.getElementById("addWindow");
+  addWindow.contentWindow.document.body.appendChild(appendElement);
+    
+  let imgList = addWindow.contentWindow.document.querySelectorAll('img'); //selects the query named img
+  let preview = imgList[imgList.length-1];
+  let file    = document.querySelector('input[type=file]').files[0];
+  let reader  = new FileReader();
+    
+  reader.onloadend = function () {
+    preview.src = reader.result;
+  }
+
+  if (file) reader.readAsDataURL(file); //reads the data as a URL
+  else preview.src = "";
+}
+
+function addEleToList(e) {
   if (nodes.find(x => x.id === hoveredEle)) {
-    nodes.find(x => x.id === hoveredEle).content = true;
+    nodes.find(x => x.id === hoveredEle).content = "true";
+    if (document.getElementById(hoveredEle)) { //Prevent finding null to error out the entire page;
+      document.getElementById(hoveredEle).setAttribute("content","true");
+    }
   }
   else if (links.find(x => x.id === hoveredEle)) {
-    links.find(x => x.id === hoveredEle).content = true;
+    links.find(x => x.id === hoveredEle).content = "true";
+    if (document.getElementById(hoveredEle)) { 
+      document.getElementById(hoveredEle).setAttribute("content","true");
+    }
   }
   else {
       console.warn("Node/Link NOT FOUND");
   }
-
-
 }
 
-function showContent(ele) {
-    var addressToFrame = "http://webstrates.ucsd.edu/" + ele;
-    var wrapper = document.createElement('div');
-    wrapper.setAttribute("id", "showing");
-    var toFrame = '<iframe src="'+ addressToFrame + '" style="position: absolute;left: 8px;top: 8px;width: 300px;height: 300px;"><p>ERROR: Your browser does not support iframes.</p></iframe>';
-    wrapper.innerHTML = toFrame;
+function previewContent(ele) {
+    let addressToFrame = WEBSTRATES_URL_PREFIX + ele;
+    
+    let wrapper = document.createElement('div');
+    wrapper.setAttribute("id", "previewing");
+    
+    let toFrame = document.createElement('iframe');
+    toFrame.setAttribute("id", "previewIframe");
+    toFrame.setAttribute("src", addressToFrame);
+    
+    let warningTxt = document.createElement('p');
+    warningTxt.innerHTML = "ERROR: Your browser does not support iframes.";
+    
+    toFrame.appendChild(warningTxt);
+    wrapper.appendChild(toFrame);
     document.body.appendChild(wrapper);
 }
