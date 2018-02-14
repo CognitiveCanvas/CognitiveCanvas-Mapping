@@ -34,20 +34,20 @@ function selectNodeByDirection(direction){
 
   switch(direction){
     case "right":
-      minAngle = -45;
-      maxAngle = 45;
+      minAngle = RIGHT_MIN_ANGLE;
+      maxAngle = RIGHT_MAX_ANGLE;
       break;
     case "up":
-      minAngle = 45;
-      maxAngle = 135;
+      minAngle = UP_MIN_ANGLE;
+      maxAngle = UP_MAX_ANGLE;
       break;
     case "left":
-      minAngle = 135;
-      maxAngle = -135;
+      minAngle = LEFT_MIN_ANGLE;
+      maxAngle = LEFT_MAX_ANGLE;
       break;
     case "down":
-      minAngle = -135;
-      maxAngle = -45;
+      minAngle = DOWN_MIN_ANGLE;
+      maxAngle = DOWN_MAX_ANGLE;
       break;
     default:
       break;
