@@ -62,12 +62,13 @@ function addLabel(text, node, placeholderText=true){
   label.style.left = cx + "px";
   label.style.top = cy + "px";
   
-  label.onkeypress = (e) => {
+  label.onkeydown = (e) => {
     //console.log(e.key)
-    e.stopImmediatePropagation();
     switch(e.key){
       case "Enter":
       case "Tab":
+        e.preventDefault();
+        e.stopImmediatePropagation();
         createLabelFromInput(node, label);
         break;
       default:

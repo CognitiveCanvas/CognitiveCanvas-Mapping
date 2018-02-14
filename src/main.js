@@ -43,6 +43,7 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
 canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
 window.addEventListener("keypress", (e) => keyPressListener(e));
+window.addEventListener("keydown", (e) => keyDownListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
@@ -203,12 +204,6 @@ function keyPressListener(e) {
   console.log("key: " + key);
 
   switch(key) {
-    case "Tab": // Tab
-      if (!temp_label_div) {
-        e.preventDefault();
-        quickAddX += quickAddDist;
-        quickAddY -= quickAddDist;
-      }
     case "Enter": // Enter
       if (!temp_label_div) {
         console.log("quick adding with enter");
@@ -220,11 +215,46 @@ function keyPressListener(e) {
         addLabel("Node Name", node);
       }
       break;
-    case"Delete":
-      console.log(d3.selectAll(".node.selected"));
-      console.log(d3.selectAll(".link.selected"));
-      d3.selectAll(".node.selected").each(function(){removeNode(this)});
-      d3.selectAll(".link.selected").each(function(){removeLink(this)});
+    case "1": // #1
+      if (hoveredEle && !addWindowOpen) addEleContent(e);
+      break;
+    default:
+      //Edit a node's label if one node is selected and an alphanumeric key is pressed
+      if(!temp_label_div){
+        //console.log("key press on node was triggered");
+        e.preventDefault();
+        var regExp = /^[A-Za-z0-9]+$/;
+        var selectedNodes = d3.selectAll(".selected");
+        if(key.match(regExp) && key.length === 1 && selectedNodes.size() === 1){
+          addLabel(e.key, selectedNodes.node(), false);
+        }
+      }
+      break;
+  }
+}
+
+function keyDownListener(e){
+  var key = e.key;
+  console.log("keyDown: " + key);
+  switch(key) {
+    case "Tab": // Tab
+      if (!temp_label_div) {
+        console.log("quick adding with tab");
+        e.preventDefault();
+        quickAddX += quickAddDist;
+        let addedNode = addNode();
+        let node = drawNode(addedNode, quickAddX, quickAddY);
+        selectNode(node);
+        addLabel("Node Name", node);
+      }
+      break;
+    case "Backspace":
+      if(!temp_label_div){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        d3.selectAll(".node.selected").each(function(){removeNode(this)});
+        d3.selectAll(".link.selected").each(function(){removeLink(this)});
+      }
       break;
     case "ArrowRight":
       selectNodeByDirection("right");
@@ -238,23 +268,7 @@ function keyPressListener(e) {
     case "ArrowDown":
       selectNodeByDirection("down");
       break;
-    case "q": // Q
-      console.log("Quick add toggled");
-      quickAdd = !quickAdd;
-      break
-    case "1": // #1
-      if (hoveredEle && !addWindowOpen) addEleContent(e);
-      break;
     default:
-      //Edit a node's label if one node is selected and an alphanumeric key is pressed
-      if(!temp_label_div){
-        //console.log("key press on node was triggered");
-        var regExp = /^[A-Za-z0-9]+$/;
-        var selectedNodes = d3.selectAll(".selected");
-        if(key.match(regExp) && selectedNodes.size() === 1){
-          addLabel(e.key, selectedNodes.node(), false);
-        }
-      }
       break;
   }
 }
@@ -285,7 +299,7 @@ function singleClickEvent(e) {
         console.log("node rep was clicked");
         if( d3.select(e.target.parentNode).classed("selected") ){
           console.log("Adding a label it a selected node that was clicked");
-          addLabel("Node Name", e.target.parentNode);
+          addLabel(null, e.target.parentNode, false);
         } else{
           selectNode(e.target.parentNode, !e.shiftKey);
         }
@@ -330,11 +344,11 @@ function doubleClickEvent(e) {
       if( !node.classed("selected") ){
         selectNode(node.node(), !e.shiftKey);
       }
-      addLabel("node", node.node() );
+      addLabel(null, node.node(), false);
       break;
     case "link-rep":
       var link = e.target.parentNode;
-      addLabel("edge", link );
+      addLabel(null, link, false);
       break;
     case "selection_area":
       addedNode = addNode();
