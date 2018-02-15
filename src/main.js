@@ -126,7 +126,7 @@ function mouseMoveListener(e) {
   if (mouseDown > 0) {
     mouseMoved = true
   }
-  if (mouseDown === 1 && mouseUp === 0) {
+  if (mouseDown === 1 && mouseUp === 0 && !panMode) {
     if(dragged_object){
       var selection = d3.select(dragged_object);
       if(selection.classed("node")){
@@ -340,7 +340,8 @@ function doubleClickEvent(e) {
   switch(className) {
     case "canvas":
       addedNode = addNode();
-      var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+      new_canvas = screenToCanvasPosition(e.clientX, e.clientY);
+      var node = drawNode(addedNode, new_canvas[0], new_canvas[1], defaultShape, radius, defaultColor);
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
       break;
@@ -358,7 +359,8 @@ function doubleClickEvent(e) {
       break;
     case "selection_area":
       addedNode = addNode();
-      var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
+      new_canvas = screenToCanvasPosition(e.clientX, e.clientY);
+      var node = drawNode(addedNode, new_canvas[0], new_canvas[1], defaultShape, radius, defaultColor);
       selectNode(node, false);
       addLabel("Node Name", node);
       addNodeToGroup(addedNode, e.target);
@@ -401,8 +403,8 @@ function deleteEntity(entities, id) {
 }
 
 function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=defaultColor) {
-  let x = parseInt(cx) + parseInt(-1*getNodePosition(canvas)[0])
-  let y = parseInt(cy) + parseInt(-1*getNodePosition(canvas)[1])
+  let x = parseInt(cx) /*+ parseInt(-1*getNodePosition(canvas)[0]);*/
+  let y = parseInt(cy) /*+ parseInt(-1*getNodePosition(canvas)[1]);*/
   if (shape === "circle") {
     var nodeG = d3.select(canvas)
       .append("g")
@@ -634,9 +636,10 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
-    quickAddX = e.pageX;
-    quickAddY = e.pageY;
-    translateNode(dragged_object, e.pageX, e.pageY);
+    trans = screenToCanvasPosition(e.pageX, e.pageY);
+    quickAddX = trans[0];
+    quickAddY = trans[1];
+    translateNode(dragged_object, trans[0], trans[1]);
   }
 }
 

@@ -60,8 +60,9 @@ function addLabel(text, node, placeholderText=true){
     default:
       break;
   }
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
+  canv_trans = canvasToScreenPosition(cx,cy);
+  label.style.left = canv_trans[0] + "px";
+  label.style.top = canv_trans[1] + "px";
   
   label.onkeydown = (e) => {
     //console.log(e.key)
