@@ -6,3 +6,12 @@ var SPATIAL_LAYOUT_DP = "spatial-layout";
 
 var MAX_RADIUS = 60;
 var WEBSTRATES_URL_PREFIX = "http://webstrates.ucsd.edu/";
+
+var RIGHT_MIN_ANGLE = -45;
+var RIGHT_MAX_ANGLE = 45;
+var UP_MIN_ANGLE = -45;
+var UP_MAX_ANGLE = 135;
+var LEFT_MIN_ANGLE = 135;
+var LEFT_MAX_ANGLE = -135;
+var DOWN_MIN_ANGLE = -135;
+var DOWN_MAX_ANGLE = -45;

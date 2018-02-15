@@ -1,3 +1,4 @@
+//TODO: Fix bug where D3 see's nodes as "old" and tries to replace them all.  This function is currently unused
 function redraw() {
   console.log("here");
   let nodeElements = d3.select(canvas)
