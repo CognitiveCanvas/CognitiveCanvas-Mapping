@@ -5,7 +5,7 @@ var links = [];
 var clientId, active_node, dragged_object = null;
 var drag_offset = [0, 0];
 
-var canvas = document.getElementById("#canvas");
+var canvas = document.getElementById("canvas");
 var radius = 20;
 var height = 40;
 var width = 40;
@@ -138,7 +138,7 @@ function mouseMoveListener(e) {
       }else if(selection.classed("selection_area")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else if(!panMode){
+    }else{
       console.log("drawing selection area");
       drawSelectionArea(e);
 
@@ -247,12 +247,12 @@ function keyPressListener(e) {
 function singleClickEvent(e) {
   let entity = e.target.getAttribute("class").split(" ")[0];
 
-  if(selection_area){
+  if(selection_area && !panMode){
     console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
     console.log("single click while there is a dragged object");
-  } else {
+  } else if (!panMode){
     let addedNode = null;
     console.log("regular single click");
     switch(entity) {
@@ -343,9 +343,8 @@ function deleteEntity(entities, id) {
 }
 
 function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=defaultColor) {
-  let x = parseInt(cx)
-  let y = parseInt(cy)
-
+  let x = parseInt(cx) + parseInt(-1*getNodePosition(canvas)[0])
+  let y = parseInt(cy) + parseInt(-1*getNodePosition(canvas)[1])
   if (shape === "circle") {
     var nodeG = d3.select(canvas)
       .append("g")
@@ -704,6 +703,10 @@ function translateNode(node, x, y, relative=false){
 
 function getNodePosition(node){
   return d3.transform(d3.select(node).attr("transform")).translate;
+}
+
+function getNodeScale(node){
+  return d3.transform(d3.select(node).attr("transform")).scale;
 }
 
 

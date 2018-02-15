@@ -19,6 +19,7 @@ function addLabel(text, node){
   var textNode = label.appendChild(document.createElement("input"));
   textNode.value = text;
   temp_label_div = label;
+  // Get the canvas translations
 
   var cx = 0;
   var cy = 0;

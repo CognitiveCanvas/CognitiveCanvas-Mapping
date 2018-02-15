@@ -1,9 +1,18 @@
 #d3_container {
     height: 100%;
     width: 75%;
-    margin: 0;
+    margin: 0px;
+    position: absolute;
+    overflow: hidden;
+    background: rgba(0,0,0,0);
 }
+#CogCanvas {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
 
+}
 #content_container {
     height: 100%;
     width: 25%;
@@ -43,10 +52,10 @@ body {
 }
 
 #canvas {
-    height: 100%;
-    width: 75%;
-    margin: 0;
-    position: absolute;
+    height: 10000px;
+    width: 10000px;
+    background: black;
+    position: relative;
 }
 
 #canvas_viewport {
@@ -54,6 +63,7 @@ body {
     width: 100%;
     margin: 0;
     position: absolute;
+    overflow: hidden;
 }
 
 
