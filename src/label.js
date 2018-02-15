@@ -123,7 +123,6 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
->>>>>>> origin/master
         break;
       default:
         if (name === "node") {
@@ -215,5 +214,4 @@ function handleClickDuringLabelInput(){
     createLabelFromInput(node, temp_label_div);
   }
   return;
->>>>>>> origin/master
 }
