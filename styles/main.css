@@ -139,6 +139,7 @@ body {
     height: 10vw;
     font-size: 15;
     border-radius: 50%;
+    float: left;
 }
 
 .drag_line {

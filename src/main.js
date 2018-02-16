@@ -855,12 +855,15 @@ function toggleDrawFunc() {
   if (drawing_enabled) {
     toolPalette.style.visibility = "hidden";
     pad.setAttribute("class", "");
-    toggltBtn.innerHTML = "Disable Drawing!";
+    toggltBtn.innerHTML = "Enable Drawing!";
+    console.log(toggltBtn.innerHTML);
   } 
   else {
     toolPalette.style.visibility = "visible";
     pad.setAttribute("class", "drawable");
-    toggltBtn.innerHTML = "Enable Drawing!";
+    toggltBtn.innerHTML = "Disable Drawing!";
+    console.log(toggltBtn.innerHTML);
   }
   drawing_enabled = !drawing_enabled;
+  
 }
