@@ -142,6 +142,15 @@ body {
     float: left;
 }
 
+.selected .node-rep{
+    stroke: orange;
+    stroke-width: 5px;
+}
+
+.selected .link-rep{
+    stroke: orange;
+}
+
 .drag_line {
     stroke: #999;
     stroke-width: 5;
