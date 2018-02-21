@@ -149,6 +149,13 @@ function mouseOverListener(e) {
   
   switch(className) {
     case "node-rep":
+      hoveredEle = e.target.parentElement.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+        if (nodes.find(x => x.id === hoveredEle).content === "true"){
+            previewContent(hoveredEle);
+        }
+      }
+      break;
     case "label":
       hoveredEle = e.target.parentElement.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
@@ -175,6 +182,16 @@ function mouseOutListener(e) {
 
   switch(className) {
     case "node":
+      if (nodes.find(x => x.id === hoveredEle)) {
+        if (nodes.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("previewing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }
+      break;
+    case "label":
       if (nodes.find(x => x.id === hoveredEle)) {
         if (nodes.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("previewing");
