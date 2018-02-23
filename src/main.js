@@ -149,8 +149,9 @@ function mouseMoveListener(e) {
   }
 }
 
-
 function mouseOverListener(e) {
+  if (drawing_enabled) return;
+  
   let className = e.target.getAttribute("class").split(" ")[0];
   
   switch(className) {
@@ -184,6 +185,8 @@ function mouseOverListener(e) {
 }
 
 function mouseOutListener(e) {
+  if (drawing_enabled) return;    
+
   let className = e.target.getAttribute("class").split("-")[0];
 
   switch(className) {
