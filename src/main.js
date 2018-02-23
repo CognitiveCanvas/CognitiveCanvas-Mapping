@@ -47,6 +47,8 @@ window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
 function mouseUpListener(e) {
+  if (drawing_enabled) return; 
+    
   mouseUp++;
 
   if(mouseUp === 1 && dragged_object && !mouseMoved ){
@@ -73,6 +75,8 @@ function mouseUpListener(e) {
 }
 
 function mouseDownListener(e) {
+  if (drawing_enabled) return; 
+    
   mouseDown++;
   e.preventDefault();
   if(temp_label_div){
@@ -121,6 +125,8 @@ function rightClickListener(e) {
 }
 
 function mouseMoveListener(e) {
+  if (drawing_enabled) return; 
+  
   if (mouseDown > 0) {
     mouseMoved = true
   }

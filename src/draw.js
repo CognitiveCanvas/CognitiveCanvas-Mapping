@@ -45,12 +45,12 @@ webstrate.on("loaded", function() {;
                     y: c.x
                 };
                 let len = Math.sqrt(n.x * n.x + n.y * n.y);
-                if (len == 0) continue;
+                if (len === 0) continue;
                 let u = {
                     x: n.x / len,
                     y: n.y / len
                 };
-
+                
                 newPoints.push({
                     x: p.x + u.x * p.thickness,
                     y: p.y + u.y * p.thickness
@@ -76,7 +76,7 @@ webstrate.on("loaded", function() {;
                     x: n.x / len,
                     y: n.y / len
                 };
-
+                
                 newPoints.push({
                     x: p.x + u.x * p.thickness,
                     y: p.y + u.y * p.thickness
@@ -97,6 +97,9 @@ webstrate.on("loaded", function() {;
 
             return pathString;
         }
+        
+        
+        
 
         const onPenDown = (pen, points, path) => {
             const { x, y, thickness } = pen;
@@ -207,7 +210,26 @@ webstrate.on("loaded", function() {;
         const toolPalette = createToolPalette();
         
 
-        const getPenPoint = (event, touch) => {
+        const getMousePenPoint = (event) => {
+            let transformable = event.target.closest('.transformable') || event.target.closest('.transformable-local');
+
+            // This is a hack and workaround because the outermost canvas uses the body as hammer target and therefore, we try
+            // to find the actual drawable.
+            if (!transformable) {
+                transformable = event.target.querySelector('.transformable-local');
+            }
+
+            if (transformable) {
+                let penPoint = new Transformer.Point(event.clientX, event.clientY);
+                return transformable.transformer.fromGlobalToLocal(penPoint);
+            }
+            return {
+                x: event.clientX,
+                y: event.clientY
+            };
+        }
+        
+        const getTouchPenPoint = (event, touch) => {
             let transformable = event.target.closest('.transformable') || event.target.closest('.transformable-local');
 
             // This is a hack and workaround because the outermost canvas uses the body as hammer target and therefore, we try
@@ -248,14 +270,16 @@ webstrate.on("loaded", function() {;
         let points = [];
         let timeout;
 
-        window.addEventListener("touchstart", event => {
+        window.addEventListener("mousedown", event => {
             if (!drawing_enabled) return;
             
-            if (event.touches.length !== 1) return;
-
-            let touch = event.touches[0];
-
-            if (touch.force === 0) return;
+            console.log(event);
+            
+//            if (event.touches.length !== 1) return;
+//
+//            let touch = event.touches[0];
+//
+//            if (touch.force === 0) return;
 
             if (event.target.closest('.instrument-tool')) return;
 
@@ -287,7 +311,86 @@ webstrate.on("loaded", function() {;
             path = document.createElementNS(ns, "path");
             points.length = 0;
 
-            const pen = getPenPoint(event, touch);
+            const pen = getMousePenPoint(event);
+            //pen.thickness = getPenThickness(event, touch.force);
+            pen.thickness = 8;
+            pen.color = penColor ? penColor : "black";
+
+            onPenDown(pen, points, path);
+        }, true);
+
+        window.addEventListener("mousemove", event => {
+            if (!drawing_enabled) return;
+            
+            if (path === null) return;
+            
+            console.log(event);
+            
+//            if (event.touches.length !== 1) return;
+//
+//            let touch = event.touches[0];
+//
+//            if (touch.force === 0) return;
+
+            if (event.target.closest('.instrument-tool')) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            const pen = getMousePenPoint(event);
+//            pen.thickness = getPenThickness(event, touch.force);
+            pen.thickness = 8;
+            pen.color = penColor ? penColor : "black";
+            
+            console.log(pen);
+            console.log(points);
+            console.log(path);
+
+            onPenMove(pen, points, path);
+        }, true);
+        
+        window.addEventListener("touchstart", event => {
+            if (!drawing_enabled) return;
+            if (event.touches.length !== 1) return;
+            let touch = event.touches[0];
+            if (touch.force === 0) return;
+            if (event.target.closest('.instrument-tool')) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            window.isManipulationEnabled = false;
+            
+            let drawable = event.target.closest('.drawable');
+            if (!drawable) {
+                drawable = event.target.querySelector('.drawable');
+            }
+            svg = drawable.querySelector(':scope>svg');
+
+            if (!svg) {
+                svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                svg.setAttribute("xlink", "http://www.w3.org/1999/xlink");
+                svg.setAttribute("xmlns:xlink", "");
+                svg.setAttribute("class", "drawing-canvas")
+
+                drawable.insertBefore(svg, drawable.firstElementChild);
+            }
+
+            path = document.createElementNS(ns, "path");
+            points.length = 0;
+
+            const pen = getTouchPenPoint(event, touch);
             pen.thickness = getPenThickness(event, touch.force);
             pen.color = penColor ? penColor : "black";
 
@@ -296,11 +399,8 @@ webstrate.on("loaded", function() {;
 
         window.addEventListener("touchmove", event => {
             if (!drawing_enabled) return;
-            
             if (event.touches.length !== 1) return;
-
             let touch = event.touches[0];
-
             if (touch.force === 0) return;
 
             if (event.target.closest('.instrument-tool')) {
@@ -314,9 +414,13 @@ webstrate.on("loaded", function() {;
             event.stopPropagation();
             event.stopImmediatePropagation();
 
-            const pen = getPenPoint(event, touch);
+            const pen = getTouchPenPoint(event, touch);
             pen.thickness = getPenThickness(event, touch.force);
             pen.color = penColor ? penColor : "black";
+            
+            console.log(pen);
+            console.log(points);
+            console.log(path);
 
             onPenMove(pen, points, path);
         }, true);
@@ -328,5 +432,7 @@ webstrate.on("loaded", function() {;
                 window.isManipulationEnabled = true;
             }, 250);
         }, true);
+        
+        
     })();
 });
