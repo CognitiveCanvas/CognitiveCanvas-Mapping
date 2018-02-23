@@ -130,12 +130,12 @@ webstrate.on("loaded", function() {;
       const clearCanvas = document.createElement("div");
       clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
       clearCanvas.addEventListener("touchstart", event => {
-        Array.from(document.querySelectorAll("svg")).forEach(svg => {
+        Array.from(document.querySelectorAll("path")).forEach(svg => {
           svg.remove();
         });
       });
       clearCanvas.addEventListener("click", event => {
-        Array.from(document.querySelectorAll("svg")).forEach(svg => {
+        Array.from(document.querySelectorAll("path")).forEach(svg => {
           svg.remove();
         });
       });
@@ -163,6 +163,21 @@ webstrate.on("loaded", function() {;
         colorsElement.appendChild(colorElement);
 
         colorElement.addEventListener("touchstart", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          if (activeColor) {
+            activeColor.removeAttribute("active");
+          }
+
+          colorElement.setAttribute("active", "true");
+          activeColor = colorElement;
+
+          penColor = color;
+        }, true);
+        
+        colorElement.addEventListener("click", event => {
           event.preventDefault();
           event.stopPropagation();
           event.stopImmediatePropagation();

@@ -852,7 +852,7 @@ function previewContent(ele) {
 function initToolPalette() {
     let toolPalette = document.createElement("transient");
     toolPalette.setAttribute("id", "tool-palette");
-    document.body.appendChild(toolPalette);
+    document.getElementById("content_container").appendChild(toolPalette);
     document.getElementById("tool-palette").style.visibility = "hidden";
 }
 
