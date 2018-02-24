@@ -556,9 +556,12 @@ function selectLineDest(e) {
   if (dragged_object) {
     dragged_object = null
   }
-  var selection = d3.select(e.target.parentNode)
-  let sourceNode = d3.select(source_node);
-  if (sourceNode && selection.classed("node")) {
+  var selection = $(e.target).parents(".node");
+  let sourceNode = $(source_node);
+  if (sourceNode && 
+      $(selection).hasClass("node") && 
+      selection.attr("id") != sourceNode.attr("id")) 
+  {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
     drawLink(addedLink);
     source_node = null;
