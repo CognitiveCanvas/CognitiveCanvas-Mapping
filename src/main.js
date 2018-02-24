@@ -359,10 +359,10 @@ function doubleClickEvent(e) {
     case "node-rep":
     case "label":
     case "label-line":
-      if( !node.classed("selected") ){
-        selectNode(node.node(), !e.shiftKey);
+      if( $(node).hasClass("selected") ){
+        selectNode(node, !e.shiftKey);
       }
-      addLabel(null, node.node(), false);
+      addLabel(null, node, false);
       break;
     case "link-rep":
       var link = e.target.parentNode;
@@ -543,7 +543,7 @@ function selectDraggedObject(e) {
   var parentNode = $(e.target).parents(".node").get(0);
   if (parentNode) {
     dragged_object = parentNode;
-    selectNode(parentNode);
+    //selectNode(parentNode);
   } else if( $(e.target).hasClass("selection_area") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
