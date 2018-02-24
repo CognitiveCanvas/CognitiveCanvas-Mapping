@@ -69,12 +69,12 @@ function addLabel(text, node, placeholderText=true){
   var num_labels = d3.select(node).selectAll(".label").size();
   
   // If a label already exists
-  let labelText = checkLabelExisted(node);
-  labelText = labelText ? labelText : text;
+  let previousLabel = checkLabelExisted(node);
+  labelText = text || previousLabel;
 
   // Adding an editable div outside
   d3.select(label).classed("label-input", true);
-  var textNode = label.appendChild(document.createTextNode(labelText));
+  label.value = labelText;
   label.style.position = "absolute";
   label.setAttribute("z-index", "1");
   label.setAttribute("contenteditable", "true");

@@ -305,21 +305,19 @@ function singleClickEvent(e) {
         deselectAllObjects();
         break;
       case "node-rep":
+      case "link-rep":
       case "label":
       case "label-line":
         console.log("node rep was clicked");
-        var node = $(e.target).parents(".node,.link").get(0);
+        var node = getParentMapElement(e.target);
         styleNode = e.target;
         console.log("styleNode", styleNode);
         if( d3.select(node).classed("selected") ){
           console.log("Adding a label it a selected node that was clicked");
-          addLabel(null, node, false);
+          addLabel(null, node);
         } else{
           selectNode(node, !e.shiftKey);
         }
-        break;
-      case "link-rep":
-        selectNode(e.target.parentNode, !e.shiftKey);
         break;
       case "selection_area":
         addedNode = addNode(e.clientX, e.clientY);
@@ -347,7 +345,7 @@ function doubleClickEvent(e) {
   e.preventDefault();
   let selection = d3.select(e.target);
   let className = selection.attr("class").split(" ")[0]
-  var node = $(e.target).parents(".node").get(0);
+  var node = getParentMapElement(e.target);
   console.log(className);
   switch(className) {
     case "canvas":
@@ -357,16 +355,13 @@ function doubleClickEvent(e) {
       addLabel("Node Name", node);
       break;
     case "node-rep":
+    case "link-rep":
     case "label":
     case "label-line":
-      if( $(node).hasClass("selected") ){
+      if( !$(node).hasClass("selected") ){
         selectNode(node, !e.shiftKey);
       }
-      addLabel(null, node, false);
-      break;
-    case "link-rep":
-      var link = e.target.parentNode;
-      addLabel(null, link, false);
+      addLabel(null, node);
       break;
     case "selection_area":
       addedNode = addNode();
@@ -657,6 +652,15 @@ function translateNode(node, x, y, relative=false){
 function getNodePosition(node){
   node = node instanceof d3.selection ? node : d3.select(node);
   return d3.transform( node.attr("transform") ).translate;
+}
+
+/**
+**Gets the parent of 'element' with the class fitting a top-level map element (node or link)
+**The parent can be several levels up from the element
+**Element: the DOM element which is a component of a node or link
+**/
+function getParentMapElement(element){
+  return $(element).parents(".node,.link").get(0);
 }
 
 
