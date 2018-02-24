@@ -108,16 +108,15 @@ body {
     z-index: 1;
     position: absolute;
     height: 25px;
-    text-align: center;
-    border: none;
-    background: transparent;
 }
 
 .label-input input{
-  position : relative;
-  left: -50%;
-  top: -50%;
-  text-align: center;
+    position : relative;
+    left: -50%;
+    top: -50%;
+    text-align: center;
+    border: none;
+    background: transparent;
 }
 
 .shaking{

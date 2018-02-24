@@ -35,11 +35,7 @@ function checkLabelExisted(node) {
  * @return {[type]}       [description]
  */
 function scaleNode(label, node, cx, cy) {
-  let labelSize = document.getElementById(editId).getBoundingClientRect(); 
-  let labelLeft = cx - labelSize.width / 2;
-  let labelTop = cy - labelSize.height / 2;
-  label.style.left = labelLeft + "px";
-  label.style.top = labelTop + "px";
+  let labelSize = node.getBoundingClientRect(); 
 
   let nodeRep = node.children[0];
 
@@ -65,28 +61,26 @@ function addLabel(text, node, placeholderText=true){
 
   node = node instanceof d3.selection ? node.node() : node;
   let container = document.getElementById("d3_container");
-  let label = document.createElement("input");
-  var num_labels = d3.select(node).selectAll(".label").size();
   
   // If a label already exists
   let previousLabel = checkLabelExisted(node);
   labelText = text || previousLabel;
 
   // Adding an editable div outside
-  d3.select(label).classed("label-input", true);
-  label.value = labelText;
-  label.style.position = "absolute";
-  label.setAttribute("z-index", "1");
-  label.setAttribute("contenteditable", "true");
-  label.setAttribute("id", editId);
-  label.setAttribute("size", label.value.length || 1);
+  let label = document.createElement("div");
+  d3.select(label)
+    .classed("label-input", true)
+    .attr("node-id", node.getAttribute("id"))
+    .append("input")
+    .property("value", labelText)
+    .attr("size", labelText.length || 1);
+  let inputNode = d3.select(label).select("input").node();
 
   if(placeholderText){
     label.setAttribute("placeholder-text", text);
   }
-  label.setAttribute("node-id", node.getAttribute("id"));
-
   temp_label_div = label;
+
   let cx = 0, cy = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
   let name = d3.select(node).attr("class").split(" ")[0];
 
@@ -125,7 +119,7 @@ function addLabel(text, node, placeholderText=true){
         createLabelFromInput(node, label);
         break;
       default:
-        d3.select(label).attr("size", label.value.length + 1);
+        inputNode.setAttribute("size", inputNode.value.length + 1);
         if (name === "node") {
           scaleNode(label, node, cx, cy)
         }
@@ -135,16 +129,9 @@ function addLabel(text, node, placeholderText=true){
 
   container.appendChild(label);
 
-  let labelSize = document.getElementById(editId).getBoundingClientRect(); 
-  console.log(labelSize);
-  let labelLeft = cx - labelSize.width / 2;
-  let labelTop = cy - labelSize.height / 2;
-  label.style.left = labelLeft + "px";
-  label.style.top = labelTop + "px";
-
-  label.focus();
+  inputNode.focus();
   if(placeholderText){
-    label.select();
+    inputNode.select();
   }
 }
 
@@ -152,7 +139,8 @@ function createLabelFromInput(node, label){
   console.log("creating label from input");
   node = node instanceof d3.selection ? node : d3.select(node);
   label = label instanceof d3.selection ? label : d3.select(label);
-  var txt = label.node().value.split("\n");
+  input = label.select("input").node();
+  var txt = input.value.split("\n");
   cx = 0;
   cy = 0;
   switch(node.attr("class").split(" ")[0]){
@@ -204,7 +192,8 @@ function createLabelFromInput(node, label){
 function handleClickDuringLabelInput(){
   console.log("Handling click during label input");
   var label = d3.select(temp_label_div);
-  var inputText = label.node().value;
+  var input = label.select("input");
+  var inputText = input.node().value;
   var placeholderText = label.attr("placeholder-text");
   var node = d3.select('#' + label.attr("node-id"));
 

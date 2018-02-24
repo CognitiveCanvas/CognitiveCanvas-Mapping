@@ -12,7 +12,6 @@ var defaultSize = null;
 var defaultRadius = 20;
 var defaultShape = "circle";
 var defaultColor = "rgba(46, 127, 195, 0.1)";
-var editId = null;
 var styleNode = null;
 
 /* interact.js */
