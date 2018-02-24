@@ -308,7 +308,7 @@ function singleClickEvent(e) {
       case "label":
       case "label-line":
         console.log("node rep was clicked");
-        var node = $(e.target).parents(".node").get(0);
+        var node = $(e.target).parents(".node,.link").get(0);
         styleNode = e.target;
         console.log("styleNode", styleNode);
         if( d3.select(node).classed("selected") ){
