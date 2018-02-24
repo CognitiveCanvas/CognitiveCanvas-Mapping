@@ -108,6 +108,9 @@ body {
     z-index: 1;
     position: absolute;
     height: 25px;
+    text-align: center;
+    border: none;
+    background: transparent;
 }
 
 .label-input input{

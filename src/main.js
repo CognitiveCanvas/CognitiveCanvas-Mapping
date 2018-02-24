@@ -45,7 +45,7 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
 canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
 window.addEventListener("keypress", (e) => keyPressListener(e));
-window.addEventListener("keydown", (e) => keyDownListener(e));
+window.addEventListener("ke ydown", (e) => keyDownListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
@@ -88,9 +88,10 @@ function mouseDownListener(e) {
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
-    selectSrcNode(e);
+    var node = $(e.target).parents(".node").get(0);
+    selectSrcNode(node);
     doubleClickDragTimer = setTimeout(() => {
-      let className = e.target.parentNode.getAttribute("class").split(" ")[0];
+      let className = node.getAttribute("class").split(" ")[0];
       if (className === "node") {
         revealDragLine();
       }
@@ -305,14 +306,16 @@ function singleClickEvent(e) {
         break;
       case "node-rep":
       case "label":
+      case "label-line":
         console.log("node rep was clicked");
+        var node = $(e.target).parents(".node").get(0);
         styleNode = e.target;
         console.log("styleNode", styleNode);
-        if( d3.select(e.target.parentNode).classed("selected") ){
+        if( d3.select(node).classed("selected") ){
           console.log("Adding a label it a selected node that was clicked");
-          addLabel(null, e.target.parentNode, false);
+          addLabel(null, node, false);
         } else{
-          selectNode(e.target.parentNode, !e.shiftKey);
+          selectNode(node, !e.shiftKey);
         }
         break;
       case "link-rep":
@@ -344,6 +347,7 @@ function doubleClickEvent(e) {
   e.preventDefault();
   let selection = d3.select(e.target);
   let className = selection.attr("class").split(" ")[0]
+  var node = $(e.target).parents(".node").get(0);
   console.log(className);
   switch(className) {
     case "canvas":
@@ -354,7 +358,7 @@ function doubleClickEvent(e) {
       break;
     case "node-rep":
     case "label":
-      var node = d3.select(e.target.parentNode);
+    case "label-line":
       if( !node.classed("selected") ){
         selectNode(node.node(), !e.shiftKey);
       }
@@ -536,10 +540,11 @@ function resetState() {
 }
 
 function selectDraggedObject(e) {
-  var selection = d3.select(e.target)
-  if (d3.select(e.target.parentNode).classed("node")) {
-    dragged_object = e.target.parentNode;
-  } else if(selection.classed("selection_area")){
+  var parentNode = $(e.target).parents(".node").get(0);
+  if (parentNode) {
+    dragged_object = parentNode;
+    selectNode(parentNode);
+  } else if( $(e.target).hasClass("selection_area") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
@@ -575,8 +580,8 @@ function hideDragLine() {
           .attr("y2", 0)
 }
 
-function selectSrcNode(e) {
-  source_node = e.target.parentNode;
+function selectSrcNode(node) {
+  source_node = node;
 }
 
 function drawDragLine(e) {
