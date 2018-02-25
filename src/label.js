@@ -135,9 +135,11 @@ function addLabel(text, node, placeholderText=true){
 
   scaleNode(label, node, cx, cy);
 
-  label.focus();
   if(placeholderText){
     selectText(textNode);
+  } else{
+    var cursorPosition = label.appendChild(document.createTextNode(""));  
+    selectText(cursorPosition);
   }
 }
 

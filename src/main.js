@@ -44,7 +44,7 @@ canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
 canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
 window.addEventListener("keypress", (e) => keyPressListener(e));
-window.addEventListener("ke ydown", (e) => keyDownListener(e));
+window.addEventListener("keydown", (e) => keyDownListener(e));
 
 function mouseUpListener(e) {
   mouseUp++;
@@ -210,20 +210,8 @@ function mouseOutListener(e) {
 
 function keyPressListener(e) {
   var key = e.key;
-  console.log("key: " + key);
 
   switch(key) {
-    case "Enter": // Enter
-      if (!temp_label_div) {
-        console.log("quick adding with enter");
-        var selectedNodes = d3.selectAll(".selected");
-        quickAddY += quickAddDist;
-        let addedNode = addNode();
-        let node = drawNode(addedNode, quickAddX, quickAddY);
-        selectNode(node);
-        addLabel("Node Name", node);
-      }
-      break;
     case "1": // #1
       if (hoveredEle && !addWindowOpen) addEleContent(e);
       break;
@@ -246,6 +234,10 @@ function keyDownListener(e){
   var key = e.key;
   console.log("keyDown: " + key);
   switch(key) {
+    case "Enter":
+      console.log("quick adding with enter");
+      quickAddX -= quickAddDist;
+      quickAddY += quickAddDist;
     case "Tab": // Tab
       if (!temp_label_div) {
         console.log("quick adding with tab");
