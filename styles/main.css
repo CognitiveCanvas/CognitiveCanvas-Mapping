@@ -110,16 +110,6 @@ body {
     height: 25px;
 }
 
-.label-input textarea{
-    position : relative;
-    left: -50%;
-    top: -50%;
-    text-align: center;
-    border: none;
-    background: transparent;
-    overflow-y: hidden;
-}
-
 .shaking{
     animation: shake 0.5s;
     animation-iteration-count: 2; 

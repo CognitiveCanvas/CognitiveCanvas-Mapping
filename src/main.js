@@ -354,10 +354,10 @@ function doubleClickEvent(e) {
       addLabel("Node Name", node);
       break;
     case "node-rep":
-    case "link-rep":
+    case "label-rep":
     case "label":
     case "label-line":
-      if( !$(node).hasClass("selected") ){
+      if( $(node).hasClass("selected") ){
         selectNode(node, !e.shiftKey);
       }
       addLabel(null, node);
@@ -653,11 +653,6 @@ function getNodePosition(node){
   return d3.transform( node.attr("transform") ).translate;
 }
 
-/**
-**Gets the parent of 'element' with the class fitting a top-level map element (node or link)
-**The parent can be several levels up from the element
-**Element: the DOM element which is a component of a node or link
-**/
 function getParentMapElement(element){
   return $(element).parents(".node,.link").get(0);
 }
