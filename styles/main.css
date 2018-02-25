@@ -110,13 +110,14 @@ body {
     height: 25px;
 }
 
-.label-input input{
+.label-input textarea{
     position : relative;
     left: -50%;
     top: -50%;
     text-align: center;
     border: none;
     background: transparent;
+    overflow-y: hidden;
 }
 
 .shaking{
