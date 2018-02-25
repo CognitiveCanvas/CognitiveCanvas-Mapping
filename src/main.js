@@ -31,11 +31,7 @@ var source_node = null;
 var hoveredEle = null;
 var zoom = null;
 
-// quick add vars
-var quickAdd = false;
-var quickAddX = 0;
-var quickAddY = 0;
-var quickAddDist = 70;
+var quickAddDist = 10 + MAX_RADIUS;
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
@@ -237,20 +233,8 @@ function keyDownListener(e){
     case "Enter":
     case "Tab": // Tab
       if (!temp_label_div) {
-        var selectedNode = $(".selected").get(0);
-        var offsets = selectedNode.getBoundingClientRect();
-        if(key == "Enter"){
-          console.log("quick adding with enter");
-          quickAddY += offsets.height / 2.0 + quickAddDist;
-        } else{
-          console.log("quick adding with tab");
-          quickAddX += offsets.width / 2.0 + quickAddDist;
-        }
         e.preventDefault();
-        let addedNode = addNode();
-        let node = drawNode(addedNode, quickAddX, quickAddY);
-        selectNode(node);
-        addLabel("Node Name", node);
+        quickAdd(key);
       }
       break;
     case "Backspace":
@@ -595,8 +579,6 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
-    quickAddX = e.pageX;
-    quickAddY = e.pageY;
     translateNode(dragged_object, e.pageX, e.pageY);
   }
 }
@@ -653,6 +635,64 @@ function getParentMapElement(element){
   return $(element).parents(".node,.link").get(0);
 }
 
+function checkIntersectionWithNodes(node){
+  var rect = node.getBoundingClientRect();
+  rect.center = [rect.left + rect.width / 2, rect.top + rect.height / 2];
+  var collisionDetected = false; 
+  $(".node").each( function() {
+    var test = this.getBoundingClientRect();
+    test.center = [test.left + test.width / 2, test.top + test.height / 2];
+    if( node != this){
+      if (Math.abs(rect.center[0] - test.center[0]) <= rect.width / 2 + test.width / 2 &&
+          Math.abs(rect.center[1] - test.center[1]) <= rect.height / 2 + test.height / 2){
+        console.log("collision detected: " + node.getAttribute("id") + ", " + this.getAttribute("id"));
+        console.log("rect.center: "+rect.center + ", test.center: " + test.center + "rect.width: " + rect.width + ", test.width: " + test.width);
+        collisionDetected = true;
+        return false;
+      }
+    }
+  });
+  return collisionDetected;
+}
+
+function quickAdd(key){
+  var selectedNode = $(".selected.node").last().get(0);
+  var quickAddX, quixkAddY;
+
+  if(selectedNode){
+    var nodeDims = selectedNode.getBoundingClientRect();
+    console.log(selectedNode);
+    console.log(nodeDims);
+    if(key == "Enter"){
+      console.log("quick adding with enter");
+      quickAddX = nodeDims.left + nodeDims.width / 2.0;
+      quickAddY = nodeDims.bottom + quickAddDist;
+    } else{
+      console.log("quick adding with tab");
+      quickAddX = nodeDims.right + quickAddDist;
+      quickAddY = nodeDims.top + nodeDims.height / 2.0;
+    }
+  } else{
+    quickAddX = Math.floor(window.innerWidth/2.0);
+    quickAddY = Math.floor(window.innerHeight/2.0)
+  }
+  console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
+
+  let addedNode = addNode();
+  let node = drawNode(addedNode, quickAddX, quickAddY);
+  for(var i = 0; i < 10; i++){
+    console.log("checking for collisions");
+    if( checkIntersectionWithNodes(node) ){
+      console.log("translating quickadded node away from collision");
+      translateNode(node, key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0,  true)
+    } else{
+      console.log("found a collision-free zone");
+      break;
+    }
+  }
+  selectNode(node);
+  addLabel("Node Name", node);
+}
 
 function addEleContent(e) {
   let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
