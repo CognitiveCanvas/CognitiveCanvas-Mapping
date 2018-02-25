@@ -235,14 +235,18 @@ function keyDownListener(e){
   console.log("keyDown: " + key);
   switch(key) {
     case "Enter":
-      console.log("quick adding with enter");
-      quickAddX -= quickAddDist;
-      quickAddY += quickAddDist;
     case "Tab": // Tab
       if (!temp_label_div) {
-        console.log("quick adding with tab");
+        var selectedNode = $(".selected").get(0);
+        var offsets = selectedNode.getBoundingClientRect();
+        if(key == "Enter"){
+          console.log("quick adding with enter");
+          quickAddY += offsets.height / 2.0 + quickAddDist;
+        } else{
+          console.log("quick adding with tab");
+          quickAddX += offsets.width / 2.0 + quickAddDist;
+        }
         e.preventDefault();
-        quickAddX += quickAddDist;
         let addedNode = addNode();
         let node = drawNode(addedNode, quickAddX, quickAddY);
         selectNode(node);
