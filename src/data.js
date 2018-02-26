@@ -31,13 +31,6 @@ function initHTMLElement(parentNode, tagName, checkExisting) {
 }
 
 /**
- * Initialize data element which holds all data
- */
-function initDataElement() {
-  initHTMLElement("body", DATA_COLLECTION, true)
-}
-
-/**
  * This function is used to set attribute of a particular 
  * element in the DOM.
  *
