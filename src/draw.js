@@ -127,6 +127,15 @@ webstrate.on("loaded", function() {;
       const drawingTools = document.createElement("div");
       drawingTools.setAttribute("class", "drawing-instrument-tools");
 
+      const eraser = document.createElement("div");
+      eraser.setAttribute("class", "instrument-tool colors");
+      eraser.style.background = "white";
+      eraser.addEventListener("click", event => {
+        eraser_enabled = !eraser_enabled;
+        console.log("eraser_enabled = " + eraser_enabled);
+      });
+      drawingTools.appendChild(eraser);
+      
       const clearCanvas = document.createElement("div");
       clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
       clearCanvas.addEventListener("touchstart", event => {
@@ -144,7 +153,7 @@ webstrate.on("loaded", function() {;
       const colors = [
         "black",
         "grey",
-        "red",
+        "darkred",
         "green",
         "blue",
         "orange",
@@ -285,81 +294,110 @@ webstrate.on("loaded", function() {;
 
     canvas.addEventListener("mousedown", event => {
       if (!drawing_enabled) return;
-      mouseDown++;
-      if (event.target.closest('.instrument-tool')) return;
+      if (!eraser_enabled) {
+        mouseDown++;
+        if (event.target.closest('.instrument-tool')) return;
 
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
 
-      if (timeout) {
-        clearTimeout(timeout);
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        window.isManipulationEnabled = false;
+
+        let drawable = event.target.closest('.drawable');
+        if (!drawable) {
+          drawable = event.target.querySelector('.drawable');
+        }
+        svg = drawable.querySelector(':scope>svg');
+
+        if (!svg) {
+          svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          svg.setAttribute("xlink", "http://www.w3.org/1999/xlink");
+          svg.setAttribute("xmlns:xlink", "");
+          svg.setAttribute("class", "drawing-canvas")
+
+          drawable.insertBefore(svg, drawable.firstElementChild);
+        }
+
+        path = document.createElementNS(ns, "path");
+        points.length = 0;
+
+        const pen = getMousePenPoint(event);
+        pen.thickness = 5;
+        pen.color = penColor ? penColor : "black";
+
+        onPenDown(pen, points, path);
       }
-      window.isManipulationEnabled = false;
-
-      let drawable = event.target.closest('.drawable');
-      if (!drawable) {
-        drawable = event.target.querySelector('.drawable');
+      
+      else {
+        console.log("eraser mode open");
+        
       }
-      svg = drawable.querySelector(':scope>svg');
-
-      if (!svg) {
-        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        svg.setAttribute("xlink", "http://www.w3.org/1999/xlink");
-        svg.setAttribute("xmlns:xlink", "");
-        svg.setAttribute("class", "drawing-canvas")
-
-        drawable.insertBefore(svg, drawable.firstElementChild);
-      }
-
-      path = document.createElementNS(ns, "path");
-      points.length = 0;
-
-      const pen = getMousePenPoint(event);
-      pen.thickness = 5;
-      pen.color = penColor ? penColor : "black";
-
-      onPenDown(pen, points, path);
     }, true);
 
     canvas.addEventListener("mousemove", event => {
       if (!drawing_enabled) return;
+      if (!eraser_enabled) {
+        if (mouseDown === 0) return;
+        if (mouseUp >= 1 && mouseDown >= 1) {
+          resetState();
+          return;
+        }
 
-      if (mouseDown === 0) return;
-      if (mouseUp >= 1 && mouseDown >= 1) {
-        resetState();
-        return;
-      }
+        if (path === null) return;
 
-      if (path === null) return;
+        if (event.target.closest('.instrument-tool')) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return;
+        }
 
-      if (event.target.closest('.instrument-tool')) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        return;
+
+        const pen = getMousePenPoint(event);
+        pen.thickness = 5;
+        pen.color = penColor ? penColor : "black";
+
+        onPenMove(pen, points, path);
       }
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      const pen = getMousePenPoint(event);
-      pen.thickness = 5;
-      pen.color = penColor ? penColor : "black";
-
-      onPenMove(pen, points, path);
+      
+      else {
+        console.log("eraser mode open");
+      }
+      
     }, true);
 
     canvas.addEventListener("mouseup", event => {
       if (!drawing_enabled) return;
+      if (eraser_enabled) return;
       mouseUp++;
 
       timeout = setTimeout(() => {
         window.isManipulationEnabled = true;
       }, 250);
     }, true);
+    
+    canvas.addEventListener("mouseover", event => {
+      if (!drawing_enabled || !eraser_enabled) return;
+      hoveredEle = event.target;
+      original_color = hoveredEle.getAttribute("fill");
+      hoveredEle.setAttribute("fill", "red");
+    }, true);
+    
+    canvas.addEventListener("mouseout", event => {
+      if (!drawing_enabled || !eraser_enabled) return;
+      hoveredEle.setAttribute("fill", original_color);
+      original_color = null;
+      hoveredEle = null;
+    }, true);
+    
 
 
     /*
@@ -367,45 +405,55 @@ webstrate.on("loaded", function() {;
      * Event: touchstart
      */
     window.addEventListener("touchstart", event => {
-      if (!drawing_enabled) return;
-      if (event.touches.length !== 1) return;
-      let touch = event.touches[0];
-      if (touch.force === 0) return;
-      if (event.target.closest('.instrument-tool')) return;
+      if (!drawing_enabled) return;   // Not in Drawing Mode
+      
+      if (!eraser_enabled) {          // In Drawing Mode, Not in Eraser Mode
+        if (event.touches.length !== 1) return;
+        let touch = event.touches[0];
+        if (touch.force === 0) return;
+        if (event.target.closest('.instrument-tool')) return;
 
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
 
-      if (timeout) {
-        clearTimeout(timeout);
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        window.isManipulationEnabled = false;
+
+        let drawable = event.target.closest('.drawable');
+        if (!drawable) {
+          drawable = event.target.querySelector('.drawable');
+        }
+        svg = drawable.querySelector(':scope>svg');
+
+        if (!svg) {
+          svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          svg.setAttribute("xlink", "http://www.w3.org/1999/xlink");
+          svg.setAttribute("xmlns:xlink", "");
+          svg.setAttribute("class", "drawing-canvas")
+
+          drawable.insertBefore(svg, drawable.firstElementChild);
+        }
+
+        path = document.createElementNS(ns, "path");
+        points.length = 0;
+
+        const pen = getTouchPenPoint(event, touch);
+        pen.thickness = getPenThickness(event, touch.force);
+        pen.color = penColor ? penColor : "black";
+
+        onPenDown(pen, points, path);
       }
-      window.isManipulationEnabled = false;
-
-      let drawable = event.target.closest('.drawable');
-      if (!drawable) {
-        drawable = event.target.querySelector('.drawable');
+      
+      else {                          // In Eraser Mode
+        console.log("eraser mode open");
+        
       }
-      svg = drawable.querySelector(':scope>svg');
-
-      if (!svg) {
-        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        svg.setAttribute("xlink", "http://www.w3.org/1999/xlink");
-        svg.setAttribute("xmlns:xlink", "");
-        svg.setAttribute("class", "drawing-canvas")
-
-        drawable.insertBefore(svg, drawable.firstElementChild);
-      }
-
-      path = document.createElementNS(ns, "path");
-      points.length = 0;
-
-      const pen = getTouchPenPoint(event, touch);
-      pen.thickness = getPenThickness(event, touch.force);
-      pen.color = penColor ? penColor : "black";
-
-      onPenDown(pen, points, path);
+      
+      
     }, true);
 
     /*
@@ -414,26 +462,32 @@ webstrate.on("loaded", function() {;
      */
     window.addEventListener("touchmove", event => {
       if (!drawing_enabled) return;
-      if (event.touches.length !== 1) return;
-      let touch = event.touches[0];
-      if (touch.force === 0) return;
+      if (!eraser_enabled) {
+        if (event.touches.length !== 1) return;
+        let touch = event.touches[0];
+        if (touch.force === 0) return;
 
-      if (event.target.closest('.instrument-tool')) {
+        if (event.target.closest('.instrument-tool')) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        return;
+
+        const pen = getTouchPenPoint(event, touch);
+        pen.thickness = getPenThickness(event, touch.force);
+        pen.color = penColor ? penColor : "black";
+
+        onPenMove(pen, points, path);
       }
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      const pen = getTouchPenPoint(event, touch);
-      pen.thickness = getPenThickness(event, touch.force);
-      pen.color = penColor ? penColor : "black";
-
-      onPenMove(pen, points, path);
+      
+      else {
+        console.log("eraser mode open");
+      }
     }, true);
 
     /*
@@ -444,6 +498,7 @@ webstrate.on("loaded", function() {;
      */
     window.addEventListener("touchend", event => {
       if (!drawing_enabled) return;
+      if (eraser_enabled) return;
       timeout = setTimeout(() => {
         window.isManipulationEnabled = true;
       }, 250);

@@ -23,6 +23,8 @@ var singleClickTimer, doubleClickDragTimer = null;
 var hoveredEle = null;
 var addWindowOpen = false;
 var drawing_enabled = false;
+var eraser_enabled = false;
+var original_color = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null; 
@@ -866,13 +868,17 @@ function toggleDrawFunc() {
     pad.setAttribute("class", "");
     toggltBtn.innerHTML = "Enable Drawing!";
     console.log(toggltBtn.innerHTML);
+    eraser_enabled = false;
   } 
   else {
     toolPalette.style.visibility = "visible";
     pad.setAttribute("class", "drawable");
     toggltBtn.innerHTML = "Disable Drawing!";
     console.log(toggltBtn.innerHTML);
+    eraser_enabled = false;
   }
   drawing_enabled = !drawing_enabled;
+  eraser_enabled = false;
+  console.log("eraser_enabled = " + eraser_enabled);
   
 }
