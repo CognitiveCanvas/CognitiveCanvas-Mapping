@@ -294,8 +294,11 @@ webstrate.on("loaded", function() {;
 
     canvas.addEventListener("mousedown", event => {
       if (!drawing_enabled) return;
+      mouseDown++;
+      
       if (!eraser_enabled) {
-        mouseDown++;
+        console.log("Eraser Mode Off");
+        
         if (event.target.closest('.instrument-tool')) return;
 
         event.preventDefault();
@@ -334,15 +337,19 @@ webstrate.on("loaded", function() {;
       }
       
       else {
-        console.log("eraser mode open");
-        
+        console.log("Eraser Mode On");
+        if (!hoveredEle) return;
+        hoveredEle.parentNode.removeChild(hoveredEle);
+        original_color = null;
+        hoveredEle = null;
       }
     }, true);
 
     canvas.addEventListener("mousemove", event => {
       if (!drawing_enabled) return;
+      if (mouseDown === 0) return;
+      
       if (!eraser_enabled) {
-        if (mouseDown === 0) return;
         if (mouseUp >= 1 && mouseDown >= 1) {
           resetState();
           return;
@@ -369,14 +376,21 @@ webstrate.on("loaded", function() {;
       }
       
       else {
-        console.log("eraser mode open");
+        console.log("Eraser Mode On");
+        if (!hoveredEle) return;
+        hoveredEle.parentNode.removeChild(hoveredEle);
+        original_color = null;
+        hoveredEle = null;
       }
       
     }, true);
 
     canvas.addEventListener("mouseup", event => {
       if (!drawing_enabled) return;
-      if (eraser_enabled) return;
+      if (eraser_enabled) {
+        resetState();
+        return;
+      }
       mouseUp++;
 
       timeout = setTimeout(() => {
@@ -386,6 +400,7 @@ webstrate.on("loaded", function() {;
     
     canvas.addEventListener("mouseover", event => {
       if (!drawing_enabled || !eraser_enabled) return;
+      if (event.target.tagName != "path") return;
       hoveredEle = event.target;
       original_color = hoveredEle.getAttribute("fill");
       hoveredEle.setAttribute("fill", "red");
@@ -393,6 +408,7 @@ webstrate.on("loaded", function() {;
     
     canvas.addEventListener("mouseout", event => {
       if (!drawing_enabled || !eraser_enabled) return;
+      if (!hoveredEle) return;
       hoveredEle.setAttribute("fill", original_color);
       original_color = null;
       hoveredEle = null;
@@ -450,6 +466,10 @@ webstrate.on("loaded", function() {;
       
       else {                          // In Eraser Mode
         console.log("eraser mode open");
+        if (event.target.tagName == "path") {
+          let toRemove = event.target;
+          toRemove.parentNode.removeChild(toRemove);
+        }
         
       }
       
@@ -487,6 +507,10 @@ webstrate.on("loaded", function() {;
       
       else {
         console.log("eraser mode open");
+        if (event.target.tagName == "path") {
+          let toRemove = event.target;
+          toRemove.parentNode.removeChild(toRemove);
+        }
       }
     }, true);
 

@@ -355,6 +355,8 @@ function singleClickEvent(e) {
  *
  */
 function doubleClickEvent(e) {
+  if (drawing_enabled) return;
+  
   clearTimeout(doubleClickDragTimer);
   e.preventDefault();
   let selection = d3.select(e.target);
