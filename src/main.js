@@ -5,13 +5,14 @@ var links = [];
 var clientId, active_node, dragged_object = null;
 
 var canvas = document.getElementById("canvas");
-var radius = 20;
+var radius = 40;
 var height = 40;
 var width = 40;
 var defaultSize = null;
 var defaultRadius = 20;
 var defaultShape = "circle";
-var defaultColor = "#f00";
+var defaultColor = "rgba(46, 127, 195, 0.1)";
+var styleNode = null;
 
 /* interact.js */
 var mouseUp = 0;
@@ -30,11 +31,7 @@ var source_node = null;
 var hoveredEle = null;
 var zoom = null;
 
-// quick add vars
-var quickAdd = false;
-var quickAddX = 0;
-var quickAddY = 0;
-var quickAddDist = 70;
+var quickAddDist = 10 + MAX_RADIUS;
 
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
@@ -86,9 +83,10 @@ function mouseDownListener(e) {
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
-    selectSrcNode(e);
+    var node = $(e.target).parents(".node").get(0);
+    selectSrcNode(node);
     doubleClickDragTimer = setTimeout(() => {
-      let className = e.target.parentNode.getAttribute("class").split(" ")[0];
+      let className = node.getAttribute("class").split(" ")[0];
       if (className === "node") {
         revealDragLine();
       }
@@ -144,6 +142,10 @@ function mouseMoveListener(e) {
 
 
 function mouseOverListener(e) {
+
+  if (e.target.tagName === "tspan") {
+    return;
+  }
   let className = e.target.getAttribute("class").split(" ")[0];
   
   switch(className) {
@@ -170,6 +172,9 @@ function mouseOverListener(e) {
 }
 
 function mouseOutListener(e) {
+  if (e.target.tagName === "tspan") {
+    return;
+  }
   let className = e.target.getAttribute("class").split("-")[0];
 
   switch(className) {
@@ -201,20 +206,8 @@ function mouseOutListener(e) {
 
 function keyPressListener(e) {
   var key = e.key;
-  console.log("key: " + key);
 
   switch(key) {
-    case "Enter": // Enter
-      if (!temp_label_div) {
-        console.log("quick adding with enter");
-        var selectedNodes = d3.selectAll(".selected");
-        quickAddY += quickAddDist;
-        let addedNode = addNode();
-        let node = drawNode(addedNode, quickAddX, quickAddY);
-        selectNode(node);
-        addLabel("Node Name", node);
-      }
-      break;
     case "1": // #1
       if (hoveredEle && !addWindowOpen) addEleContent(e);
       break;
@@ -237,15 +230,11 @@ function keyDownListener(e){
   var key = e.key;
   console.log("keyDown: " + key);
   switch(key) {
+    case "Enter":
     case "Tab": // Tab
       if (!temp_label_div) {
-        console.log("quick adding with tab");
         e.preventDefault();
-        quickAddX += quickAddDist;
-        let addedNode = addNode();
-        let node = drawNode(addedNode, quickAddX, quickAddY);
-        selectNode(node);
-        addLabel("Node Name", node);
+        quickAdd(key);
       }
       break;
     case "Backspace":
@@ -295,19 +284,24 @@ function singleClickEvent(e) {
         deselectAllObjects();
         break;
       case "node-rep":
+      case "link-rep":
       case "label":
+      case "label-line":
         console.log("node rep was clicked");
-        if( d3.select(e.target.parentNode).classed("selected") ){
+        var node = getParentMapElement(e.target);
+        styleNode = e.target;
+        console.log("styleNode", styleNode);
+        if( d3.select(node).classed("selected") ){
           console.log("Adding a label it a selected node that was clicked");
-          addLabel(null, e.target.parentNode, false);
+          addLabel(null, node);
         } else{
-          selectNode(e.target.parentNode, !e.shiftKey);
+          selectNode(node, !e.shiftKey);
         }
         break;
-      case "link-rep":
-        selectNode(e.target.parentNode, !e.shiftKey);
-        break;
       case "selection_area":
+        addedNode = addNode(e.clientX, e.clientY);
+        addLabel("Node Name", addedNode);
+        addNodeToGroup(addedNode, e.target);
         break;
       default:
         break;
@@ -330,6 +324,7 @@ function doubleClickEvent(e) {
   e.preventDefault();
   let selection = d3.select(e.target);
   let className = selection.attr("class").split(" ")[0]
+  var node = getParentMapElement(e.target);
   console.log(className);
   switch(className) {
     case "canvas":
@@ -339,16 +334,13 @@ function doubleClickEvent(e) {
       addLabel("Node Name", node);
       break;
     case "node-rep":
+    case "label-rep":
     case "label":
-      var node = d3.select(e.target.parentNode);
-      if( !node.classed("selected") ){
-        selectNode(node.node(), !e.shiftKey);
+    case "label-line":
+      if( $(node).hasClass("selected") ){
+        selectNode(node, !e.shiftKey);
       }
-      addLabel(null, node.node(), false);
-      break;
-    case "link-rep":
-      var link = e.target.parentNode;
-      addLabel(null, link, false);
+      addLabel(null, node);
       break;
     case "selection_area":
       addedNode = addNode();
@@ -364,9 +356,6 @@ function doubleClickEvent(e) {
   resetState()
 }
 
-
-
-
 /* entity.js */
 function getID() {
   return clientId + "_" + Date.now();
@@ -376,6 +365,22 @@ function addNode() {
   let node = { type: "node", id: getID(), content: "false" };
   n = nodes.push(node);
 
+  return node;
+}
+
+//TODO: Fix bug where nodes are replaced on redraw with d3.enter()
+function addNode(x, y) {
+  let node = { type: "node", 
+               id: getID(), 
+               x: x,
+               y: y,
+               shape: defaultShape,
+               color:defaultColor,
+               radius: radius,
+               content: false };
+  n = nodes.push(node);
+  //redraw(); TODO: Fix bug where nodes are replaced on redraw
+  console.log(nodes);
   return node;
 }
 
@@ -496,65 +501,6 @@ function removeLink(link) {
   link.remove();
 }
 
-/* TODO: initialize the canvas */
-/* init.js */
-webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
-
-function onLoaded(webstrateId, clientId, user) {
-  this.clientId = clientId;
-  getDefaultStyle();
-  initDragLine();
-  initDataElement();
-  reloadElement();
-}
-
-function reloadElement() {
-  let NodeEleCollection = document.getElementsByClassName("node");
-  let EdgeEleCollection = document.getElementsByClassName("link"); 
-  
-  for (i = 0; i < NodeEleCollection.length; i++) {
-    let currNodeEle = NodeEleCollection[i];
-    let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
-    n = nodes.push(node);
-  }
-    
-  for (j = 0; j < EdgeEleCollection.length; j++) {
-    let currEdgeEle = EdgeEleCollection[j];
-    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
-    l = links.push(link);
-  }
-}
-
-function initDragLine() {
-  drag_line = document.getElementById("drag_line");
-  if (drag_line === null) {
-    d3.select(canvas)
-      .append("line")
-      .attr("id", "drag_line")
-      .attr("class", "drag_line")
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-      .attr("y2", 0);
-
-    drag_line = document.getElementById("drag_line");
-  }
-}
-
-function getDefaultStyle() {
-  let defaultStyle = document.getElementsByTagName(DEFAULT_STYLE)[0];
-
-  if (defaultStyle) {
-    defaultShape = defaultStyle.getAttribute("shape")
-                  ? defaultStyle.getAttribute("shape")
-                  : defaultShape;
-
-    defaultColor = defaultStyle.getAttribute("color")
-                  ? defaultStyle.getAttribute("color")
-                  : defaultColor;
-  }
-}
-
 function resetState() {
   //console.log("state was reset");
   mouseDown = 0;
@@ -568,10 +514,11 @@ function resetState() {
 }
 
 function selectDraggedObject(e) {
-  var selection = d3.select(e.target)
-  if (d3.select(e.target.parentNode).classed("node")) {
-    dragged_object = e.target.parentNode;
-  } else if(selection.classed("selection_area")){
+  var parentNode = $(e.target).parents(".node").get(0);
+  if (parentNode) {
+    dragged_object = parentNode;
+    //selectNode(parentNode);
+  } else if( $(e.target).hasClass("selection_area") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
@@ -583,9 +530,12 @@ function selectLineDest(e) {
   if (dragged_object) {
     dragged_object = null
   }
-  var selection = d3.select(e.target.parentNode)
-  let sourceNode = d3.select(source_node);
-  if (sourceNode && selection.classed("node")) {
+  var selection = $(e.target).parents(".node");
+  let sourceNode = $(source_node);
+  if (sourceNode && 
+      $(selection).hasClass("node") && 
+      selection.attr("id") != sourceNode.attr("id")) 
+  {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
     drawLink(addedLink);
     source_node = null;
@@ -607,8 +557,8 @@ function hideDragLine() {
           .attr("y2", 0)
 }
 
-function selectSrcNode(e) {
-  source_node = e.target.parentNode;
+function selectSrcNode(node) {
+  source_node = node;
 }
 
 function drawDragLine(e) {
@@ -629,8 +579,6 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
-    quickAddX = e.pageX;
-    quickAddY = e.pageY;
     translateNode(dragged_object, e.pageX, e.pageY);
   }
 }
@@ -683,6 +631,68 @@ function getNodePosition(node){
   return d3.transform( node.attr("transform") ).translate;
 }
 
+function getParentMapElement(element){
+  return $(element).parents(".node,.link").get(0);
+}
+
+function checkIntersectionWithNodes(node){
+  var rect = node.getBoundingClientRect();
+  rect.center = [rect.left + rect.width / 2, rect.top + rect.height / 2];
+  var collisionDetected = false; 
+  $(".node").each( function() {
+    var test = this.getBoundingClientRect();
+    test.center = [test.left + test.width / 2, test.top + test.height / 2];
+    if( node != this){
+      if (Math.abs(rect.center[0] - test.center[0]) <= rect.width / 2 + test.width / 2 &&
+          Math.abs(rect.center[1] - test.center[1]) <= rect.height / 2 + test.height / 2){
+        console.log("collision detected: " + node.getAttribute("id") + ", " + this.getAttribute("id"));
+        console.log("rect.center: "+rect.center + ", test.center: " + test.center + "rect.width: " + rect.width + ", test.width: " + test.width);
+        collisionDetected = true;
+        return false;
+      }
+    }
+  });
+  return collisionDetected;
+}
+
+function quickAdd(key){
+  var selectedNode = $(".selected.node").last().get(0);
+  var quickAddX, quixkAddY;
+
+  if(selectedNode){
+    var nodeDims = selectedNode.getBoundingClientRect();
+    console.log(selectedNode);
+    console.log(nodeDims);
+    if(key == "Enter"){
+      console.log("quick adding with enter");
+      quickAddX = nodeDims.left + nodeDims.width / 2.0;
+      quickAddY = nodeDims.bottom + quickAddDist;
+    } else{
+      console.log("quick adding with tab");
+      quickAddX = nodeDims.right + quickAddDist;
+      quickAddY = nodeDims.top + nodeDims.height / 2.0;
+    }
+  } else{
+    quickAddX = Math.floor(window.innerWidth/2.0);
+    quickAddY = Math.floor(window.innerHeight/2.0)
+  }
+  console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
+
+  let addedNode = addNode();
+  let node = drawNode(addedNode, quickAddX, quickAddY);
+  for(var i = 0; i < 10; i++){
+    console.log("checking for collisions");
+    if( checkIntersectionWithNodes(node) ){
+      console.log("translating quickadded node away from collision");
+      translateNode(node, key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0,  true)
+    } else{
+      console.log("found a collision-free zone");
+      break;
+    }
+  }
+  selectNode(node);
+  addLabel("Node Name", node);
+}
 
 function addEleContent(e) {
   let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
