@@ -11,6 +11,7 @@
     <script type="text/javascript" src="src/main.js"></script>
     <script type="text/javascript" src="src/data.js"></script>
     <script type="text/javascript" src="src/default-style.js"></script>
+    <script type="text/javascript" src="src/custom-style.js"></script>
     <script type="text/javascript" src="src/layout.js"></script>
     <script type="text/javascript" src="src/draw.js"></script>
     <script type="text/javascript" src="src/init.js"></script>
@@ -26,14 +27,18 @@
         </div>
         <div id="content_container">
             <h3 id="content_header">Content Browser</h3>
-                <div class="dropdown">
-                    <button class="dropbtn">Dropdown</button>
-                    <div class="dropdown-content">
-                        <a href="#">Link 1</a>
-                        <a href="#">Link 2</a>
-                        <a href="#">Link 3</a>
-                    </div>
-                </div>
+                <span id="node_color_container">
+                    <button class="node_color_button" id="green_node"></button>
+                    <button class="node_color_button" id="red_node"></button>
+                    <button class="node_color_button" id="blue_node"></button>
+                    <button class="node_color_button" id="black_node"></button>
+                </span>
+                <span id="node_border_container">
+                    <button class="node_color_button" id="green_border"></button>
+                    <button class="node_color_button" id="red_border"></button>
+                    <button class="node_color_button" id="blue_border"></button>
+                    <button class="node_color_button" id="black_border"></button>
+                </span>
         </div>
     </div>
 </body>
