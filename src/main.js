@@ -880,7 +880,9 @@ function toggleDrawFunc() {
     eraser_enabled = false;
   }
   drawing_enabled = !drawing_enabled;
+  // Reset Eraser and Eraser Button Below;
   eraser_enabled = false;
-  console.log("eraser_enabled = " + eraser_enabled);
+  let eraser = document.querySelector(".drawing-instrument-tools .erase-drawing-canvas");
+  eraser.style.background = "darkgrey";
   
 }

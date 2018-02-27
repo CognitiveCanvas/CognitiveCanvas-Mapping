@@ -128,11 +128,12 @@ webstrate.on("loaded", function() {;
       drawingTools.setAttribute("class", "drawing-instrument-tools");
 
       const eraser = document.createElement("div");
-      eraser.setAttribute("class", "instrument-tool colors");
-      eraser.style.background = "white";
+      eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
       eraser.addEventListener("click", event => {
         eraser_enabled = !eraser_enabled;
         console.log("eraser_enabled = " + eraser_enabled);
+        if (eraser_enabled) eraser.style.background="black";
+        else eraser.style.background = "darkgrey";
       });
       drawingTools.appendChild(eraser);
       
@@ -194,6 +195,9 @@ webstrate.on("loaded", function() {;
           if (activeColor) {
             activeColor.removeAttribute("active");
           }
+          
+          eraser_enabled = false;
+          eraser.style.background = "darkgrey";
 
           colorElement.setAttribute("active", "true");
           activeColor = colorElement;
@@ -338,6 +342,11 @@ webstrate.on("loaded", function() {;
       
       else {
         console.log("Eraser Mode On");
+        
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
         if (!hoveredEle) return;
         hoveredEle.parentNode.removeChild(hoveredEle);
         original_color = null;
@@ -377,6 +386,11 @@ webstrate.on("loaded", function() {;
       
       else {
         console.log("Eraser Mode On");
+        
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
         if (!hoveredEle) return;
         hoveredEle.parentNode.removeChild(hoveredEle);
         original_color = null;
@@ -466,6 +480,11 @@ webstrate.on("loaded", function() {;
       
       else {                          // In Eraser Mode
         console.log("eraser mode open");
+        
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);
@@ -507,6 +526,11 @@ webstrate.on("loaded", function() {;
       
       else {
         console.log("eraser mode open");
+        
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);

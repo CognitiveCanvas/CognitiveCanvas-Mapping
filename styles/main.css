@@ -82,7 +82,34 @@ body {
 
 .drawing-instrument-tools .clear-drawing-canvas:after {
     color: white;
-    content: "clear";
+    content: "delete_forever";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    font-family: 'Material Icons';
+    font-size: 1em;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+.drawing-instrument-tools .erase-drawing-canvas {
+    background: darkgray;
+    float: right;
+    overflow: hidden;
+}
+
+.drawing-instrument-tools .erase-drawing-canvas:after {
+    color: white;
+    content: "format_clear";
     position: absolute;
     left: 50%;
     top: 50%;
