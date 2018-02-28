@@ -869,14 +869,12 @@ function toggleDrawFunc() {
     toolPalette.style.visibility = "hidden";
     pad.setAttribute("class", "");
     toggltBtn.innerHTML = "Enable Drawing!";
-    console.log(toggltBtn.innerHTML);
     eraser_enabled = false;
   } 
   else {
     toolPalette.style.visibility = "visible";
     pad.setAttribute("class", "drawable");
     toggltBtn.innerHTML = "Disable Drawing!";
-    console.log(toggltBtn.innerHTML);
     eraser_enabled = false;
   }
   drawing_enabled = !drawing_enabled;

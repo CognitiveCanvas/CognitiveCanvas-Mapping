@@ -146,7 +146,7 @@ webstrate.on("loaded", function() {;
       eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
       eraser.addEventListener("click", event => {
         eraser_enabled = !eraser_enabled;
-        console.log("eraser_enabled = " + eraser_enabled);
+//        console.log("eraser_enabled = " + eraser_enabled);
         if (eraser_enabled) eraser.style.background="black";
         else eraser.style.background = "darkgrey";
       });
@@ -359,7 +359,6 @@ webstrate.on("loaded", function() {;
       mouseDown++;
       
       if (!eraser_enabled) {
-        console.log("Eraser Mode Off");
         
         if (event.target.closest('.instrument-tool')) return;
 
@@ -399,7 +398,7 @@ webstrate.on("loaded", function() {;
       }
       
       else {
-        console.log("Eraser Mode On");
+//        console.log("Eraser Mode On");
         
         event.preventDefault();
         event.stopPropagation();
@@ -443,7 +442,7 @@ webstrate.on("loaded", function() {;
       }
       
       else {
-        console.log("Eraser Mode On");
+//        console.log("Eraser Mode On");
         
         event.preventDefault();
         event.stopPropagation();
@@ -537,7 +536,7 @@ webstrate.on("loaded", function() {;
       }
       
       else {                          // In Eraser Mode
-        console.log("eraser mode open");
+//        console.log("eraser mode open");
         
         event.preventDefault();
         event.stopPropagation();
@@ -583,7 +582,7 @@ webstrate.on("loaded", function() {;
       }
       
       else {
-        console.log("eraser mode open");
+//        console.log("eraser mode open");
         
         event.preventDefault();
         event.stopPropagation();
