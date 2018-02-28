@@ -3,6 +3,7 @@ webstrate.on("loaded", function() {;
 
     let svg;
     let penColor = "black";
+    let penThickness = 3;
 
     /**
      * Calculates the mid-point between the two points A and B and then returns
@@ -127,16 +128,6 @@ webstrate.on("loaded", function() {;
       const drawingTools = document.createElement("div");
       drawingTools.setAttribute("class", "drawing-instrument-tools");
 
-      const eraser = document.createElement("div");
-      eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
-      eraser.addEventListener("click", event => {
-        eraser_enabled = !eraser_enabled;
-        console.log("eraser_enabled = " + eraser_enabled);
-        if (eraser_enabled) eraser.style.background="black";
-        else eraser.style.background = "darkgrey";
-      });
-      drawingTools.appendChild(eraser);
-      
       const clearCanvas = document.createElement("div");
       clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
       clearCanvas.addEventListener("touchstart", event => {
@@ -150,7 +141,74 @@ webstrate.on("loaded", function() {;
         });
       });
       drawingTools.appendChild(clearCanvas);
+      
+      const eraser = document.createElement("div");
+      eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
+      eraser.addEventListener("click", event => {
+        eraser_enabled = !eraser_enabled;
+        console.log("eraser_enabled = " + eraser_enabled);
+        if (eraser_enabled) eraser.style.background="black";
+        else eraser.style.background = "darkgrey";
+      });
+      drawingTools.appendChild(eraser);
 
+      const thicknesses = [ 3, 6, 9, 12 ];
+      
+      const thicknessesElement = document.createElement("div");
+      thicknessesElement.setAttribute("class", "thicknesses");
+      drawingTools.appendChild(thicknessesElement);
+      
+      let activeThickness;
+      thicknesses.forEach((thickness, index) => {
+        const thicknessElement = document.createElement("li");
+        thicknessElement.setAttribute("class", "instrument-tool thickness");
+        thicknessElement.style.background = "darkgrey";
+        thicknessElement.style.fontSize = thickness/2*0.25 + "em";
+        thicknessesElement.appendChild(thicknessElement);
+
+        thicknessElement.addEventListener("touchstart", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          if (activeThickness) {
+            activeThickness.removeAttribute("active");
+          }
+          
+          eraser_enabled = false;
+          eraser.style.background = "darkgrey";
+
+          thicknessElement.setAttribute("active", "true");
+          activeThickness = thicknessElement;
+
+          penThickness = thickness;
+        }, true);
+        
+        thicknessElement.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          if (activeThickness) {
+            activeThickness.removeAttribute("active");
+          }
+          
+          eraser_enabled = false;
+          eraser.style.background = "darkgrey";
+
+          thicknessElement.setAttribute("active", "true");
+          activeThickness = thicknessElement;
+
+          penThickness = thickness;
+        }, true);
+
+        if (index === 0) {
+          penThickness = thickness;
+          thicknessElement.setAttribute("active", "true");
+          activeThickness = thicknessElement;
+        }
+      });
+      
       const colors = [
         "black",
         "grey",
@@ -161,7 +219,7 @@ webstrate.on("loaded", function() {;
         "yellow"
       ];
 
-      const colorsElement = document.createElement("ul");
+      const colorsElement = document.createElement("div");
       colorsElement.setAttribute("class", "colors");
       drawingTools.appendChild(colorsElement);
 
@@ -334,7 +392,7 @@ webstrate.on("loaded", function() {;
         points.length = 0;
 
         const pen = getMousePenPoint(event);
-        pen.thickness = 5;
+        pen.thickness = penThickness ? penThickness : 3;
         pen.color = penColor ? penColor : "black";
 
         onPenDown(pen, points, path);
@@ -378,7 +436,7 @@ webstrate.on("loaded", function() {;
         event.stopImmediatePropagation();
 
         const pen = getMousePenPoint(event);
-        pen.thickness = 5;
+        pen.thickness = penThickness ? penThickness : 3;
         pen.color = penColor ? penColor : "black";
 
         onPenMove(pen, points, path);
@@ -431,7 +489,7 @@ webstrate.on("loaded", function() {;
 
 
     /*
-     * Original Touch events for touch surface.
+     * Touch events for touch surface.
      * Event: touchstart
      */
     window.addEventListener("touchstart", event => {
@@ -496,7 +554,7 @@ webstrate.on("loaded", function() {;
     }, true);
 
     /*
-     * Original Touch events for touch surface.
+     * Touch events for touch surface.
      * Event: touchmove
      */
     window.addEventListener("touchmove", event => {
@@ -539,7 +597,7 @@ webstrate.on("loaded", function() {;
     }, true);
 
     /*
-     * Original Touch events for touch surface.
+     * Touch events for touch surface.
      * Event: touchmove
      * We will need this code later to avoid unintended manipulation of
      * the pad. It works together with the manipulation instrument.

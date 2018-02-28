@@ -128,6 +128,52 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+.drawing-instrument-tools .thicknesses {
+    list-style: none;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+.drawing-instrument-tools .thicknesses .thickness {
+    position: relative;
+    display: inline-block;
+    border-radius: 50% !important;
+}
+
+.drawing-instrument-tools .thicknesses .thickness:after {
+    color: white;
+    content: "border_color";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    font-family: 'Material Icons';
+    font-size: 1em;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+.drawing-instrument-tools .thicknesses .thickness[active="true"] {
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, .7);
+    border: 2px solid transparent;
+}
+
+.drawing-instrument-tools .thicknesses .thickness[active="true"]:after {
+    color: black;
+}
+
+
+
 .drawing-instrument-tools .colors {
     list-style: none;
     list-style-type: none;
