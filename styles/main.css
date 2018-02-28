@@ -276,13 +276,6 @@ body {
     height: 25px;
 }
 
-.label-input input{
-  position : relative;
-  left: -50%;
-  top: -50%;
-  text-align: center;
-}
-
 .shaking{
     animation: shake 0.5s;
     animation-iteration-count: 2; 

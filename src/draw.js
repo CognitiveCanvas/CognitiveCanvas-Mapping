@@ -1,5 +1,4 @@
-webstrate.on("loaded", function() {;
-  (function() {
+function initDrawing() {
 
     let svg;
     let penColor = "black";
@@ -124,7 +123,6 @@ webstrate.on("loaded", function() {;
     const createToolPalette = () => {
 
       const toolPalette = document.querySelector('#tool-palette');
-
       const drawingTools = document.createElement("div");
       drawingTools.setAttribute("class", "drawing-instrument-tools");
 
@@ -610,5 +608,4 @@ webstrate.on("loaded", function() {;
     }, true);
 
 
-  })();
-});
+}
