@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, active_node, dragged_object = null;
+var clientId, webstrateId, active_node, dragged_object = null;
 
 var canvas = document.getElementById("canvas");
 var radius = 40;
