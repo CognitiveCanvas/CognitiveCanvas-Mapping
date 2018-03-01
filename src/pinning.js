@@ -9,6 +9,7 @@ $("#uploadImageBtn").on("click", function(e){
 	webstrate.uploadAsset();
 });
 
+//Handles the uploaded Image
 webstrate.on("asset", function(asset){
 
 	//Get height and width of original image then insert the image into the canvas
@@ -29,11 +30,14 @@ webstrate.on("asset", function(asset){
 	newImg.src = imgSrc; // this must be done AFTER setting onload
 });
 
+/*Inserts an image at [0,0] to the back of the canvas.  The image acts like a group
+ *
+ */
 function insertImage(width, height, imgSrc){
 
 	console.log("Inserting Image: " + imgSrc);
 	var pinnedImage = d3.select(canvas)
-		.append("image")
+		.insert("image", ":first-child")
 		.classed("map-image", true)
 		.attr("xlink:href", imgSrc)
 		.attr("x", 0)

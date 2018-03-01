@@ -385,7 +385,7 @@ function doubleClickEvent(e) {
       addedNode = addNode();
       var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
       $(node).addClass("pin");
-      selectNode(node, false);
+      selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
       addNodeToGroup(addedNode, e.target);
       break;
@@ -494,7 +494,7 @@ function drawLink(link) {
   let y2 = getNodePosition(linkDestNode)[1];
 
   var linkG = d3.select(canvas)
-    .insert("g", ":first-child")
+    .insert("g", ".node")
     .attr("class", "link")
     .attr("id", link.id)
     .attr("source_id", link.sourceId)

@@ -2,6 +2,7 @@
     height: 100%;
     width: 75%;
     margin: 0;
+    float: left;
 }
 
 #content_container {
@@ -9,6 +10,7 @@
     width: 25%;
     float: right;
     overflow: auto;
+    background: gray
 }
 
 #addWindow {
@@ -48,6 +50,11 @@ body {
     margin: 0;
     position: absolute;
     overflow: visible;
+}
+
+#CogCanvas{
+    height: 100%;
+    width: 100%;
 }
 
 #tool-palette {
@@ -315,6 +322,124 @@ body {
     80% { transform: translate(-1px, -1px) rotate(1deg); }
     90% { transform: translate(1px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+#label_edit_container{
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 10px;
+}
+
+#label_text_increase{
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+}
+
+#label_text_decrease{
+    font-size: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+}
+
+#label_text_bold{
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+}
+
+#label_text_italics{
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+}
+
+#text_color_containner {
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 40px;
+}
+.text_color_button {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    color: white;
+}
+#green_text{
+    background-color: green;
+}
+#red_text{
+    background-color: red;
+}
+#blue_text{
+    background-color: blue;
+}
+#black_text{
+    background-color: black;
+}
+
+
+
+#node_color_container {
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 20px;
+}
+
+.node_color_button{
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    margin: 10px;
+
+}
+
+#green_node{
+    background-color: green;
+}
+
+#red_node{
+    background-color: red;
+}
+
+#blue_node{
+    background-color: blue;
+}
+
+#black_node{
+    background-color: black;
+}
+
+#node_border_container{
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 20px;
+}
+
+#green_border{
+    border-width: 1;
+    border-color: green;
+}
+
+#red_border{
+    border-width: 1;
+    border-color: red;
+}
+
+#blue_border{
+    border-width: 1;
+    border-color: blue;
+}
+
+#black_border{
+    border-width: 1;
+    border-color: black;
 }
 
 @font-face {

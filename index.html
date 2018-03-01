@@ -13,6 +13,7 @@
     <script type="text/javascript" src="src/draw.js"></script>
     <script type="text/javascript" src="src/data.js"></script>
     <script type="text/javascript" src="src/default-style.js"></script>
+    <script type="text/javascript" src="src/custom-style.js"></script>
     <script type="text/javascript" src="src/layout.js"></script>
     <script type="text/javascript" src="src/style.js"></script>
     <script type="text/javascript" src="src/label.js"></script>
@@ -28,7 +29,32 @@
         <div id="content_container">
             <h3 id="content_header">Content Browser</h3>
             <button id="uploadImageBtn">Upload Image to Map</button>
+                <span id="label_edit_container">
+                    <button id="label_text_increase">A</button>
+                    <button id="label_text_decrease">A</button>
+                    <button id="label_text_bold">B</button>
+                    <button id="label_text_italics">I</button>
+                </span>
+                <span id="text_color_container">
+                    <button class="text_color_button" id="green_text">A</button>
+                    <button class="text_color_button" id="red_text">A</button>
+                    <button class="text_color_button" id="blue_text">A</button>
+                    <button class="text_color_button" id="black_text">A</button>
+                </span>
+                <span id="node_color_container">
+                    <button class="node_color_button" id="green_node"></button>
+                    <button class="node_color_button" id="red_node"></button>
+                    <button class="node_color_button" id="blue_node"></button>
+                    <button class="node_color_button" id="black_node"></button>
+                </span>
+                <span id="node_border_container">
+                    <button class="node_color_button" id="green_border"></button>
+                    <button class="node_color_button" id="red_border"></button>
+                    <button class="node_color_button" id="blue_border"></button>
+                    <button class="node_color_button" id="black_border"></button>
+                </span>
             <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div><h4>Enable Drawing!</h4></div></button>
+
         </div>
     </div>
 </body>
