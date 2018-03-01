@@ -493,6 +493,7 @@ function drawLink(link) {
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
 
+  //Inserts the link before all the nodes in the canvas
   var linkG = d3.select(canvas)
     .insert("g", ".node")
     .attr("class", "link")
