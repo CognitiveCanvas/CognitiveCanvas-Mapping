@@ -13,27 +13,32 @@ webstrate.on("asset", function(asset){
 
 	//Get height and width of original image then insert the image into the canvas
 	var newImg = new Image();
-	var imgHeight = 100, imgWidth = 100;
+	var oldImgHeight = 0, oldImgWidth = 0, imgHeight, imgWidth;
 	var imgSrc = '/' + webstrateId + '/' + asset.fileName;
     newImg.onload = function() {
-      imgHeight = newImg.height;
-      imgWidth = newImg.width;
-      insertImage(asset, imgWidth, imgHeight, imgSrc);
+      
+      oldImgWidth = newImg.width;
+      oldImgHeight = newImg.height;
+      var widthHeightRatio = parseFloat(oldImgWidth) / parseFloat(oldImgHeight); 
+      imgWidth = oldImgWidth / IMG_MAX_SIZE[0] >= oldImgHeight / IMG_MAX_SIZE[1] ? IMG_MAX_SIZE[0] : IMG_MAX_SIZE[1] * widthHeightRatio;
+      imgHeight = imgWidth / widthHeightRatio; 
+
+      insertImage(imgWidth, imgHeight, imgSrc);
       newImg = null;
     }
 	newImg.src = imgSrc; // this must be done AFTER setting onload
 });
 
-function insertImage(asset, width, height, imgSrc){
+function insertImage(width, height, imgSrc){
 
-	imgSrc = '/' + webstrateId + '/' + asset.fileName;
-
-	console.log("Uploaded Image recieved: ");
-	console.log(asset);
-	var pinnedImage = d3.select(canvas).append("image")
+	console.log("Inserting Image: " + imgSrc);
+	var pinnedImage = d3.select(canvas)
+		.append("image")
+		.classed("map-image", true)
 		.attr("xlink:href", imgSrc)
 		.attr("x", 0)
 		.attr("y", 0)
 		.attr("width", width)
-		.attr("height", height);
+		.attr("height", height)
+		.attr("children_ids", "");
 }
