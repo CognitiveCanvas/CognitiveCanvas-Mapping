@@ -7,12 +7,32 @@ function onLoaded(webstrateId, clientId, user) {
   initIDs(webstrateId, clientId);
   initDragLine();
   initDataElement();
+  reloadElement();
+  initToolPalette();
+  initDrawing();
 }
 
 function initIDs(webstrateId, clientId) {
   this.webstrateId = webstrateId;
   this.clientId = clientId;
   this.editId = "edit_" + clientId;
+}
+
+function reloadElement() {
+  let NodeEleCollection = document.getElementsByClassName("node");
+  let EdgeEleCollection = document.getElementsByClassName("link"); 
+  
+  for (i = 0; i < NodeEleCollection.length; i++) {
+    let currNodeEle = NodeEleCollection[i];
+    let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
+    n = nodes.push(node);
+  }
+    
+  for (j = 0; j < EdgeEleCollection.length; j++) {
+    let currEdgeEle = EdgeEleCollection[j];
+    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
+    l = links.push(link);
+  }
 }
 
 function initDragLine() {
@@ -50,4 +70,11 @@ function getDefaultStyle() {
  */
 function initDataElement() {
   initHTMLElement("body", DATA_COLLECTION, true)
+}
+
+function initToolPalette() {
+    let toolPalette = document.createElement("transient");
+    toolPalette.setAttribute("id", "tool-palette");
+    document.getElementById("content_container").appendChild(toolPalette);
+    document.getElementById("tool-palette").style.visibility = "hidden";
 }
