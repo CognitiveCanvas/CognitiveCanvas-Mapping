@@ -131,12 +131,71 @@ body {
 }
 
 
-#content_header{
-
+#label_edit_container{
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 10px;
 }
+
+#label_text_increase{
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+}
+
+#label_text_decrease{
+    font-size: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+}
+
+#label_text_bold{
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+}
+
+#label_text_italics{
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+}
+
+#text_color_containner {
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 40px;
+}
+.text_color_button {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    color: white;
+}
+#green_text{
+    background-color: green;
+}
+#red_text{
+    background-color: red;
+}
+#blue_text{
+    background-color: blue;
+}
+#black_text{
+    background-color: black;
+}
+
+
 
 #node_color_container {
     display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 20px;
 }
 
 .node_color_button{
@@ -144,6 +203,7 @@ body {
     width: 40px;
     height: 40px;
     margin: 10px;
+
 }
 
 #green_node{
@@ -162,6 +222,12 @@ body {
     background-color: black;
 }
 
+#node_border_container{
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 20px;
+}
 
 #green_border{
     border-width: 1;
