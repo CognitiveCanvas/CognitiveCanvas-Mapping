@@ -376,7 +376,7 @@ function doubleClickEvent(e) {
     case "label-rep":
     case "label":
     case "label-line":
-      if( $(node).hasClass("selected") ){
+      if( !$(node).hasClass("selected") ){
         selectNode(node, !e.shiftKey);
       }
       addLabel(null, node);
