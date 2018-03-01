@@ -23,6 +23,9 @@ var singleClickTimer, doubleClickDragTimer = null;
 
 var hoveredEle = null;
 var addWindowOpen = false;
+var drawing_enabled = false;
+var eraser_enabled = false;
+var original_color = null;
 
 // drag_line & source_node are stored as html element
 var drag_line = null; 
@@ -43,6 +46,8 @@ window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
 function mouseUpListener(e) {
+  if (drawing_enabled) return; 
+    
   mouseUp++;
 
   if(mouseUp === 1 && dragged_object && !mouseMoved ){
@@ -69,6 +74,8 @@ function mouseUpListener(e) {
 }
 
 function mouseDownListener(e) {
+  if (drawing_enabled) return; 
+    
   mouseDown++;
   e.preventDefault();
   if(temp_label_div){
@@ -118,6 +125,8 @@ function rightClickListener(e) {
 }
 
 function mouseMoveListener(e) {
+  if (drawing_enabled) return; 
+  
   if (mouseDown > 0) {
     mouseMoved = true
   }
@@ -140,16 +149,24 @@ function mouseMoveListener(e) {
   }
 }
 
-
 function mouseOverListener(e) {
+  if (drawing_enabled) return;
 
   if (e.target.tagName === "tspan") {
     return;
   }
+  
   let className = e.target.getAttribute("class").split(" ")[0];
   
   switch(className) {
     case "node-rep":
+      hoveredEle = e.target.parentElement.getAttribute("id");
+      if (nodes.find(x => x.id === hoveredEle)){
+        if (nodes.find(x => x.id === hoveredEle).content === "true"){
+            previewContent(hoveredEle);
+        }
+      }
+      break;
     case "label":
       hoveredEle = e.target.parentElement.getAttribute("id");
       if (nodes.find(x => x.id === hoveredEle)){
@@ -172,13 +189,26 @@ function mouseOverListener(e) {
 }
 
 function mouseOutListener(e) {
+  if (drawing_enabled) return;    
+
   if (e.target.tagName === "tspan") {
     return;
   }
+  
   let className = e.target.getAttribute("class").split("-")[0];
 
   switch(className) {
     case "node":
+      if (nodes.find(x => x.id === hoveredEle)) {
+        if (nodes.find(x => x.id === hoveredEle).content){
+          var elem = document.getElementById("previewing");
+          if (elem) {
+            elem.parentNode.removeChild(elem);
+          }
+        }
+      }
+      break;
+    case "label":
       if (nodes.find(x => x.id === hoveredEle)) {
         if (nodes.find(x => x.id === hoveredEle).content){
           var elem = document.getElementById("previewing");
@@ -320,6 +350,8 @@ function singleClickEvent(e) {
  *
  */
 function doubleClickEvent(e) {
+  if (drawing_enabled) return;
+  
   clearTimeout(doubleClickDragTimer);
   e.preventDefault();
   let selection = d3.select(e.target);
@@ -829,4 +861,29 @@ function previewContent(ele) {
     toFrame.appendChild(warningTxt);
     wrapper.appendChild(toFrame);
     document.body.appendChild(wrapper);
+}
+
+function toggleDrawFunc() {
+  let pad = document.getElementById("d3_container");
+  let toggltBtn = document.getElementById("toggle_touch_drawing");
+  let toolPalette = document.getElementById("tool-palette");
+
+  if (drawing_enabled) {
+    toolPalette.style.visibility = "hidden";
+    pad.setAttribute("class", "");
+    toggltBtn.innerHTML = "Enable Drawing!";
+    eraser_enabled = false;
+  } 
+  else {
+    toolPalette.style.visibility = "visible";
+    pad.setAttribute("class", "drawable");
+    toggltBtn.innerHTML = "Disable Drawing!";
+    eraser_enabled = false;
+  }
+  drawing_enabled = !drawing_enabled;
+  // Reset Eraser and Eraser Button Below;
+  eraser_enabled = false;
+  let eraser = document.querySelector(".drawing-instrument-tools .erase-drawing-canvas");
+  eraser.style.background = "darkgrey";
+  
 }
