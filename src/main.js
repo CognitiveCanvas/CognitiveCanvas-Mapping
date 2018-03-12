@@ -31,7 +31,6 @@ var original_color = null;
 var drag_line = null; 
 var source_node = null;
 
-var hoveredEle = null;
 var zoom = null;
 
 var quickAddDist = 10 + MAX_RADIUS;
@@ -335,6 +334,28 @@ function singleClickEvent(e) {
         break;
       default:
         break;
+    }
+  }
+
+  // Message Passing to the Container Code. Package include the id & label
+  if (window.parent) {
+    let selected = d3.select(".selected");
+    if (!selected.empty()) {
+      let nodeID = selected.attr("id");
+      let labelElement = document.getElementById(nodeID+"_text");
+      let labelText;
+      if (labelElement.getElementsByTagName("tspan")[0]) {
+        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+        //console.log("In View Mode, get label: " + labelText);
+      } else {
+        labelText = labelElement.innerHTML;
+        //console.log("In Edit Mode, get label: " + labelText);
+      }
+      let package = {
+        id: nodeID,
+        label: labelText
+      };
+      window.parent.postMessage(package, "*");
     }
   }
 
