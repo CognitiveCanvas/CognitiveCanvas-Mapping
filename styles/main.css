@@ -10,7 +10,8 @@
     width: 25%;
     float: right;
     overflow: auto;
-    background: gray
+    background: gray;
+    z-index: 9999999;
 }
 
 #addWindow {
@@ -49,7 +50,7 @@ body {
     width: 75%;
     margin: 0;
     position: absolute;
-    overflow: visible;
+    overflow: clip;
 }
 
 #CogCanvas{
