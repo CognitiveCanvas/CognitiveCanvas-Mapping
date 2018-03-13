@@ -18,3 +18,17 @@ $(document).ready(function() {
     $("#blue_text").click(()=>setLabelColor("blue"));
     $("#black_text").click(()=>setLabelColor("black"));
 });
+
+$(document).bind("contextmenu", function (event) {
+    var $contextMenu = $("#contextMenu");
+    // Avoid the real one
+    event.preventDefault();
+    $contextMenu.css({
+        display: "block",
+        left: event.pageX,
+        top: event.pageY
+    });
+    console.log("custom context menu")
+});
+
+

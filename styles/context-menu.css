@@ -1,0 +1,54 @@
+#contextMenu {
+  position: absolute;
+  display:none;
+  border-color: gray;
+  border-width: 4px;
+  border-style: solid;
+  border-radius: 5%;
+}
+
+.contextMenuOption {
+	border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    padding: 0px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.blueFill{
+	background-color: blue
+}
+
+.yellowFill{
+	background-color: yellow
+}
+
+.grayFill{
+	background-color: gray
+}
+
+.redFill{
+	background-color: red
+}
+
+.blueBorder{
+	border-width: 3px;
+	border-color: blue
+}
+
+.yellowBorder{
+	border-width: 3px;
+	border-color: yellow
+}
+
+.grayBorder{
+	border-width: 3px;
+	border-color: gray
+}
+
+.redBorder{
+	border-width: 3px;
+	border-color: red
+}
