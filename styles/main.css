@@ -9,7 +9,7 @@
     width: 25%;
     float: right;
     overflow: auto;
-    background: gray
+    background: lightgray;
 }
 
 #addWindow {
@@ -209,9 +209,9 @@ body {
 }
 
 #toggle_touch_drawing {
-    width:  10vw;
-    height: 10vw;
-    font-size: 15;
+    width:  5vw;
+    height: 5vw;
+    font-size: 10;
     border-radius: 50%;
     float: left;
 }
