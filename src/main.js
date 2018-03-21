@@ -552,13 +552,33 @@ function removeNode(node) {
       group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     });
 
-  deleteEntity(nodes, node_id);
+  if (hoveredEle) {
+    if (nodes.find(x => x.id === hoveredEle)) {
+      if (nodes.find(x => x.id === hoveredEle).content){
+        var elem = document.getElementById("previewing");
+        if (elem) {
+          elem.parentNode.removeChild(elem);
+        }
+      }
+    }
+  }
+  deleteEntity(nodes, node_id); 
   node_d3.remove();
 }
 
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
+  if (hoveredEle) {
+    if (links.find(x => x.id === hoveredEle)) {
+      if (links.find(x => x.id === hoveredEle).content){
+        var elem = document.getElementById("previewing");
+        if (elem) {
+          elem.parentNode.removeChild(elem);
+        }
+      }
+    }
+  }
   deleteEntity(links, link_id);
   link.remove();
 }
