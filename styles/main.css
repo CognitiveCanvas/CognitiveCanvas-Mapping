@@ -14,7 +14,7 @@
     width: 25%;
     float: right;
     overflow: auto;
-    background: #F0F0F0;
+    background: white;
     z-index: 9999999;
 }
 
@@ -220,8 +220,8 @@ body {
 }
 
 #toggle_touch_drawing {
-    width:  5vw;
-    height: 5vw;
+    width:  70px;
+    height: 70px;
     font-size: 10;
     border-radius: 50%;
     float: left;
@@ -245,12 +245,12 @@ body {
 }
 
 .selected .node-rep{
-    stroke: orange;
+    stroke: #0099FA;
     stroke-width: 5px;
 }
 
 .selected .link-rep{
-    stroke: orange;
+    stroke: #0099FA;
 }
 
 .drag_line {
@@ -267,7 +267,7 @@ body {
 }
 
 .link {
-    stroke: #999;
+    stroke: lightgrey;
     stroke-width: 5;
     cursor: crosshair;
     z-index: 0;
@@ -299,7 +299,7 @@ body {
 .label{
     stroke-width: 1;
     fill: green;
-    stroke-color: green;
+    stroke: none;
     dominant-baseline: middle; 
     text-anchor: middle;
 }
