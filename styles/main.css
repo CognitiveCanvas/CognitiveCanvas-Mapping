@@ -4,18 +4,20 @@
 
 #d3_container {
     height: 100%;
-    width: 75%;
+    width: 70%;
     margin: 0;
     float: left;
 }
 
 #content_container {
     height: 100%;
-    width: 25%;
+    width: 20%;
     float: right;
     overflow: auto;
     background: white;
     z-index: 9999999;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #addWindow {
