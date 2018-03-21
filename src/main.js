@@ -884,6 +884,7 @@ function previewContent(ele) {
     document.body.appendChild(wrapper);
 }
 
+
 function toggleDrawFunc() {
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
