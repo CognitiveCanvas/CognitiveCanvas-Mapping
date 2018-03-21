@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, active_node, dragged_object = null;
+var clientId, webstrateId, active_node, dragged_object = null;
 
 var canvas = document.getElementById("canvas");
 var radius = 40;
@@ -77,6 +77,7 @@ function mouseDownListener(e) {
     
   mouseDown++;
   e.preventDefault();
+
   if(temp_label_div){
     e.stopImmediatePropagation();
     handleClickDuringLabelInput();
@@ -89,7 +90,7 @@ function mouseDownListener(e) {
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
-    var node = $(e.target).parents(".node").get(0);
+    var node = getParentMapElement(e.target);
     selectSrcNode(node);
     doubleClickDragTimer = setTimeout(() => {
       let className = node.getAttribute("class").split(" ")[0];
@@ -134,7 +135,7 @@ function mouseMoveListener(e) {
       var selection = d3.select(dragged_object);
       if(selection.classed("node")){
         drawDragNode(e);
-      }else if(selection.classed("selection_area")){
+      }else if(selection.classed("selection_area") || selection.classed("map-image")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
     }else{
@@ -272,6 +273,7 @@ function keyDownListener(e){
         e.stopImmediatePropagation();
         d3.selectAll(".node.selected").each(function(){removeNode(this)});
         d3.selectAll(".link.selected").each(function(){removeLink(this)});
+        d3.selectAll(".map-image.selected").remove();
       }
       break;
     case "ArrowRight":
@@ -332,6 +334,11 @@ function singleClickEvent(e) {
         addLabel("Node Name", addedNode);
         addNodeToGroup(addedNode, e.target);
         break;
+      case "map-image":
+        selectNode(e.target);
+        var childrenNodes = getGroupedNodes(e.target);
+        selectNode(childrenNodes, false);
+        break;
       default:
         break;
     }
@@ -390,15 +397,16 @@ function doubleClickEvent(e) {
     case "label-rep":
     case "label":
     case "label-line":
-      if( $(node).hasClass("selected") ){
+      if( !$(node).hasClass("selected") ){
         selectNode(node, !e.shiftKey);
       }
       addLabel(null, node);
       break;
-    case "selection_area":
+    case "map-image":
       addedNode = addNode();
       var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
-      selectNode(node, false);
+      $(node).addClass("pin");
+      selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
       addNodeToGroup(addedNode, e.target);
       break;
@@ -506,8 +514,9 @@ function drawLink(link) {
   let x2 = getNodePosition(linkDestNode)[0];
   let y2 = getNodePosition(linkDestNode)[1];
 
+  //Inserts the link before all the nodes in the canvas
   var linkG = d3.select(canvas)
-    .insert("g", ":first-child")
+    .insert("g", ".node")
     .attr("class", "link")
     .attr("id", link.id)
     .attr("source_id", link.sourceId)
@@ -571,7 +580,7 @@ function selectDraggedObject(e) {
   if (parentNode) {
     dragged_object = parentNode;
     //selectNode(parentNode);
-  } else if( $(e.target).hasClass("selection_area") ){
+  } else if( $(e.target).hasClass("selection_area") || $(e.target).hasClass("map-image") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]

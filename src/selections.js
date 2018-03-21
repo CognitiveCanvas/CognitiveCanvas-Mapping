@@ -6,12 +6,19 @@ nodes: The node or selection of multiple nodes to be give the selected class
 deselectCurrentSelection: if true, will remove the selected class from all currently sected nodes before selecting the new one
 **/
 function selectNode(nodes, deselectCurrentSelection=true){
+  console.log("Nodes being selected: ");
+  console.log(nodes);
+  console.log(typeof nodes);
+
   nodes = nodes instanceof d3.selection ? nodes : d3.select(nodes);
+  console.log(nodes instanceof d3.selection);
+  var className = $(nodes.node()).attr("class").split(' ').filter(x=> x)[0];
+  console.log(className);
   
   if( deselectCurrentSelection ){
     deselectAllObjects();
   }
-  switch(nodes.attr("class").split(" ")[0]){
+  switch(className){
     case "node":
       var nodeTransform = getNodePosition(nodes);
       quickAddX = nodeTransform[0];
@@ -19,6 +26,7 @@ function selectNode(nodes, deselectCurrentSelection=true){
       break
     case "link":
       break;
+    case "map-image":
     default:
       break;
   }
@@ -171,4 +179,17 @@ function addNodeToGroup(node, group){
   new_children_ids.push(node.id);
   new_children_ids = new_children_ids.join(' ');
   group.setAttribute("children_ids", new_children_ids);
+}
+
+/*
+ *@param group - the group or image whose children wil be selected
+ */
+function getGroupedNodes(group){
+   var nodes = [];
+   var nodeIds = group.getAttribute("children_ids").split(" ").filter(x => x);
+   for(var i=0; i < nodeIds.length; i++){111
+      nodes.push(document.getElementById(nodeIds[i]));
+   }
+   console.log("Grouped Nodes: " + nodes );
+   return d3.selectAll(nodes);
 }
