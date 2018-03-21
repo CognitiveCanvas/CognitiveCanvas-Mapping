@@ -6,11 +6,12 @@
 
 $("#uploadImageBtn").on("click", function(e){
 	console.log("clicked");
+	webstrate.on("asset", handleImageUpload(asset))
 	webstrate.uploadAsset();
 });
 
 //Handles the uploaded Image
-webstrate.on("asset", function(asset){
+function handleImageUpload(asset){
 
 	//Get height and width of original image then insert the image into the canvas
 	var newImg = new Image();
@@ -28,7 +29,8 @@ webstrate.on("asset", function(asset){
       newImg = null;
     }
 	newImg.src = imgSrc; // this must be done AFTER setting onload
-});
+	webstrate.removeEventListener('asset', handleImageUpload);
+};
 
 /*Inserts an image at [0,0] to the back of the canvas.  The image acts like a group
  *
