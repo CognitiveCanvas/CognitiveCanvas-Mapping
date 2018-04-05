@@ -2,14 +2,16 @@
     height: 100%;
     width: 75%;
     margin: 0;
+    float: left;
 }
 
 #content_container {
-    height: 500px;
+    height: 100%;
     width: 25%;
     float: right;
     overflow: auto;
-    background: gray
+    background: gray;
+    z-index: 9999999;
 }
 
 #addWindow {
@@ -48,7 +50,12 @@ body {
     width: 75%;
     margin: 0;
     position: absolute;
-    overflow: visible;
+    overflow: clip;
+}
+
+#CogCanvas{
+    height: 100%;
+    width: 100%;
 }
 
 #tool-palette {
@@ -216,6 +223,23 @@ body {
     float: left;
 }
 
+.pin .node-rep{
+    stroke: none;
+    fill-opacity:.8;
+}
+
+.pin.selected .node-rep{
+    stroke: none;
+}
+
+.pin .label{
+    fill: white;
+}
+
+.pin.selected .label{
+    fill: orange;
+}
+
 .selected .node-rep{
     stroke: orange;
     stroke-width: 5px;
@@ -261,6 +285,11 @@ body {
     stroke: green;
     fill: green;
     fill-opacity: .5;  
+}
+
+.map-image.selected{
+    stroke: orange;
+    stroke-width: 5;
 }
 
 .label{

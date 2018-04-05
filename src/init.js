@@ -4,7 +4,7 @@ webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, cl
 
 function onLoaded(webstrateId, clientId, user) {
   getDefaultStyle();
-  initIDs(clientId);
+  initIDs(webstrateId, clientId);
   initDragLine();
   initDataElement();
   reloadElement();
@@ -12,7 +12,8 @@ function onLoaded(webstrateId, clientId, user) {
   initDrawing();
 }
 
-function initIDs(clientId) {
+function initIDs(webstrateId, clientId) {
+  this.webstrateId = webstrateId;
   this.clientId = clientId;
   this.editId = "edit_" + clientId;
 }
