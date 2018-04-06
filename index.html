@@ -7,6 +7,10 @@
               integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
               crossorigin="anonymous">
     </script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="src/entity/constant.js"></script>
     <script type="text/javascript" src="src/init.js"></script>
     <script type="text/javascript" src="src/main.js"></script>
@@ -20,6 +24,7 @@
     <script type="text/javascript" src="src/selections.js"></script>
     <script type="text/javascript" src="src/pinning.js"></script>
     <link rel="stylesheet" type="text/css" href="styles/main.css">
+    <link rel="stylesheet" type="text/css" href="styles/context-menu.css">
 </head>
 <body>
     <div id="CogCanvas">
@@ -60,5 +65,28 @@
 
         </div>
     </div>
+
+    <div id="contextMenu" role="menu">
+        <div>
+            <button class="contextMenuOption" id="increase_size">A</button>
+            <button class="contextMenuOption" id="decrease_size">a</button>
+            <button class="contextMenuOption" id="bold"><b>B</b></button>
+            <button class="contextMenuOption" id="italics"><i>I</i></button>
+        </div>
+        <div>
+            <button class="contextMenuOption blueFill"></button>
+            <button class="contextMenuOption redFill"></button>
+            <button class="contextMenuOption grayFill"></button>
+            <button class="contextMenuOption yellowFill"></button>
+        </div>
+        <div>
+            <button class="contextMenuOption blueBorder"></button>
+            <button class="contextMenuOption redBorder"></button>
+            <button class="contextMenuOption grayBorder"></button>
+            <button class="contextMenuOption yellowBorder"></button>
+        </div>
+        
+    </div>
+</ul>
 </body>
 </html>

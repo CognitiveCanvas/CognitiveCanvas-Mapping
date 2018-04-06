@@ -17,4 +17,32 @@ $(document).ready(function() {
     $("#red_text").click(()=>setLabelColor("red"));
     $("#blue_text").click(()=>setLabelColor("blue"));
     $("#black_text").click(()=>setLabelColor("black"));
+
+
+    $("#increase_size").click(()=>increaseLabelFontSize());
+    $("#decrease_size").click(()=>decreaseLabelFontSize());
+    $("#bold").click(()=>toggleLabelFontBold());
+    $("#italics").click(()=>toggleLabelFontItalics());
+    $(".blueFill").click(()=>setColor("blue"));
+    $(".redFill").click(()=>setColor("red"));
+    $(".grayFill").click(()=>setColor("gray"));
+    $(".yellowFill").click(()=>setColor("yellow"));
+    $(".blueBorder").click(()=>setBorderColor("blue"));
+    $(".redBorder").click(()=>setBorderColor("red"));
+    $(".grayBorder").click(()=>setBorderColor("gray"));
+    $(".yellowBorder").click(()=>setBorderColor("yellow"));
 });
+
+$(document).bind("contextmenu", function (event) {
+    var $contextMenu = $("#contextMenu");
+    // Avoid the real one
+    event.preventDefault();
+    $contextMenu.css({
+        display: "block",
+        left: event.pageX,
+        top: event.pageY
+    });
+    console.log("custom context menu")
+});
+
+
