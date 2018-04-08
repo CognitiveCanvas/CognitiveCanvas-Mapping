@@ -33,6 +33,7 @@ function selectNode(nodes, deselectCurrentSelection=true){
 
   nodes.classed("selected", true);
   nodes.node().focus();
+  
 }
 
 function selectNodeByDirection(direction){
