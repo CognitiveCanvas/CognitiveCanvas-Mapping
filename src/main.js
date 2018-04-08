@@ -399,7 +399,7 @@ function doubleClickEvent(e) {
 // Message Passing to the Container Code. Package include the id & label
 function sendSearchMsgToContainer() {
   if (window.parent) {
-    console.log(window.parent);
+    //console.log(window.parent);
     let selected = d3.select(".selected");
     if (!selected.empty()) {
       let nodeID = selected.attr("id");
@@ -407,10 +407,10 @@ function sendSearchMsgToContainer() {
       let labelText;
       if (labelElement.getElementsByTagName("tspan")[0]) {
         labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-        console.log("In View Mode, get label: " + labelText);
+        //console.log("In View Mode, get label: " + labelText);
       } else {
         labelText = labelElement.innerHTML;
-        console.log("In Edit Mode, get label: " + labelText);
+        //console.log("In Edit Mode, get label: " + labelText);
       }
       let package = {
         id: nodeID,
