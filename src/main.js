@@ -57,6 +57,9 @@ function mouseUpListener(e) {
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
       console.log("single click");
+      $("#contextMenu").css({
+        display: "none"
+      });
       singleClickEvent(e);
     }, delay);
   }
