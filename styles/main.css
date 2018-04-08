@@ -1,17 +1,23 @@
+#CogCanvas {
+    height: 100%
+}
+
 #d3_container {
     height: 100%;
-    width: 75%;
+    width: 70%;
     margin: 0;
     float: left;
 }
 
 #content_container {
     height: 100%;
-    width: 25%;
+    width: 20%;
     float: right;
     overflow: auto;
-    background: gray;
+    background: white;
     z-index: 9999999;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #addWindow {
@@ -30,7 +36,7 @@
 button {
     width:100%;
     height: 20px;
-    font-size: 15;
+    font-size: 13px !important;
 }
 
 html {
@@ -216,9 +222,9 @@ body {
 }
 
 #toggle_touch_drawing {
-    width:  10vw;
-    height: 10vw;
-    font-size: 15;
+    width:  70px;
+    height: 70px;
+    font-size: 10;
     border-radius: 50%;
     float: left;
 }
@@ -241,12 +247,12 @@ body {
 }
 
 .selected .node-rep{
-    stroke: orange;
+    stroke: #0099FA;
     stroke-width: 5px;
 }
 
 .selected .link-rep{
-    stroke: orange;
+    stroke: #0099FA;
 }
 
 .drag_line {
@@ -263,7 +269,7 @@ body {
 }
 
 .link {
-    stroke: #999;
+    stroke: lightgrey;
     stroke-width: 5;
     cursor: crosshair;
     z-index: 0;
@@ -295,7 +301,7 @@ body {
 .label{
     stroke-width: 1;
     fill: green;
-    stroke-color: green;
+    stroke: none;
     dominant-baseline: middle; 
     text-anchor: middle;
 }
