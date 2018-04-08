@@ -86,7 +86,8 @@ function mouseDownListener(e) {
   }
 
   if (mouseDown === 1) {
-    selectDraggedObject(e);
+    dragStartPos = [e.pageX, e.pageY];
+    active_node= getParentMapElement(e.target);
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
@@ -138,10 +139,13 @@ function mouseMoveListener(e) {
       }else if(selection.classed("selection_area") || selection.classed("map-image")){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else{
-      console.log("drawing selection area");
-      drawSelectionArea(e);
-
+    }else if ( Math.sqrt( Math.pow(e.pageX - dragStartPos[0],2) + Math.pow(e.pageY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
+      if(active_node){
+        selectDraggedObject(e);
+      } else {
+        console.log("drawing selection area");
+        drawSelectionArea(e);
+      }
     }
   }
   else if (mouseDown === 2 && source_node) {
@@ -608,6 +612,8 @@ function resetState() {
   mouseMoved = false;
   source_node = null;
   dragged_object = null;
+  active_node = null;
+  dragStartPos = null;
   drag_offset = [0,0];
   clearTimeout(singleClickTimer);
   clearTimeout(doubleClickDragTimer);
