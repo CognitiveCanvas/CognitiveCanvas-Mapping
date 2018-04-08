@@ -328,6 +328,7 @@ function singleClickEvent(e) {
         } else{
           selectNode(node, !e.shiftKey);
         }
+        sendSearchMsgToContainer();
         break;
       case "selection_area":
         addedNode = addNode(e.clientX, e.clientY);
@@ -341,28 +342,6 @@ function singleClickEvent(e) {
         break;
       default:
         break;
-    }
-  }
-
-  // Message Passing to the Container Code. Package include the id & label
-  if (window.parent) {
-    let selected = d3.select(".selected");
-    if (!selected.empty()) {
-      let nodeID = selected.attr("id");
-      let labelElement = document.getElementById(nodeID+"_text");
-      let labelText;
-      if (labelElement.getElementsByTagName("tspan")[0]) {
-        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-        //console.log("In View Mode, get label: " + labelText);
-      } else {
-        labelText = labelElement.innerHTML;
-        //console.log("In Edit Mode, get label: " + labelText);
-      }
-      let package = {
-        id: nodeID,
-        label: labelText
-      };
-      window.parent.postMessage(package, "*");
     }
   }
 
@@ -413,8 +392,33 @@ function doubleClickEvent(e) {
     default:
       break;
   }
-
+  
   resetState()
+}
+
+// Message Passing to the Container Code. Package include the id & label
+function sendSearchMsgToContainer() {
+  if (window.parent) {
+    console.log(window.parent);
+    let selected = d3.select(".selected");
+    if (!selected.empty()) {
+      let nodeID = selected.attr("id");
+      let labelElement = document.getElementById(nodeID+"_text");
+      let labelText;
+      if (labelElement.getElementsByTagName("tspan")[0]) {
+        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+        console.log("In View Mode, get label: " + labelText);
+      } else {
+        labelText = labelElement.innerHTML;
+        console.log("In Edit Mode, get label: " + labelText);
+      }
+      let package = {
+        id: nodeID,
+        label: labelText
+      };
+      window.parent.postMessage(package, "*");
+    }
+  }
 }
 
 /* entity.js */
@@ -552,16 +556,7 @@ function removeNode(node) {
       group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     });
 
-  if (hoveredEle) {
-    if (nodes.find(x => x.id === hoveredEle)) {
-      if (nodes.find(x => x.id === hoveredEle).content){
-        var elem = document.getElementById("previewing");
-        if (elem) {
-          elem.parentNode.removeChild(elem);
-        }
-      }
-    }
-  }
+  closePreviewIframe("node");
   deleteEntity(nodes, node_id); 
   node_d3.remove();
 }
@@ -569,18 +564,41 @@ function removeNode(node) {
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
-  if (hoveredEle) {
-    if (links.find(x => x.id === hoveredEle)) {
-      if (links.find(x => x.id === hoveredEle).content){
-        var elem = document.getElementById("previewing");
-        if (elem) {
-          elem.parentNode.removeChild(elem);
-        }
-      }
-    }
-  }
+  closePreviewIframe("edge");
   deleteEntity(links, link_id);
   link.remove();
+}
+
+function closePreviewIframe(target) {
+  if (hoveredEle) {
+    
+    switch (target) {
+      case "node":
+        if (nodes.find(x => x.id === hoveredEle)) {
+          if (nodes.find(x => x.id === hoveredEle).content){
+            var elem = document.getElementById("previewing");
+            if (elem) {
+              elem.parentNode.removeChild(elem);
+            }
+          }
+        }
+        break;
+      case "edge":
+        if (links.find(x => x.id === hoveredEle)) {
+          if (links.find(x => x.id === hoveredEle).content){
+            var elem = document.getElementById("previewing");
+            if (elem) {
+              elem.parentNode.removeChild(elem);
+            }
+          }
+        }
+        break;
+      default:
+        console.warn("Invalid Function Call on closePreviewIframe(target)");
+        break;
+    }
+    
+  }
 }
 
 function resetState() {
