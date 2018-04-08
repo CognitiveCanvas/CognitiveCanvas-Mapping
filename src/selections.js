@@ -96,6 +96,7 @@ function drawSelectionArea(e){
       d3.select(".selection_area").remove();
       selection_area = d3.select(canvas).insert("rect", ":first-child")
         .classed("selection_area", true)
+        .classed("group", true)
         .attr("x", e.pageX)
         .attr("y", e.pageY)
         .attr("width", 0)
