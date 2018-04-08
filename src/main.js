@@ -56,7 +56,7 @@ function mouseUpListener(e) {
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
-      console.log("single click");
+      console.log("single click at " + e.x + " " + e.y);
       singleClickEvent(e);
     }, delay);
   }
