@@ -1,0 +1,75 @@
+#object1 {
+    width: 800px;
+    height: 650px;
+    transform: translate3d(380px, 380px, 0) scale(.4) rotate(185deg);
+    background-color: coral;
+}
+
+#object2 {
+    width: 80px;
+    height: 80px;
+    transform: translateX(600px) translateY(150px) rotate(20deg) scale(1.5);
+    background-color: magenta;
+}
+
+#object3 {
+    width: 200px;
+    height: 150px;
+    background-color: #4986e7;
+    transform: translate3d(50%, 20%, 0);
+}
+
+#object4 {
+    width: 20px;
+    height: 15px;
+    background-color: #42d692;
+}
+
+#object5 {
+    width: 200px;
+    height: 150px;
+    transform: translate3d(640px, 70px, 0) rotate(-5deg) scale(.9);
+    background-color: #d06b64;
+}
+
+#object6 {
+    width: 600px;
+    height: 400px;
+    transform: translate3d(500px, 280px, 0) scale(.75);
+    background-color: #cd74e6;
+}
+
+#object7 {
+    width: 200px;
+    height: 100px;
+    transform: translate3d(80px, 20px, 0) rotate(14deg);
+    background-color: #9fe1e7;
+}
+
+#object8 {
+    width: 300px;
+    height: 200px;
+    transform: translate3d(220px, 200px, 0) rotate(-30deg);
+    background-color: hotpink;
+}
+
+#object9 {
+    width: 20px;
+    height: 10px;
+    transform: translate3d(100px, 80px, 0);
+    background-color: deepskyblue;
+}
+
+#object10 {
+    width: 40px;
+    height: 20px;
+    transform: translate3d(200px, 160px, 0);
+    background-color: orange;
+}
+
+#object11 {
+    width: 60px;
+    height: 80px;
+    transform: translate3d(20px, 80px, 0);
+    background-color: lime;
+}

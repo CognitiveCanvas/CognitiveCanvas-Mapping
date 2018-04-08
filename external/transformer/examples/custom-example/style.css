@@ -1,0 +1,12 @@
+#object1 {
+    background-color: magenta;
+    width: 200px;
+    height: 150px;
+}
+
+#object2 {
+    background-color: lime;
+    width: 80px;
+    height: 80px;
+    transform: translateX(600px) translateY(150px) rotate(20deg) scale(1.5);
+}

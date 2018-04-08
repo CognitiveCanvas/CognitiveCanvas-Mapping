@@ -1,0 +1,80 @@
+/* @import url(http://fonts.googleapis.com/css?family=Open+Sans); */
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #eee;
+    font: 13px/1.5em 'Open Sans', Helvetica, Arial, sans-serif;
+}
+
+body {
+    display: flex;
+}
+
+.container {
+    position: absolute;
+    flex: 1 auto;
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    min-width: 1000px;
+    min-height: 500px;
+    overflow: hidden;
+    margin: 20px;
+    background-color: whitesmoke;
+    box-shadow: 0 0 10px;
+}
+
+.object {
+    position: absolute;
+    width: 100px;
+    height: 60px;
+    box-shadow: 0 0 10px black;
+}
+
+.object:before {
+    content: attr(id);
+    position: absolute;
+    margin: 3px 6px;
+}
+
+.transform-origin-point {
+    position: absolute;
+    display: inline-block;
+    border-radius: 50%;
+    border: 2px solid white;
+    width: 10px;
+    height: 10px;
+    transform: translate3d(-50%, -50%, 0);
+    opacity: .5;
+}
+
+.transform-origin-point:before,
+.transform-origin-point:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 20px;
+    opacity: .75;
+    transform-origin: 0 0 0;
+}
+
+.transform-origin-point:before {
+    background-color: red;
+    transform: translate3d(100%, 4px, 0) rotate(-90deg);
+}
+
+.transform-origin-point:after {
+    background-color: green;
+    transform: translate3d(100%, 2px, 0);
+}

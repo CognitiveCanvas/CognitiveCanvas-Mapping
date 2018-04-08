@@ -1,0 +1,14 @@
+body {
+    width: 100%;
+    overflow: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.example iframe {
+    border: 0;
+    width: 1200px;
+    height: 600px;
+}

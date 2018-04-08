@@ -295,7 +295,7 @@ body {
 .label{
     stroke-width: 1;
     fill: green;
-    stroke-color: green;
+    stroke: green;
     dominant-baseline: middle; 
     text-anchor: middle;
 }
