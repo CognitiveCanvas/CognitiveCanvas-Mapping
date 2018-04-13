@@ -1,10 +1,11 @@
-/* TODO: initialize the canvas */
 /* init.js */
+
 webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
 
 function onLoaded(webstrateId, clientId, user) {
   getDefaultStyle();
   initIDs(webstrateId, clientId);
+  initTransformer();
   initDragLine();
   initDataElement();
   reloadElement();
@@ -77,4 +78,7 @@ function initToolPalette() {
     toolPalette.setAttribute("id", "tool-palette");
     document.getElementById("content_container").appendChild(toolPalette);
     document.getElementById("tool-palette").style.visibility = "hidden";
+}
+
+function initTransformer() {
 }

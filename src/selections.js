@@ -96,6 +96,7 @@ function drawSelectionArea(e){
       d3.select(".selection_area").remove();
       selection_area = d3.select(canvas).insert("rect", ":first-child")
         .classed("selection_area", true)
+        .classed("group", true)
         .attr("x", e.pageX)
         .attr("y", e.pageY)
         .attr("width", 0)
@@ -193,4 +194,15 @@ function getGroupedNodes(group){
    }
    console.log("Grouped Nodes: " + nodes );
    return d3.selectAll(nodes);
+}
+
+function BBIsInGroup(nodeBB, group){
+  var left = parseInt(group.getAttribute("x"));
+  var top = parseInt(group.getAttribute("y"));
+  var right = left + parseInt(group.getAttribute("width"));
+  var bottom = top + parseInt(group.getAttribute("height"));
+  return nodeBB.left >= left &&
+    nodeBB.right <= right &&
+    nodeBB.top >= top &&
+    nodeBB.bottom <= bottom
 }

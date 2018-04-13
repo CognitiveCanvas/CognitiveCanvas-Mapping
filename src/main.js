@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, webstrateId, active_node, dragged_object = null;
+var clientId, webstrateId, clicked_object, dragged_object = null;
 
 var canvas = document.getElementById("canvas");
 var radius = 40;
@@ -89,7 +89,8 @@ function mouseDownListener(e) {
   }
 
   if (mouseDown === 1) {
-    selectDraggedObject(e);
+    dragStartPos = [e.pageX, e.pageY];
+    clicked_object = $(e.target).hasClass("group") ? e.target : getParentMapElement(e.target);
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
@@ -138,13 +139,16 @@ function mouseMoveListener(e) {
       var selection = d3.select(dragged_object);
       if(selection.classed("node")){
         drawDragNode(e);
-      }else if(selection.classed("selection_area") || selection.classed("map-image")){
+      }else if(selection.classed("group") ){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else{
-      console.log("drawing selection area");
-      drawSelectionArea(e);
-
+    }else if ( Math.sqrt( Math.pow(e.pageX - dragStartPos[0],2) + Math.pow(e.pageY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
+      if(clicked_object){
+        selectDraggedObject(e);
+      } else {
+        console.log("drawing selection area");
+        drawSelectionArea(e);
+      }
     }
   }
   else if (mouseDown === 2 && source_node) {
@@ -303,6 +307,8 @@ function keyDownListener(e){
  * - existing link:
  */
 function singleClickEvent(e) {
+  this.focus();
+
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
@@ -611,21 +617,26 @@ function resetState() {
   mouseMoved = false;
   source_node = null;
   dragged_object = null;
+  clicked_object = null;
+  dragStartPos = null;
   drag_offset = [0,0];
   clearTimeout(singleClickTimer);
   clearTimeout(doubleClickDragTimer);
 }
 
 function selectDraggedObject(e) {
-  var parentNode = $(e.target).parents(".node").get(0);
-  if (parentNode) {
-    dragged_object = parentNode;
+  console.log("selecting dragged object");
+  console.log(e.target);
+  var obj = getParentMapElement(e.target);
+  if (obj) {
+    dragged_object = obj;
     //selectNode(parentNode);
-  } else if( $(e.target).hasClass("selection_area") || $(e.target).hasClass("map-image") ){
+  } else if( $(e.target).hasClass("group") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
+  console.log("draggedObject: " + dragged_object);
 }
 
 function selectLineDest(e) {
@@ -682,6 +693,21 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
+    let group = $(".group[children_ids~=" + selected_id + "]");
+    if(group.length){
+      console.log("this node is in a group")
+      var nodeBB = node.node().getBoundingClientRect();
+      var newBB = { top : e.pageY - nodeBB.height/2,
+          bottom : e.pageY + nodeBB.height/2,
+          left : e.pageX - nodeBB.width/2,
+          right : e.pageX + nodeBB.width/2
+      }
+      console.log(newBB)
+      if( !BBIsInGroup(newBB, group.get(0))){
+        console.log("this pos is outside the group");
+        return;
+      }
+    }
     translateNode(dragged_object, e.pageX, e.pageY);
   }
 }
