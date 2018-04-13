@@ -688,6 +688,21 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
+    let group = $(".group[children_ids~=" + selected_id + "]");
+    if(group.length){
+      console.log("this node is in a group")
+      var nodeBB = node.node().getBoundingClientRect();
+      var newBB = { top : e.pageY - nodeBB.height/2,
+          bottom : e.pageY + nodeBB.height/2,
+          left : e.pageX - nodeBB.width/2,
+          right : e.pageX + nodeBB.width/2
+      }
+      console.log(newBB)
+      if( !BBIsInGroup(newBB, group.get(0))){
+        console.log("this pos is outside the group");
+        return;
+      }
+    }
     translateNode(dragged_object, e.pageX, e.pageY);
   }
 }

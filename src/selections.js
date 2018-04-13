@@ -195,3 +195,14 @@ function getGroupedNodes(group){
    console.log("Grouped Nodes: " + nodes );
    return d3.selectAll(nodes);
 }
+
+function BBIsInGroup(nodeBB, group){
+  var left = parseInt(group.getAttribute("x"));
+  var top = parseInt(group.getAttribute("y"));
+  var right = left + parseInt(group.getAttribute("width"));
+  var bottom = top + parseInt(group.getAttribute("height"));
+  return nodeBB.left >= left &&
+    nodeBB.right <= right &&
+    nodeBB.top >= top &&
+    nodeBB.bottom <= bottom
+}

@@ -81,5 +81,4 @@ function initToolPalette() {
 }
 
 function initTransformer() {
-
 }

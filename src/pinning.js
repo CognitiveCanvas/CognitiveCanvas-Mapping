@@ -41,7 +41,7 @@ function insertImage(width, height, imgSrc){
 	var pinnedImage = d3.select(canvas)
 		.insert("image", ":first-child")
 		.classed("map-image", true)
-		.classed("group")
+		.classed("group", true)
 		.attr("xlink:href", imgSrc)
 		.attr("x", 0)
 		.attr("y", 0)
