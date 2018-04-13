@@ -138,6 +138,7 @@ function addLabel(text, node, placeholderText=true){
 
   if(placeholderText){
     selectText(textNode);
+    label.focus();
   } else{
     var cursorPosition = label.appendChild(document.createTextNode(""));  
     selectText(cursorPosition);

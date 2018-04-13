@@ -304,6 +304,8 @@ function keyDownListener(e){
  * - existing link:
  */
 function singleClickEvent(e) {
+  this.focus();
+
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
