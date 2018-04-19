@@ -12,41 +12,13 @@ function onLoaded(webstrateId, clientId, user) {
   initDrawing();
   initLog();
 }
-var counter = 1
 
 function initLog(){
-  // JL().fatal("log message");
-  // JL().fatal({"i": 5, "j": 6});
-  // JL("function1.logger1").warn("log message");
-  // var xhr = new XMLHttpRequest();
-  // xhr.open("GET", "169.228.188.233:8080/", true);
-  // xhr.setRequestHeader('Content-Type', 'application/json');
-  // xhr.send(JSON.stringify({
-  //   value: "value"
-  // }));
-
   var intervalID = window.setInterval(postLogs, 5000);
-
+  log("level EVENT", "test logs");
 
 }
 
-// function myCallback() {
-//   counter += 1;
-//   $.ajax({
-//     contentType: 'application/json',
-//     data: '{"test":"' + counter + '"}',
-//     dataType: 'json',
-//     success: function(data){
-//         console.log(data);
-//     },
-//     error: function(){
-//         console.log("error")
-//     },
-//     processData: false,
-//     type: 'POST',
-//     url: 'http://169.228.188.233:8081/api/log'
-//   });
-// }
 
 function initIDs(webstrateId, clientId) {
   this.webstrateId = webstrateId;

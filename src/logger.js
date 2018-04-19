@@ -15,7 +15,7 @@ function postLogs(){
 	if (temp_buffer.length > 0){
 		$.ajax({
 			contentType: "application/json",
-			data: temp_buffer, 
+			data: JSON.stringify(temp_buffer), 
 			dataType: "json", 
 			success: (data)=>{console.log(data)}, 
 			error: ()=>{console.log("error")}, 
