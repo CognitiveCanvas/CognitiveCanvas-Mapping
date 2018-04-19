@@ -12,6 +12,7 @@ function onLoaded(webstrateId, clientId, user) {
   initDrawing();
   initLog();
 }
+var counter = 1
 
 function initLog(){
   // JL().fatal("log message");
@@ -23,9 +24,29 @@ function initLog(){
   // xhr.send(JSON.stringify({
   //   value: "value"
   // }));
-  $.post("169.228.188.233:8888/", "data" ,()=>{});
+
+  var intervalID = window.setInterval(postLogs, 5000);
+
 
 }
+
+// function myCallback() {
+//   counter += 1;
+//   $.ajax({
+//     contentType: 'application/json',
+//     data: '{"test":"' + counter + '"}',
+//     dataType: 'json',
+//     success: function(data){
+//         console.log(data);
+//     },
+//     error: function(){
+//         console.log("error")
+//     },
+//     processData: false,
+//     type: 'POST',
+//     url: 'http://169.228.188.233:8081/api/log'
+//   });
+// }
 
 function initIDs(webstrateId, clientId) {
   this.webstrateId = webstrateId;
