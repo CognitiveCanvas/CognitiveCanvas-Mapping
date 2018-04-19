@@ -2,7 +2,7 @@
 var nodes = [];
 var links = [];
 
-var clientId, webstrateId, active_node, dragged_object = null;
+var clientId, webstrateId, clicked_object, dragged_object = null;
 
 var canvas = document.getElementById("canvas");
 var radius = 40;
@@ -31,7 +31,6 @@ var original_color = null;
 var drag_line = null; 
 var source_node = null;
 
-var hoveredEle = null;
 var zoom = null;
 
 var quickAddDist = 10 + MAX_RADIUS;
@@ -56,7 +55,10 @@ function mouseUpListener(e) {
 
   if (mouseUp === 1 && mouseDown === 1) {
     singleClickTimer = setTimeout(() => {
-      console.log("single click at " + e.x + " " + e.y);
+      console.log("single click");
+      $("#contextMenu").css({
+        display: "none"
+      });
       singleClickEvent(e);
     }, delay);
   }
@@ -87,7 +89,8 @@ function mouseDownListener(e) {
   }
 
   if (mouseDown === 1) {
-    selectDraggedObject(e);
+    dragStartPos = [e.pageX, e.pageY];
+    clicked_object = $(e.target).hasClass("group") ? e.target : getParentMapElement(e.target);
   }
   else if (mouseDown === 2 && mouseUp === 1) {
     clearTimeout(singleClickTimer);
@@ -136,13 +139,16 @@ function mouseMoveListener(e) {
       var selection = d3.select(dragged_object);
       if(selection.classed("node")){
         drawDragNode(e);
-      }else if(selection.classed("selection_area") || selection.classed("map-image")){
+      }else if(selection.classed("group") ){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else{
-      console.log("drawing selection area");
-      drawSelectionArea(e);
-
+    }else if ( Math.sqrt( Math.pow(e.pageX - dragStartPos[0],2) + Math.pow(e.pageY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
+      if(clicked_object){
+        selectDraggedObject(e);
+      } else {
+        console.log("drawing selection area");
+        drawSelectionArea(e);
+      }
     }
   }
   else if (mouseDown === 2 && source_node) {
@@ -301,6 +307,8 @@ function keyDownListener(e){
  * - existing link:
  */
 function singleClickEvent(e) {
+  this.focus();
+
   let entity = e.target.getAttribute("class").split(" ")[0];
 
   if(selection_area){
@@ -329,6 +337,7 @@ function singleClickEvent(e) {
         } else{
           selectNode(node, !e.shiftKey);
         }
+        sendSearchMsgToContainer();
         break;
       case "selection_area":
         addedNode = addNode(e.clientX, e.clientY);
@@ -392,8 +401,33 @@ function doubleClickEvent(e) {
     default:
       break;
   }
-
+  
   resetState()
+}
+
+// Message Passing to the Container Code. Package include the id & label
+function sendSearchMsgToContainer() {
+  if (window.parent) {
+    //console.log(window.parent);
+    let selected = d3.select(".selected");
+    if (!selected.empty()) {
+      let nodeID = selected.attr("id");
+      let labelElement = document.getElementById(nodeID+"_text");
+      let labelText;
+      if (labelElement.getElementsByTagName("tspan")[0]) {
+        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+        //console.log("In View Mode, get label: " + labelText);
+      } else {
+        labelText = labelElement.innerHTML;
+        //console.log("In Edit Mode, get label: " + labelText);
+      }
+      let package = {
+        id: nodeID,
+        label: labelText
+      };
+      window.parent.postMessage(package, "*");
+    }
+  }
 }
 
 /* entity.js */
@@ -531,15 +565,49 @@ function removeNode(node) {
       group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     });
 
-  deleteEntity(nodes, node_id);
+  closePreviewIframe("node");
+  deleteEntity(nodes, node_id); 
   node_d3.remove();
 }
 
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
+  closePreviewIframe("edge");
   deleteEntity(links, link_id);
   link.remove();
+}
+
+function closePreviewIframe(target) {
+  if (hoveredEle) {
+    
+    switch (target) {
+      case "node":
+        if (nodes.find(x => x.id === hoveredEle)) {
+          if (nodes.find(x => x.id === hoveredEle).content){
+            var elem = document.getElementById("previewing");
+            if (elem) {
+              elem.parentNode.removeChild(elem);
+            }
+          }
+        }
+        break;
+      case "edge":
+        if (links.find(x => x.id === hoveredEle)) {
+          if (links.find(x => x.id === hoveredEle).content){
+            var elem = document.getElementById("previewing");
+            if (elem) {
+              elem.parentNode.removeChild(elem);
+            }
+          }
+        }
+        break;
+      default:
+        console.warn("Invalid Function Call on closePreviewIframe(target)");
+        break;
+    }
+    
+  }
 }
 
 function resetState() {
@@ -549,21 +617,26 @@ function resetState() {
   mouseMoved = false;
   source_node = null;
   dragged_object = null;
+  clicked_object = null;
+  dragStartPos = null;
   drag_offset = [0,0];
   clearTimeout(singleClickTimer);
   clearTimeout(doubleClickDragTimer);
 }
 
 function selectDraggedObject(e) {
-  var parentNode = $(e.target).parents(".node").get(0);
-  if (parentNode) {
-    dragged_object = parentNode;
+  console.log("selecting dragged object");
+  console.log(e.target);
+  var obj = getParentMapElement(e.target);
+  if (obj) {
+    dragged_object = obj;
     //selectNode(parentNode);
-  } else if( $(e.target).hasClass("selection_area") || $(e.target).hasClass("map-image") ){
+  } else if( $(e.target).hasClass("group") ){
     dragged_object = e.target;
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
+  console.log("draggedObject: " + dragged_object);
 }
 
 function selectLineDest(e) {
@@ -620,6 +693,21 @@ function drawDragNode(e) {
       selectNode(node, !e.shiftKey);
     }
     let selected_id = node.attr("id");
+    let group = $(".group[children_ids~=" + selected_id + "]");
+    if(group.length){
+      console.log("this node is in a group")
+      var nodeBB = node.node().getBoundingClientRect();
+      var newBB = { top : e.pageY - nodeBB.height/2,
+          bottom : e.pageY + nodeBB.height/2,
+          left : e.pageX - nodeBB.width/2,
+          right : e.pageX + nodeBB.width/2
+      }
+      console.log(newBB)
+      if( !BBIsInGroup(newBB, group.get(0))){
+        console.log("this pos is outside the group");
+        return;
+      }
+    }
     translateNode(dragged_object, e.pageX, e.pageY);
   }
 }
@@ -871,6 +959,7 @@ function previewContent(ele) {
     wrapper.appendChild(toFrame);
     document.body.appendChild(wrapper);
 }
+
 
 function toggleDrawFunc() {
   let pad = document.getElementById("d3_container");

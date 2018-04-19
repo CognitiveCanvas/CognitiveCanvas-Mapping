@@ -77,6 +77,7 @@ function addLabel(text, node, placeholderText=true){
   d3.select(label).classed("label-input", true);
   label.style.position = "absolute";
   label.setAttribute("contenteditable", "true");
+  label.setAttribute("id", node.getAttribute('id')+"_text");
   label.setAttribute("node-id", node.getAttribute('id'));
   label.setAttribute("size", labelText.length || 1);
   var textNode = label.appendChild(document.createTextNode(labelText));
@@ -137,6 +138,7 @@ function addLabel(text, node, placeholderText=true){
 
   if(placeholderText){
     selectText(textNode);
+    label.focus();
   } else{
     var cursorPosition = label.appendChild(document.createTextNode(""));  
     selectText(cursorPosition);
