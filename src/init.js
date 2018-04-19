@@ -10,6 +10,21 @@ function onLoaded(webstrateId, clientId, user) {
   reloadElement();
   initToolPalette();
   initDrawing();
+  initLog();
+}
+
+function initLog(){
+  // JL().fatal("log message");
+  // JL().fatal({"i": 5, "j": 6});
+  // JL("function1.logger1").warn("log message");
+  // var xhr = new XMLHttpRequest();
+  // xhr.open("GET", "169.228.188.233:8080/", true);
+  // xhr.setRequestHeader('Content-Type', 'application/json');
+  // xhr.send(JSON.stringify({
+  //   value: "value"
+  // }));
+  $.post("169.228.188.233:8888/", "data" ,()=>{});
+
 }
 
 function initIDs(webstrateId, clientId) {
