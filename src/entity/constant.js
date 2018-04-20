@@ -17,5 +17,7 @@ var LEFT_MAX_ANGLE = -135;
 var DOWN_MIN_ANGLE = -135;
 var DOWN_MAX_ANGLE = -45;
 
+var DRAG_TOLERANCE = 5;
+
 //Constants for Uploading Images and pinning to them
 var IMG_MAX_SIZE = [1000, 1000];
