@@ -4,10 +4,39 @@ function log(level, content){
 	var current_log = {
 		"level": level, 
 		"content": content,
-		"timestamp": Date.now()
+		"timestamp": new Date().toUTCString()
 	}
+	temp_buffer.push(current_log);
+}
 
-	temp_buffer.push(current_log)
+function logFromLabel(element) {
+    let levelName = element.getAttribute("class").split(" ")[0];
+    let content;
+    if (levelName === "node") {
+      content = {
+      	id: element.getAttribute("id"),
+        color: element.getAttribute("circle"),
+        shape: "",
+        size: "",
+        text_content: "",
+        text_size: "",
+        text_color: "",
+        text_font: "",
+        image_content: "",
+        adjacency_list: "",
+        location: element.getAttribute("transform").replace('translate','')
+      };
+    } else {
+      content = {
+      	label: "",
+      	color: "",
+      	source_node_id: "",
+      	target_node_id: ""
+      };
+    }
+    console.log(content);
+    console.log(element);
+    // log(levelName, content);
 }
 
 

@@ -123,6 +123,7 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
+        logFromLabel(node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
