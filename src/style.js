@@ -12,14 +12,12 @@ var FONT_NORMAL = 100;
 var FONT_BOLD = 700;
 
 function setColor(color) {
-
 	d3.selectAll(".selected .node-rep")
 	  .style("fill", color);
 	d3.selectAll(".selected .link-rep")
 	  .style("stroke", color);
 	console.log("success");
 
-	// for undo/redo feature
 	let data = {
 		"style_type": "change_color", 
 		"old_color" : d3.selectAll(".selected .node-rep").style("fill"),
@@ -30,12 +28,15 @@ function setColor(color) {
 	action_done ("style", data)
 }
 
+
 function undoStyle(data){
 	switch (data.style_type){
 		case "change_color":
-			console.log("old color", data.old_color);
-			data.nodes.style("fill", ""+data.old_color)
-			data.edges.style("stroke", data.old_color)
+			data.nodes.style("fill", ""+data.old_color);
+			data.edges.style("stroke", ""+data.old_color);
+			break;
+		case "change_border_color":
+			data.elements.style("stroke", ""+data.old_color);
 			break;
 	}
 }
@@ -43,6 +44,13 @@ function undoStyle(data){
 function setBorderColor(color) {
 	d3.selectAll(".selected .node-rep")
 	  .style("stroke", color);
+	let data = {
+		"style_type": "change_border_color", 
+		"old_color" : d3.selectAll(".selected .node-rep").style("stroke"),
+		"new_color" : color, 
+		"elements"  : d3.selectAll(".selected .node-rep")
+	};
+	action_done ("style", data);
 }
 
 function increaseLabelFontSize(){

@@ -16,13 +16,18 @@ function action_done (type, data){
 }
 
 function undo(){
+
+	// Do nothing if the stack is empty
+	if (undo_redo_buffer.length == 0)
+		return;
+
 	let last_action = undo_redo_buffer.pop();
 	switch (last_action.type){
 		case "style": 
 			undoStyle(last_action.data);
 			break;
 		case "deleteNode":
-			undoDeleteNode();
+			undoDeleteNode(last_action.data);
 			break;
 		case "insertNode":
 			undoInsertNode();
