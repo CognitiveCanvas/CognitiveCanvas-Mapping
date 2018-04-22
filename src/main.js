@@ -243,7 +243,8 @@ function mouseOutListener(e) {
 
 function keyPressListener(e) {
   var key = e.key;
-
+  if (e.ctrlKey || e.metaKey)
+    return;
   switch(key) {
     case "1": // #1
       if (hoveredEle && !addWindowOpen) addEleContent(e);
@@ -265,7 +266,13 @@ function keyPressListener(e) {
 
 function keyDownListener(e){
   var key = e.key;
+  console.log(e)
   console.log("keyDown: " + key);
+  if ((e.ctrlKey || e.metaKey) && e.key == "z") {
+    e.preventDefault();
+    undo()
+    return false;
+  }
   switch(key) {
     case "Enter":
     case "Tab": // Tab
@@ -295,6 +302,7 @@ function keyDownListener(e){
     case "ArrowDown":
       selectNodeByDirection("down");
       break;
+    
     default:
       break;
   }

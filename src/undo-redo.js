@@ -5,7 +5,7 @@ const queue_length = 30;
 
 function action_done (type, data){
 	if (undo_redo_buffer.length < queue_length){
-		undo_redo_buffer.push({type : data});	
+		undo_redo_buffer.push({ "type": type, "data":data } );	
 	}
 	else{
 		// Removes the front of the buffer queue
@@ -19,7 +19,7 @@ function undo(){
 	let last_action = undo_redo_buffer.pop();
 	switch (last_action.type){
 		case "style": 
-			undoStyle();
+			undoStyle(last_action.data);
 			break;
 		case "deleteNode":
 			undoDeleteNode();
