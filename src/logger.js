@@ -13,25 +13,27 @@ function logFromLabel(element) {
     let levelName = element.getAttribute("class").split(" ")[0];
     let content;
     if (levelName === "node") {
+      if (element.getAttribute("class").split(" ").length === 3) {
+        levelName += " pin"
+      }
       content = {
       	id: element.getAttribute("id"),
-        color: element.getAttribute("circle"),
-        shape: "",
-        size: "",
-        text_content: "",
-        text_size: "",
-        text_color: "",
-        text_font: "",
+        color: element.children[0].style.cssText,
+        shape: element.children[0].tagName,
+        size: element.children[0].r.animVal.value,
+        label_text: element.children[1].children[0].innerHTML,
+        label_size: "17px",
+        label_color: "green",
+        label_font: element.children[1].getAttribute("font-family"),
         image_content: "",
-        adjacency_list: "",
         location: element.getAttribute("transform").replace('translate','')
       };
     } else {
       content = {
-      	label: "",
-      	color: "",
-      	source_node_id: "",
-      	target_node_id: ""
+      	label_text: element.children[1].children[0].innerHTML,
+      	color: "lightgrey",
+      	source_node_id: element.getAttribute("source_id"),
+      	target_node_id: element.getAttribute("target_id")
       };
     }
     console.log(content);
