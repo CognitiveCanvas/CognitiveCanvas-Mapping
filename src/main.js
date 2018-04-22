@@ -412,21 +412,33 @@ function sendSearchMsgToContainer() {
     let selected = d3.select(".selected");
     if (!selected.empty()) {
       let nodeID = selected.attr("id");
-      let labelElement = document.getElementById(nodeID+"_text");
-      let labelText;
-      if (labelElement.getElementsByTagName("tspan")[0]) {
-        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-        //console.log("In View Mode, get label: " + labelText);
-      } else {
-        labelText = labelElement.innerHTML;
-        //console.log("In Edit Mode, get label: " + labelText);
-      }
+      let labelText = labelFinder(nodeID);
       let package = {
         id: nodeID,
         label: labelText
       };
       window.parent.postMessage(package, "*");
     }
+  }
+}
+
+// Use The id of the Element to find the label of the element!
+function labelFinder(nodeID) {
+  let labelElement = document.getElementById(nodeID+"_text");
+  let labelText;
+  if (labelElement) {
+    if (labelElement.getElementsByTagName("tspan")[0]) {
+      labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+      //console.log("In View Mode, get label: " + labelText);
+    } else {
+      labelText = labelElement.innerHTML;
+      //console.log("In Edit Mode, get label: " + labelText);
+    }
+    return labelText;
+  }
+  else {
+    console.log("label NOT FOUND")
+    return "";
   }
 }
 
