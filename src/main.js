@@ -388,6 +388,10 @@ function doubleClickEvent(e) {
       var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      let data = { 
+        "node"  : node
+      };
+      action_done("insertNode", data);
       break;
     case "node-rep":
     case "label-rep":

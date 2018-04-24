@@ -30,7 +30,7 @@ function undo(){
 			undoDeleteNode(last_action.data);
 			break;
 		case "insertNode":
-			undoInsertNode();
+			undoInsertNode(last_action.data);
 			break;
 		case "dragNode":
 			undoDragNode();
@@ -48,3 +48,34 @@ function undo(){
 			console.log("undefined action type encountered");
 	}
 }
+
+
+
+function undoStyle(data){
+	switch (data.style_type){
+		case "change_color":
+			data.nodes.style("fill", ""+data.old_color);
+			data.edges.style("stroke", ""+data.old_color);
+			break;
+		case "change_border_color":
+			data.elements.style("stroke", ""+data.old_color);
+			break;
+		case "label_font_size":
+			data.elements.style("font-size", ""+data.old_size);
+			break;
+		case "label_font_italics":
+			data.elements.style("font-style", ""+data.old_style);
+			break;
+		case "label_font_bold":
+			data.elements.style("font-weight", ""+data.old_style);
+			break;
+		case "label_font_color":
+			data.elements.style("fill", ""+data.old_color)
+	}
+}
+
+function undoInsertNode(data){
+	console.log(data)
+	removeNode(data.node)
+}
+
