@@ -42,7 +42,6 @@ $(document).bind("contextmenu", function (event) {
         left: event.pageX,
         top: event.pageY
     });
-    console.log("custom context menu")
 });
 
 

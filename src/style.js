@@ -16,7 +16,6 @@ function setColor(color) {
 	  .style("fill", color);
 	d3.selectAll(".selected .link-rep")
 	  .style("stroke", color);
-	console.log("success");
 
 	let data = {
 		"style_type": "change_color", 
