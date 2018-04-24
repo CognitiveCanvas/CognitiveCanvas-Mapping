@@ -38,6 +38,18 @@ function undoStyle(data){
 		case "change_border_color":
 			data.elements.style("stroke", ""+data.old_color);
 			break;
+		case "label_font_size":
+			data.elements.style("font-size", ""+data.old_size);
+			break;
+		case "label_font_italics":
+			data.elements.style("font-style", ""+data.old_style);
+			break;
+		case "label_font_bold":
+			data.elements.style("font-weight", ""+data.old_style);
+			break;
+		case "label_font_color":
+			data.elements.style("fill", ""+data.old_color)
+
 	}
 }
 
@@ -50,13 +62,21 @@ function setBorderColor(color) {
 		"new_color" : color, 
 		"elements"  : d3.selectAll(".selected .node-rep")
 	};
-	action_done ("style", data);
+	action_done("style", data);
 }
 
 function increaseLabelFontSize(){
 	current_font_size = current_font_size + 2;
 	d3.selectAll(".selected .label")
 	  .style("font-size", current_font_size);
+
+	let data = {
+		"style_type" : "label_font_size", 
+		"old_size"   : d3.selectAll(".selected .label").style("font-size"),
+		"new_size"   : ""+current_font_size,
+		"elements"   : d3.selectAll(".selected .label")
+	}
+	action_done("style", data)
 }
 
 
@@ -64,37 +84,71 @@ function decreaseLabelFontSize(){
 	current_font_size = current_font_size - 2;
 	d3.selectAll(".selected .label")
 	  .style("font-size", current_font_size);
+	let data = {
+		"style_type" : "label_font_size", 
+		"old_size"   : d3.selectAll(".selected .label").style("font-size"),
+		"new_size"   : ""+current_font_size,
+		"elements"   : d3.selectAll(".selected .label")
+	}
+	action_done("style", data)
 }
 
 
 function toggleLabelFontItalics(){
 	current_style = d3.select(".selected .label")
 	  .style("font-style");
-	//console.log(current_style)
+	let new_style = "";
 	if (current_style != 'italic'){
+		new_style = "italic"
 		d3.selectAll(".selected .label")
 	  		.style("font-style", "italic");
 	} else {
+		new_style = "normal"
 		d3.selectAll(".selected .label")
 	  		.style("font-style", "normal");
 	}
+
+	let data = {
+		"style_type" : "label_font_italics", 
+		"old_style"   : current_style,
+		"new_style"   : ""+new_style,
+		"elements"   : d3.selectAll(".selected .label")
+	}
+	action_done("style", data)
 }
 
 
 function toggleLabelFontBold(){
 	current_style = d3.select(".selected .label")
 	  .style("font-weight");
-	//console.log(current_style)
+	let new_style = "";
 	if (current_style == "700"){
+		new_style = FONT_NORMAL;
 		d3.selectAll(".selected .label")
 	  		.style("font-weight", FONT_NORMAL); 	
 	} else {
+		new_style = FONT_BOLD;
 		d3.selectAll(".selected .label")
 	  		.style("font-weight", FONT_BOLD);
 	}
+
+	let data = {
+		"style_type" : "label_font_bold", 
+		"old_style"   : current_style,
+		"new_style"   : ""+new_style,
+		"elements"   : d3.selectAll(".selected .label")
+	}
+	action_done("style", data)
 }
 
 function setLabelColor(color){
 	current_style = d3.selectAll(".selected .label")
 		.style("fill", color);
+	let data = {
+		"style_type": "label_font_color", 
+		"old_color" : d3.selectAll(".selected .label").style("fill"),
+		"new_color" : color, 
+		"elements"  : d3.selectAll(".selected .label")
+	}
+	action_done ("style", data)
 }
