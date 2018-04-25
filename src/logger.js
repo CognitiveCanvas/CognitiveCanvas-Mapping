@@ -6,7 +6,8 @@ function log(level, content){
 		"content": content,
 		"timestamp": new Date().toUTCString()
 	}
-	temp_buffer.push(current_log);
+	console.log(current_log);
+	// temp_buffer.push(current_log);
 }
 
 function postLogs(){
@@ -28,60 +29,128 @@ function postLogs(){
 /*
  * Logs changes for each node when color is changed
  */
-function logColorChanges(color){
+function logColorChanges(type, color){
   let selectedNodes = document.querySelectorAll(".node.selected");
-  let selectedNodeShapes = document.querySelectorAll(".selected .node-rep");
+  // let selectedNodeShapes = document.querySelectorAll(".selected .node-rep");
   let selectedEdges = document.querySelectorAll(".link.selected");
-  let selectedEdgeShapes = document.querySelectorAll(".selected .link-rep");
-
+  // let selectedEdgeShapes = document.querySelectorAll(".selected .link-rep");
+  let prev_color = "prev_" + type + "_color";
+  let curr_color = "curr_" + type + "_color";
   for (let i = 0; i < selectedNodes.length; i++) {
     log("node", {
       "id": selectedNodes[i].getAttribute("id"),
-      "label": labelFinder(selectedNodes[i].getAttribute("id")),
-      "color": color
+      // "label": labelFinder(selectedNodes[i].getAttribute("id")),
+      [prev_color]: selectedNodes[i].children[0].style.cssText,
+      [curr_color]: color
     })
   }
 
   for (let j = 0; j < selectedEdges.length; j++) {
     log("edge", {
       "id": selectedEdges[j].getAttribute("id"),
-      "label": labelFinder(selectedEdges[j].getAttribute("id")),
-      "color": color,
-      "source_id": selectedEdges[j].getAttribute("source_id"),
-      "target_id": selectedEdges[j].getAttribute("target_id")
+      // "label": labelFinder(selectedEdges[j].getAttribute("id")),
+      [prev_color]: selectedNodes[i].children[0].style.cssText,
+      [curr_color]: color
+      // "source_id": selectedEdges[j].getAttribute("source_id"),
+      // "target_id": selectedEdges[j].getAttribute("target_id")
     })
   }
 }
 
 /*
- * Logs creation of a node/edge after label is created
+ * Logs creation of a node/edge
  */
-function logFromLabel(element) {
+function logCreation(element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
     if (element.getAttribute("class").split(" ").length === 3) {
-      levelName += " pin"
+      levelName += " pin";
     }
     content = {
-      id: element.getAttribute("id"),
-      color: element.children[0].style.cssText,
-      shape: element.children[0].tagName,
-      size: element.children[0].r.animVal.value,
-      label_text: element.children[1].children[0].innerHTML,
-      label_size: "17px",
-      label_color: "green",
-      label_font: element.children[1].getAttribute("font-family"),
-      image_content: "", //TODO
-      location: element.getAttribute("transform").replace('translate','')
+      "id": element.getAttribute("id"),
+      "color": element.children[0].style.cssText,
+      "shape": element.children[0].tagName,
+      "size": element.children[0].r.animVal.value,
+      "label_text": "Node Name",
+      "label_size": "15px",
+      "label_color": "green",
+      "label_font": "Helvetica",
+      "image_content": "", //TODO
+      "location": element.getAttribute("transform").replace('translate','')
     };
   } else {
     content = {
-      label_text: element.children[1].children[0].innerHTML,
-      color: "lightgrey",
-      source_node_id: element.getAttribute("source_id"),
-      target_node_id: element.getAttribute("target_id")
+      "id": element.getAttribute("id"),
+      "label_text": "Link Name",
+      "color": "lightgrey",
+      "source_id": element.getAttribute("source_id"),
+      "target_id": element.getAttribute("target_id")
     };
   }
   log(levelName, content);
+}
+
+/*
+ * Logs label changes
+ */
+function logLabel(oldLabel, element) {
+  let levelName = element.getAttribute("class").split(" ")[0];
+  if (levelName === "node") {
+    if (element.getAttribute("class").split(" ").length === 3) {
+      levelName += " pin";
+    }
+  } 
+  let content = {
+    "id": element.getAttribute("id"),
+    "prev_label_text": oldLabel,
+    "curr_label_text": element.children[1].children[0].innerHTML
+  };
+  log(levelName, content);
+}
+
+/*
+ * Logs font size changes
+ */
+function logFontChanges(prev_size, curr_size){
+  let selectedNodes = document.querySelectorAll(".node.selected");
+  let selectedEdges = document.querySelectorAll(".link.selected");
+
+  for (let i = 0; i < selectedNodes.length; i++) {
+    log("node", {
+      "id": selectedNodes[i].getAttribute("id"),
+      "prev_font_size": prev_size,
+      "curr_font_size": curr_size
+    })
+  }
+
+  for (let j = 0; j < selectedEdges.length; j++) {
+    log("edge", {
+      "id": selectedEdges[j].getAttribute("id"),
+      "prev_font_size": prev_size,
+      "curr_font_size": curr_size
+    })
+  }
+}
+
+/*
+ * Logs toggle for bold/italics
+ */
+function logLabelToggle(type, setting){
+  let selectedNodes = document.querySelectorAll(".node.selected");
+  let selectedEdges = document.querySelectorAll(".link.selected");
+
+  for (let i = 0; i < selectedNodes.length; i++) {
+    log("node", {
+      "id": selectedNodes[i].getAttribute("id"),
+      [type]: setting
+    })
+  }
+
+  for (let j = 0; j < selectedEdges.length; j++) {
+    log("edge", {
+      "id": selectedEdges[j].getAttribute("id"),
+      [type]: setting
+    })
+  }
 }

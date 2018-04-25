@@ -123,7 +123,7 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
-        logFromLabel(node); // Logging for the data team
+        logLabel(labelText, node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
@@ -202,6 +202,7 @@ function createLabelFromInput(node, label){
 function handleClickDuringLabelInput(){
   console.log("Handling click during label input");
   var label = d3.select(temp_label_div);
+  // TODO need to find out a way to get the old label
   var inputText = label.text();
   var placeholderText = label.attr("placeholder-text");
   var node = d3.select('#' + label.attr("node-id"));
@@ -219,6 +220,7 @@ function handleClickDuringLabelInput(){
   } else{
     var nodeId = label.attr("node-id");
     createLabelFromInput(node, label);
+    // logLabel(/* var for old text */, node[0][0]); // Logging for the data team     
   }
   return;
 }

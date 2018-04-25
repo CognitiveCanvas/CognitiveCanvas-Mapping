@@ -380,6 +380,7 @@ function doubleClickEvent(e) {
       var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      logCreation(node);
       break;
     case "node-rep":
     case "label-rep":
@@ -396,6 +397,7 @@ function doubleClickEvent(e) {
       $(node).addClass("pin");
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      logCreation(node);
       addNodeToGroup(addedNode, e.target);
       break;
     default:
