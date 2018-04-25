@@ -401,7 +401,6 @@ function doubleClickEvent(e) {
     default:
       break;
   }
-  
   resetState()
 }
 
