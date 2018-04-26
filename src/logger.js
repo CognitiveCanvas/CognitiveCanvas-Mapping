@@ -1,4 +1,6 @@
 var temp_buffer = [];
+var prev_position = {};
+var prev_label = "";
 
 function log(level, content){
 	var current_log = {
@@ -36,20 +38,20 @@ function logColorChanges(type, color){
   // let selectedEdgeShapes = document.querySelectorAll(".selected .link-rep");
   let prev_color = "prev_" + type + "_color";
   let curr_color = "curr_" + type + "_color";
-  for (let i = 0; i < selectedNodes.length; i++) {
+  for (var nodeIndex in selectedNodes) {
     log("node", {
-      "id": selectedNodes[i].getAttribute("id"),
+      "id": selectedNodes[nodeIndex].getAttribute("id"),
       // "label": labelFinder(selectedNodes[i].getAttribute("id")),
-      [prev_color]: selectedNodes[i].children[0].style.cssText,
+      [prev_color]: selectedNodes[nodeIndex].children[0].style.cssText,
       [curr_color]: color
     })
   }
 
-  for (let j = 0; j < selectedEdges.length; j++) {
+  for (var edgeIndex in selectedEdges) {
     log("edge", {
-      "id": selectedEdges[j].getAttribute("id"),
+      "id": selectedEdges[edgeIndex].getAttribute("id"),
       // "label": labelFinder(selectedEdges[j].getAttribute("id")),
-      [prev_color]: selectedNodes[i].children[0].style.cssText,
+      [prev_color]: selectedEdges[edgeIndex].children[0].style.cssText,
       [curr_color]: color
       // "source_id": selectedEdges[j].getAttribute("source_id"),
       // "target_id": selectedEdges[j].getAttribute("target_id")
@@ -94,7 +96,7 @@ function logCreation(element) {
 /*
  * Logs label changes
  */
-function logLabel(oldLabel, element) {
+function logLabel(element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   if (levelName === "node") {
     if (element.getAttribute("class").split(" ").length === 3) {
@@ -103,10 +105,15 @@ function logLabel(oldLabel, element) {
   } 
   let content = {
     "id": element.getAttribute("id"),
-    "prev_label_text": oldLabel,
+    "prev_label_text": prev_label,
     "curr_label_text": element.children[1].children[0].innerHTML
   };
+  prev_label = "";
   log(levelName, content);
+}
+
+function setPrevLabel(label) {
+  prev_label = label;
 }
 
 /*
@@ -116,20 +123,20 @@ function logFontChanges(prev_size, curr_size){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
-  for (let i = 0; i < selectedNodes.length; i++) {
+  for (var nodeIndex in selectedNodes) {
     log("node", {
-      "id": selectedNodes[i].getAttribute("id"),
+      "id": selectedNodes[nodeIndex].getAttribute("id"),
       "prev_font_size": prev_size,
       "curr_font_size": curr_size
-    })
+    });
   }
 
-  for (let j = 0; j < selectedEdges.length; j++) {
+  for (var edgeIndex in selectedEdges) {
     log("edge", {
-      "id": selectedEdges[j].getAttribute("id"),
+      "id": selectedEdges[edgeIndex].getAttribute("id"),
       "prev_font_size": prev_size,
       "curr_font_size": curr_size
-    })
+    });
   }
 }
 
@@ -140,17 +147,51 @@ function logLabelToggle(type, setting){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
-  for (let i = 0; i < selectedNodes.length; i++) {
+  for (var nodeIndex in selectedNodes) {
     log("node", {
-      "id": selectedNodes[i].getAttribute("id"),
+      "id": selectedNodes[nodeIndex].getAttribute("id"),
       [type]: setting
     })
   }
 
-  for (let j = 0; j < selectedEdges.length; j++) {
+  for (var edgeIndex in selectedEdges) {
     log("edge", {
-      "id": selectedEdges[j].getAttribute("id"),
+      "id": selectedEdges[edgeIndex].getAttribute("id"),
       [type]: setting
     })
+  }
+}
+
+/*
+ * Logs element movement/translate
+ */
+function logTranslate(element) {
+  if (prev_position.length === 0) {
+    return;
+  }
+  for (var key in prev_position) {
+    log("node", {
+      "id": key,
+      "prev_position": prev_position[key],
+      "curr_position": document.getElementById(key).getAttribute("transform").replace('translate','')
+    });
+  }
+  prev_position = {};
+}
+
+/*
+ * Helper method to save previous position of each translated element
+ */
+function translateSavePrevPosition(element) {
+  if (!element) {
+    return;
+  }
+  if (element.getAttribute("children_ids")) {
+    let children = element.getAttribute("children_ids").split(" ");
+    for (var childKey in children) {
+      prev_position[children[childKey]] = document.getElementById(children[childKey]).getAttribute("transform").replace('translate','');
+    }
+  } else {
+    prev_position[element.getAttribute("id")] = element.getAttribute("transform").replace('translate','');
   }
 }

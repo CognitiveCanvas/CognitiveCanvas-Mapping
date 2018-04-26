@@ -61,6 +61,7 @@ function mouseUpListener(e) {
       });
       singleClickEvent(e);
     }, delay);
+
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
     console.log("double click");
@@ -315,6 +316,7 @@ function singleClickEvent(e) {
     //console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
+    logTranslate(dragged_object);
     //console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
@@ -649,7 +651,8 @@ function selectDraggedObject(e) {
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
-  console.log("draggedObject: " + dragged_object);
+  console.log("draggedObject: ", dragged_object);
+  translateSavePrevPosition(dragged_object);
 }
 
 function selectLineDest(e) {
@@ -833,6 +836,7 @@ function quickAdd(key){
     }
   }
   selectNode(node);
+  logCreation(node);
   addLabel("Node Name", node);
 }
 
