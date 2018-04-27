@@ -285,7 +285,14 @@ function keyDownListener(e){
       if(!temp_label_div){
         e.preventDefault();
         e.stopImmediatePropagation();
-        d3.selectAll(".node.selected").each(function(){removeNode(this)});
+        
+        d3.selectAll(".node.selected").each(function(){
+          data = {
+            "elements": this, 
+          };
+          action_done("deleteNode", data);
+          removeNode(this);
+        });
         d3.selectAll(".link.selected").each(function(){removeLink(this)});
         d3.selectAll(".map-image.selected").remove();
       }
@@ -565,11 +572,16 @@ function removeNode(node) {
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
+  // d3.selectAll(`[source_id=${node_id}]`)
+  //   .remove();
+
+  // d3.selectAll(`[target_id=${node_id}]`)
+  //   .remove();
   d3.selectAll(`[source_id=${node_id}]`)
-    .remove();
+    .classed("deleted", true);
 
   d3.selectAll(`[target_id=${node_id}]`)
-    .remove();
+    .classed("deleted", true);
 
   d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
     .each(function(){
@@ -578,8 +590,9 @@ function removeNode(node) {
     });
 
   closePreviewIframe("node");
-  deleteEntity(nodes, node_id); 
-  node_d3.remove();
+  // deleteEntity(nodes, node_id); TODO: should this be here 
+  // node_d3.remove();
+  node_d3.classed("deleted", true);
 }
 
 function removeLink(link) {

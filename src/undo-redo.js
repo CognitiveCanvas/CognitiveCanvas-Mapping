@@ -76,7 +76,6 @@ function undoStyle(data){
 
 function undoInsertNode(data){
 	let node = data.node;
-	
   	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
 
@@ -98,3 +97,26 @@ function undoInsertNode(data){
   	node_d3.classed("deleted", true);
 }
 
+function undoDeleteNode(data){
+	console.log("undoing delete", data)
+	let node = data.elements;
+	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
+  	let node_id = node_d3.attr("id");
+
+  	d3.selectAll(`[source_id=${node_id}]`)
+    	.classed("deleted", false);
+
+  	d3.selectAll(`[target_id=${node_id}]`)
+    	.classed("deleted", false);
+
+  	d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
+    	.each(function(){
+    	let group = d3.select(this);
+      	group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
+    	});
+
+  	// deleteEntity(nodes, node_id); 
+  	// TODO: do inverse of this
+
+  	node_d3.classed("deleted", false);
+}
