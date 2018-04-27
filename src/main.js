@@ -61,6 +61,7 @@ function mouseUpListener(e) {
       });
       singleClickEvent(e);
     }, delay);
+
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
     console.log("double click");
@@ -315,6 +316,7 @@ function singleClickEvent(e) {
     //console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
+    logTranslate(dragged_object);
     //console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
@@ -380,6 +382,7 @@ function doubleClickEvent(e) {
       var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      logCreation(node);
       break;
     case "node-rep":
     case "label-rep":
@@ -396,12 +399,12 @@ function doubleClickEvent(e) {
       $(node).addClass("pin");
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      logCreation(node);
       addNodeToGroup(addedNode, e.target);
       break;
     default:
       break;
   }
-  
   resetState()
 }
 
@@ -412,21 +415,33 @@ function sendSearchMsgToContainer() {
     let selected = d3.select(".selected");
     if (!selected.empty()) {
       let nodeID = selected.attr("id");
-      let labelElement = document.getElementById(nodeID+"_text");
-      let labelText;
-      if (labelElement.getElementsByTagName("tspan")[0]) {
-        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-        //console.log("In View Mode, get label: " + labelText);
-      } else {
-        labelText = labelElement.innerHTML;
-        //console.log("In Edit Mode, get label: " + labelText);
-      }
+      let labelText = labelFinder(nodeID);
       let package = {
         id: nodeID,
         label: labelText
       };
       window.parent.postMessage(package, "*");
     }
+  }
+}
+
+// Use The id of the Element to find the label of the element!
+function labelFinder(nodeID) {
+  let labelElement = document.getElementById(nodeID+"_text");
+  let labelText;
+  if (labelElement) {
+    if (labelElement.getElementsByTagName("tspan")[0]) {
+      labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+      //console.log("In View Mode, get label: " + labelText);
+    } else {
+      labelText = labelElement.innerHTML;
+      //console.log("In Edit Mode, get label: " + labelText);
+    }
+    return labelText;
+  }
+  else {
+    console.log("label NOT FOUND")
+    return "";
   }
 }
 
@@ -636,7 +651,8 @@ function selectDraggedObject(e) {
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
-  console.log("draggedObject: " + dragged_object);
+  console.log("draggedObject: ", dragged_object);
+  translateSavePrevPosition(dragged_object);
 }
 
 function selectLineDest(e) {
@@ -820,6 +836,7 @@ function quickAdd(key){
     }
   }
   selectNode(node);
+  logCreation(node);
   addLabel("Node Name", node);
 }
 
