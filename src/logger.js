@@ -8,8 +8,7 @@ function log(level, content){
 		"content": content,
 		"timestamp": new Date().toUTCString()
 	}
-	// console.log(current_log);
-	temp_buffer.push(current_log);
+	// temp_buffer.push(current_log);
 }
 
 function postLogs(){
@@ -19,7 +18,7 @@ function postLogs(){
 			data: JSON.stringify(temp_buffer), 
 			dataType: "json", 
 			success: (data)=>{console.log(data)}, 
-			error: ()=>{console.log("error")}, 
+			error: ()=>{console.log("Error with postLogs in logger.js")}, 
 			processData: false, 
 			type: "POST", 
 			url: "http://169.228.188.233:8081/api/log"
