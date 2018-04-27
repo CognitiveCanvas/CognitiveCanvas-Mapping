@@ -8,8 +8,8 @@ function log(level, content){
 		"content": content,
 		"timestamp": new Date().toUTCString()
 	}
-	console.log(current_log);
-	// temp_buffer.push(current_log);
+	// console.log(current_log);
+	temp_buffer.push(current_log);
 }
 
 function postLogs(){
@@ -169,12 +169,23 @@ function logTranslate(element) {
   if (prev_position.length === 0) {
     return;
   }
+  let node_type = "node";
   for (var key in prev_position) {
-    log("node", {
-      "id": key,
-      "prev_position": prev_position[key],
-      "curr_position": document.getElementById(key).getAttribute("transform").replace('translate','')
-    });
+    let child = document.getElementById(key);
+    if (child.tagName === 'image') {
+      node_type += " pin";
+      log("image", {
+        "id": key,
+        "prev_position": prev_position[key],
+        "curr_position": '(' + child.getAttribute("x") + ',' + child.getAttribute("y") + ')'
+      });
+    } else {
+      log(node_type, {
+        "id": key,
+        "prev_position": prev_position[key],
+        "curr_position": child.getAttribute("transform").replace('translate','')
+      });
+    }
   }
   prev_position = {};
 }
@@ -186,12 +197,39 @@ function translateSavePrevPosition(element) {
   if (!element) {
     return;
   }
-  if (element.getAttribute("children_ids")) {
-    let children = element.getAttribute("children_ids").split(" ");
-    for (var childKey in children) {
-      prev_position[children[childKey]] = document.getElementById(children[childKey]).getAttribute("transform").replace('translate','');
+  if (element.tagName === 'image') { // save picture movement
+    prev_position[element.getAttribute("id")] = '(' + element.getAttribute("x") + ',' + element.getAttribute("y") + ')';
+    if (element.getAttribute("children_ids")) {
+      saveChildPrevPosition(element);
     }
   } else {
-    prev_position[element.getAttribute("id")] = element.getAttribute("transform").replace('translate','');
+    if (element.getAttribute("children_ids")) {
+      saveChildPrevPosition(element);
+    } else {
+      prev_position[element.getAttribute("id")] = element.getAttribute("transform").replace('translate','');
+    }
   }
+}
+
+/*
+ * Helper method to save prev position of element's children_ids attr
+ */
+function saveChildPrevPosition(element) {
+  let children = element.getAttribute("children_ids").split(" ");
+  for (var childKey in children) {
+    prev_position[children[childKey]] = document.getElementById(children[childKey]).getAttribute("transform").replace('translate','');
+  }
+}
+
+/*
+ * Logs image upload
+ */
+function logImage(width, height, src, id) {
+  log("image", {
+    "location": "(0,0)",
+    "width": width,
+    "height": height,
+    "src": src,
+    "id": id
+  });
 }
