@@ -11,7 +11,15 @@ function onLoaded(webstrateId, clientId, user) {
   reloadElement();
   initToolPalette();
   initDrawing();
+  initLog();
 }
+
+function initLog(){
+  var intervalID = window.setInterval(postLogs, 5000);
+  log("level EVENT", "test logs");
+
+}
+
 
 function initIDs(webstrateId, clientId) {
   this.webstrateId = webstrateId;
