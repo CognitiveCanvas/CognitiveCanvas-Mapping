@@ -36,7 +36,7 @@ var handleImageUpload = function(asset){
  *
  */
 function insertImage(width, height, imgSrc){
-
+	let imgId = getID();
 	console.log("Inserting Image: " + imgSrc);
 	var pinnedImage = d3.select(canvas)
 		.insert("image", ":first-child")
@@ -47,5 +47,7 @@ function insertImage(width, height, imgSrc){
 		.attr("y", 0)
 		.attr("width", width)
 		.attr("height", height)
-		.attr("children_ids", "");
+		.attr("children_ids", "")
+		.attr("id", imgId);
+	logImage(width, height, imgSrc, imgId);
 }

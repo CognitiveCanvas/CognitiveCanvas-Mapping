@@ -71,7 +71,7 @@ function addLabel(text, node, placeholderText=true){
   // If a label already exists
   let labelText = checkLabelExisted(node);
   labelText = text ? text : labelText;
-
+  setPrevLabel(labelText);
   // Adding an editable div outside
   let label = document.createElement("div");
   d3.select(label).classed("label-input", true);
@@ -123,6 +123,7 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
+        logLabel(node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
@@ -201,6 +202,7 @@ function createLabelFromInput(node, label){
 function handleClickDuringLabelInput(){
   console.log("Handling click during label input");
   var label = d3.select(temp_label_div);
+  // TODO need to find out a way to get the old label
   var inputText = label.text();
   var placeholderText = label.attr("placeholder-text");
   var node = d3.select('#' + label.attr("node-id"));
@@ -218,6 +220,7 @@ function handleClickDuringLabelInput(){
   } else{
     var nodeId = label.attr("node-id");
     createLabelFromInput(node, label);
+    logLabel(node[0][0]); // Logging for the data team     
   }
   return;
 }
