@@ -599,8 +599,9 @@ function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   closePreviewIframe("edge");
-  deleteEntity(links, link_id);
-  link.remove();
+  //deleteEntity(links, link_id);
+  // link.remove();
+  link.classed("deleted", true)
 }
 
 function closePreviewIframe(target) {
@@ -676,6 +677,11 @@ function selectLineDest(e) {
       selection.attr("id") != sourceNode.attr("id")) 
   {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
+    let data = { 
+        "edge"  : addedLink
+      };
+    console.log("adding edge data edge", data.edge)
+    action_done("addEdge", data);
     drawLink(addedLink);
     source_node = null;
   }

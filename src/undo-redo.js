@@ -16,7 +16,6 @@ function action_done (type, data){
 }
 
 function undo(){
-
 	// Do nothing if the stack is empty
 	if (undo_redo_buffer.length == 0)
 		return;
@@ -36,16 +35,16 @@ function undo(){
 			undoDragNode();
 			break;
 		case "addEdge":
-			undoAddEdge();
+			undoAddEdge(last_action.data);
 			break;
 		case "removeEdge":
-			undoRemoveEdge();
+			undoRemoveEdge(last_action.data);
 			break;
 		case "changeLabel":
 			undoChangeLabel();
 			break;
 		default:
-			console.log("undefined action type encountered");
+			console.log("undefined action type encountered ", last_action.type);
 	}
 }
 
@@ -75,6 +74,7 @@ function undoStyle(data){
 }
 
 function undoInsertNode(data){
+	console.log("undo-ing node insertion")
 	let node = data.node;
   	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
@@ -98,7 +98,7 @@ function undoInsertNode(data){
 }
 
 function undoDeleteNode(data){
-	console.log("undoing delete", data)
+	console.log("undoing node deletion")
 	let node = data.elements;
 	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
@@ -119,4 +119,13 @@ function undoDeleteNode(data){
   	// TODO: do inverse of this
 
   	node_d3.classed("deleted", false);
+}
+
+function undoAddEdge(data){
+	console.log("undo-ing edge insertion", data.edge)
+	let id = data.edge.id
+	link = d3.select("#"+id)
+  	// deleteEntity(links, link_id);
+  	// link.remove();
+  	link.classed("deleted", true)
 }
