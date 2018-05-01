@@ -12,7 +12,7 @@ $("#uploadImageBtn").on("click", function(e){
 
 //Handles the uploaded Image
 var handleImageUpload = function(asset){
-
+	console.log("ASSET UPLOADED", asset);
 	//Get height and width of original image then insert the image into the canvas
 	var newImg = new Image();
 	var oldImgHeight = 0, oldImgWidth = 0, imgHeight, imgWidth;
@@ -38,16 +38,23 @@ var handleImageUpload = function(asset){
 function insertImage(width, height, imgSrc){
 	let imgId = getID();
 	console.log("Inserting Image: " + imgSrc);
+
+	var center = new Point( $(window).width() /2,
+		$(window).scrollTop() + $(window).height() /2);	
+
+	center = canvas.transformer.fromGlobalToLocal(center);
+
 	var pinnedImage = d3.select(canvas)
 		.insert("image", ":first-child")
 		.classed("map-image", true)
 		.classed("group", true)
 		.attr("xlink:href", imgSrc)
-		.attr("x", 0)
-		.attr("y", 0)
 		.attr("width", width)
 		.attr("height", height)
-		.attr("children_ids", "")
-		.attr("id", imgId);
+		.attr("id", imgId)
+		.attr("transform", "matrix(1, 0, 0, 1, " + (center.x - width/2) + ", " + (center.y - height/2) + ")")
+		.attr("children_ids", "");
+
+	hammerizeGroup(pinnedImage.node());
 	logImage(width, height, imgSrc, imgId);
 }

@@ -1,14 +1,3 @@
-#CogCanvas {
-    height: 100%
-}
-
-#d3_container {
-    height: 100%;
-    width: 70%;
-    margin: 0;
-    float: left;
-}
-
 #content_container {
     height: 100%;
     width: 20%;
@@ -40,23 +29,32 @@ button {
 }
 
 html {
+    overflow-x: hidden;
     height: 100%;
     width: 100%;
     margin: 0;
 }
 
 body {
+    overflow-x: hidden;
+    position: relative;
     height: 100%;
     width: 100%;
     margin: 0;
 }
 
 #canvas {
-    height: 100%;
-    width: 75%;
-    margin: 0;
+    overflow: hidden;
+    background-color: #d2a1e3;
+}
+
+#d3_container {
     position: absolute;
-    overflow: clip;
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    margin: 0;
+    float: left;
 }
 
 #CogCanvas{
@@ -470,4 +468,8 @@ body {
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
+}
+
+.deleted {
+    display: none
 }

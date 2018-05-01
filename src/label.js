@@ -93,8 +93,8 @@ function addLabel(text, node, placeholderText=true){
   switch(name){
     case "node":
       translation = getNodePosition(node);
-      cx = translation[0];
-      cy = translation[1];
+      cx = translation.x
+      cy = translation.y
       break;
     case "link":
       let line = d3.select(node).select(".link-rep");
@@ -108,11 +108,15 @@ function addLabel(text, node, placeholderText=true){
     default:
       break;
   }
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
+
+  var screenPos = canvas.transformer.fromLocalToGlobal(new Transformer.Point(cx,cy));
+
+  label.style.left = screenPos.x + "px";
+  label.style.top = screenPos.y + "px";
   
   label.onkeydown = (e) => {
     //console.log(e.key)
+    let labelInteraction = e.key;
     switch(e.key){
       case "Enter":
         if (e.shiftKey) {
@@ -123,11 +127,11 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
-        logLabel(node); // Logging for the data team
+        logLabel(labelInteraction, node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
-          scaleNode(label, node, cx, cy)
+          scaleNode(label, node, screenPos.x, screenPos.y)
         },1);
         break;
     }
@@ -135,7 +139,7 @@ function addLabel(text, node, placeholderText=true){
 
   container.appendChild(label);
 
-  scaleNode(label, node, cx, cy);
+  scaleNode(label, node, screenPos.x, screenPos.y);
 
   if(placeholderText){
     selectText(textNode);
@@ -196,6 +200,7 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
+  sendSearchMsgToContainer();
   return;
 }
 
@@ -220,7 +225,7 @@ function handleClickDuringLabelInput(){
   } else{
     var nodeId = label.attr("node-id");
     createLabelFromInput(node, label);
-    logLabel(node[0][0]); // Logging for the data team     
+    logLabel("Single Tap", node[0][0]); // Logging for the data team     
   }
   return;
 }
