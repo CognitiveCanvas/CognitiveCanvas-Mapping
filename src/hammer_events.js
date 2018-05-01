@@ -18,6 +18,7 @@ function hammerizeCanvas(){
 *	 Deselects all objects
 **/
 function canvasSingleTapListener(event){
+	//console.log("CANVAS SINGLE TAP");
 	deselectAllObjects();
 }
 
@@ -25,6 +26,7 @@ function canvasSingleTapListener(event){
 *	Adds a node at the clicked location, selects it, and makes the user enter a label for it
 **/
 function canvasDoubleTapListener(event){
+  //console.log("CANVAS DOUBLE TAP");
   var canvasPoint = eventToCanvasPoint(event);
 
   var addedNode = addNode();
@@ -177,6 +179,7 @@ function hammerizeLink(link){
 	});
 }
 
+//Selects the link or edits its label if already selected
 function linkSingleTapListener(event){
 	console.log("LINK SINGLE TAP");
 	var link = getParentMapElement(event.target);
@@ -189,9 +192,50 @@ function linkSingleTapListener(event){
 	}
 }
 
+//Edits the link's label
 function linkDoubleTapListener(event){
 	console.log("LINK DOUBLE TAP");
 	var link = getParentMapElement(event.target);
 	selectNode(link);
 	addLabel(null, link);
+}
+
+function hammerizeGroup(group){
+	return Transformer.hammerize(group).then((transformer)=>{
+		var hammer = group.hammer;
+
+		var doubleTap = new Hammer.Tap( {event: 'doubletap', taps : 2});
+		hammer.add([doubleTap]);
+
+		hammer.on('doubletap', groupDoubleTapListener);
+		//hammer.on('pan panstart', groupPanListener);
+	});
+}
+
+function groupPanListener(event){
+	var group = getParentMapElement(event.target);
+	var canvasPoint = eventToCanvasPoint(event);
+
+	if( event.type === 'panstart'){
+		group.prevPoint = new Point(0, 0);
+	}
+
+	moveGroup(group, deltaPoint);
+}
+
+function groupDoubleTapListener(event){
+  var canvasPoint = eventToCanvasPoint(event);
+  var group = getParentMapElement(event.target);
+
+  var addedNode = addNode();
+  var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
+  hammerizeNode(node).then(
+    function(success){
+      if($(group).hasClass('map-image')) $(node).addClass("pin");
+      addNodeToGroup(node, group)
+      selectNode(node, false);
+      addLabel("Node Name", node);
+    }, function(failure){
+      console.log(failure);
+    });	
 }

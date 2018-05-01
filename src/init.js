@@ -90,4 +90,5 @@ function initTransformer() {
   nodes.forEach( (node) => hammerizeNode(node) );
 
   document.querySelectorAll(".link").forEach( (link) => hammerizeLink(link));
+  document.querySelectorAll(".group").forEach( (group) => hammerizeGroup(group));
 }

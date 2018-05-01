@@ -811,7 +811,8 @@ function getNodePosition(node){
 }
 
 function getParentMapElement(element){
-  return $(element).parents(".node,.link").get(0) || element;
+  if ($(element).is(".node,.link,.group")) return element;
+  return $(element).parents(".node,.link,.group").get(0) || element;
 }
 
 function checkIntersectionWithNodes(nodePoint, radius=null){
@@ -857,7 +858,7 @@ function quickAdd(key){
   }
   var quickAddPoint = canvas.transformer.fromGlobalToLocal(new Point(quickAddX, quickAddY));
   console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
-  
+
   for(var i = 0; i < 10; i++){
     console.log("checking for collisions");
     if( checkIntersectionWithNodes(quickAddPoint) ){

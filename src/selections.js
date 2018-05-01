@@ -118,6 +118,10 @@ function drawSelectionArea(canvasPoint){
 
 function createGroup(){
   //console.log("creating group");
+
+  var group = selection_area.node();
+  console.log("GROUP: ", group);
+
   deselectAllObjects();
 
   var left = Number(selection_area.attr("x"));
@@ -143,26 +147,28 @@ function createGroup(){
   }
   selection_area.attr("children_ids", children_ids.join(" "));
 
+  hammerizeGroup(group);
+
   selection_area = null;
   dragged_object = null;
   console.log('creating the group')
 }
 
-function moveGroup(group, x, y){
+function moveGroup(group, vector){
   var group = d3.select(group);
   var nodeIds = group.attr("children_ids").split(" ").filter(x => x);
 
-  var xMove = x - group.attr("x") + drag_offset[0];
-  var yMove = y - group.attr("y") + drag_offset[1];
+  var xMove = vector.x - group.attr("x") + drag_offset[0];
+  var yMove = vector.x - group.attr("y") + drag_offset[1];
+
+  group.node().translateTransform.set(xMove, yMove);
+  group.node().reapplyTransforms();
 
   for(i = 0; i < nodeIds.length; i++){
     let nodeId = nodeIds[i];
     var node = d3.select('#'+ nodeId);
     translateNode(node.node(), xMove, yMove, true);
   }
-
-  group.attr("x", x + drag_offset[0]);
-  group.attr("y", y + drag_offset[1]);
 }
 
 function addNodeToGroup(node, group){
