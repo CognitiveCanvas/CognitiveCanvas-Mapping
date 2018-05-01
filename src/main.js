@@ -757,12 +757,11 @@ function translateNode(node, vector, relative=false, links=null){
   y += node.translateTransform.y;
 
   node.translateTransform.set(x, y)
-  node.transformer.reapplyTransforms();
-
-  let selected_id = node.getAttribute('id');
-
-  //update links to connect to this node
-  updateLinkPositions( links, nodePosition);
+  node.transformer.reapplyTransforms().then((promise)=>{
+    //update links to connect to this node
+    updateLinkPositions( links, nodePosition);
+  });
+  return new Promise((success, failure) => {success()});
 }
 
 /** Finds all the links connected to a node
@@ -815,24 +814,26 @@ function getParentMapElement(element){
   return $(element).parents(".node,.link").get(0) || element;
 }
 
-function checkIntersectionWithNodes(node){
-  var rect = node.getBoundingClientRect();
-  rect.center = [rect.left + rect.width / 2, rect.top + rect.height / 2];
-  var collisionDetected = false; 
-  $(".node").each( function() {
-    var test = this.getBoundingClientRect();
-    test.center = [test.left + test.width / 2, test.top + test.height / 2];
-    if( node != this){
-      if (Math.abs(rect.center[0] - test.center[0]) <= rect.width / 2 + test.width / 2 &&
-          Math.abs(rect.center[1] - test.center[1]) <= rect.height / 2 + test.height / 2){
-        console.log("collision detected: " + node.getAttribute("id") + ", " + this.getAttribute("id"));
-        console.log("rect.center: "+rect.center + ", test.center: " + test.center + "rect.width: " + rect.width + ", test.width: " + test.width);
-        collisionDetected = true;
-        return false;
+function checkIntersectionWithNodes(nodePoint, radius=null){
+  if (!radius) radius = defaultRadius;
+
+  nodePoint = canvas.transformer.fromLocalToGlobal(nodePoint);
+
+  let testPoint = new Point(nodePoint.x - radius, nodePoint.y - radius);
+  let collisionDetected = false;
+
+  for(var i = 0; i < 3; i++){
+    testPoint.x = nodePoint.x - radius;
+    for(var j = 0; j < 3; j++){
+      var elem = document.elementFromPoint(testPoint.x, testPoint.y);
+      if( $(getParentMapElement(elem)).hasClass('node') ){
+        return true
       }
+      testPoint.x += radius;
     }
-  });
-  return collisionDetected;
+    testPoint.y += radius;
+  }
+  return false
 }
 
 function quickAdd(key){
@@ -841,8 +842,6 @@ function quickAdd(key){
 
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
-    console.log(selectedNode);
-    console.log(nodeDims);
     if(key == "Enter"){
       console.log("quick adding with enter");
       quickAddX = nodeDims.left + nodeDims.width / 2.0;
@@ -856,22 +855,27 @@ function quickAdd(key){
     quickAddX = Math.floor(window.innerWidth/2.0);
     quickAddY = Math.floor(window.innerHeight/2.0)
   }
+  var quickAddPoint = canvas.transformer.fromGlobalToLocal(new Point(quickAddX, quickAddY));
   console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
-
-  let addedNode = addNode();
-  let node = drawNode(addedNode, quickAddX, quickAddY);
+  
   for(var i = 0; i < 10; i++){
     console.log("checking for collisions");
-    if( checkIntersectionWithNodes(node) ){
+    if( checkIntersectionWithNodes(quickAddPoint) ){
       console.log("translating quickadded node away from collision");
-      translateNode(node, key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0,  true)
+      var translation = new Point(key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0);
+      quickAddPoint.x += translation.x;
+      quickAddPoint.y += translation.y;
     } else{
       console.log("found a collision-free zone");
       break;
     }
   }
-  selectNode(node);
-  addLabel("Node Name", node);
+  let addedNode = addNode();
+  let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
+  hammerizeNode(node).then( (transformer)=>{
+    selectNode(node);
+    addLabel("Node Name", node);
+  });
 }
 
 function addEleContent(e) {
