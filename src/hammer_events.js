@@ -158,6 +158,10 @@ function nodeDoubleTapPanListener(event){
 			addLabel("Link Name", link);
 			selectNode(link);
 			hammerizeLink(link);
+			let data = { 
+        		"edge"  : link
+      		};
+    		action_done("addEdge", data);
 		} else{
 			hideDragLine();
 			resetState();
