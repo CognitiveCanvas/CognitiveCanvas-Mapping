@@ -1,6 +1,8 @@
 var temp_buffer = [];
 var prev_position = {};
 var prev_label = "";
+var total_strokes = 0;
+var is_drawing = false;
 const DEFAULT_INTERACTION = "Single Tap";
 
 function log(level, interaction, content){
@@ -216,6 +218,26 @@ function logTranslate(interaction, element) {
   }
   prev_position = {};
 }
+
+// /*
+//  * Logs individual strokes and erases
+//  */
+// function logDrawing(interaction, amount) {
+//   if (!is_drawing) return;
+//   if (amount > 0 || total_strokes > 0) {
+//     total_strokes += amount;
+//   }
+//   log("drawing", interaction, {
+//     "total_strokes": total_strokes
+//   });
+// }
+
+// /*
+//  * Logs individual strokes and erases
+//  */
+// function setLogDrawing(drawing) {
+//   is_drawing = drawing;
+// }
 
 /*
  * Helper method to save previous position of each translated element

@@ -412,6 +412,9 @@ function initDrawing() {
     canvas.addEventListener("mousemove", event => {
       if (!drawing_enabled) return;
       if (mouseDown === 0) return;
+      if (mouseUp === 0 && mouseDown === 1) {
+        // setLogDrawing(true);
+      }
       
       if (!eraser_enabled) {
         if (mouseUp >= 1 && mouseDown >= 1) {
@@ -448,6 +451,7 @@ function initDrawing() {
         
         if (!hoveredEle) return;
         hoveredEle.parentNode.removeChild(hoveredEle);
+        // logDrawing("mouse", -1);
         original_color = null;
         hoveredEle = null;
       }
@@ -456,6 +460,10 @@ function initDrawing() {
 
     canvas.addEventListener("mouseup", event => {
       if (!drawing_enabled) return;
+      if (path != null) {
+        // logDrawing("mouse", 1);
+        // setLogDrawing(false);
+      }
       if (eraser_enabled) {
         resetState();
         return;
