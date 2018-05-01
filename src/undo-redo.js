@@ -122,10 +122,18 @@ function undoDeleteNode(data){
 }
 
 function undoAddEdge(data){
-	console.log("undo-ing edge insertion", data.edge)
+	console.log("undo-ing edge insertion");
 	let id = data.edge.id
 	link = d3.select("#"+id)
   	// deleteEntity(links, link_id);
   	// link.remove();
   	link.classed("deleted", true)
+}
+
+function undoRemoveEdge(data){
+	console.log("undo-ing edge removal");
+	link = link instanceof d3.selection ? link : d3.select(link);
+  	//deleteEntity(links, link_id);
+  	// link.remove();
+  	link.classed("deleted", false);
 }

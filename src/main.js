@@ -287,13 +287,19 @@ function keyDownListener(e){
         e.stopImmediatePropagation();
         
         d3.selectAll(".node.selected").each(function(){
-          data = {
+          let data = {
             "elements": this, 
           };
           action_done("deleteNode", data);
           removeNode(this);
         });
-        d3.selectAll(".link.selected").each(function(){removeLink(this)});
+        d3.selectAll(".link.selected").each(function(){
+          let data = {
+            "elements": this
+          }
+          action_done("deleteEdge", data);
+          removeLink(this)
+        });
         d3.selectAll(".map-image.selected").remove();
       }
       break;
