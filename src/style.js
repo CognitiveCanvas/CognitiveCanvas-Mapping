@@ -25,10 +25,18 @@ function setColor(color) {
 		"edges"     : d3.selectAll(".selected .link-rep")
 	}
 	action_done ("style", data)
+
+  logColorChanges("fill", color);
+  d3.selectAll(".selected .node-rep")
+    .style("fill", color);
+  d3.selectAll(".selected .link-rep")
+    .style("stroke", color);
+
 }
 
 
 function setBorderColor(color) {
+
 	d3.selectAll(".selected .node-rep")
 	  .style("stroke", color);
 	let data = {
@@ -126,4 +134,66 @@ function setLabelColor(color){
 		"elements"  : d3.selectAll(".selected .label")
 	}
 	action_done ("style", data)
+
+  logColorChanges("border", color);
+  d3.selectAll(".selected .node-rep")
+    .style("stroke", color);
+}
+
+function increaseLabelFontSize() {
+  logFontChanges(current_font_size, current_font_size + 2);
+  current_font_size = current_font_size + 2;
+  d3.selectAll(".selected .label")
+    .style("font-size", current_font_size);
+}
+
+
+function decreaseLabelFontSize() {
+  logFontChanges(current_font_size, current_font_size - 2);
+  current_font_size = current_font_size - 2;
+  d3.selectAll(".selected .label")
+    .style("font-size", current_font_size);
+}
+
+
+function toggleLabelFontItalics() {
+  current_style = d3.select(".selected .label")
+    .style("font-style");
+  //console.log(current_style)
+  let italicized;
+  if (current_style != 'italic') {
+    italicized = true;
+    d3.selectAll(".selected .label")
+        .style("font-style", "italic");
+  } else {
+    italicized = false;
+    d3.selectAll(".selected .label")
+      .style("font-style", "normal");
+  }
+  logLabelToggle("italicized", italicized);
+}
+
+
+function toggleLabelFontBold() {
+  current_style = d3.select(".selected .label")
+    .style("font-weight");
+  //console.log(current_style)
+  let bolded;
+  if (current_style == "700") {
+    bolded = true;
+    d3.selectAll(".selected .label")
+      .style("font-weight", FONT_NORMAL);
+  } else {
+    bolded = false;
+    d3.selectAll(".selected .label")
+      .style("font-weight", FONT_BOLD);
+  }
+  logLabelToggle("bolded", bolded);
+}
+
+function setLabelColor(color) {
+  logColorChanges("label", color);
+  current_style = d3.selectAll(".selected .label")
+    .style("fill", color);
+
 }
