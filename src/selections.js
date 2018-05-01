@@ -71,7 +71,7 @@ function selectNodeByDirection(direction){
 }
 
 function deselectAllObjects(){
-  console.log("deslecting all objects");
+  console.log("deselecting all objects");
   var allNodes = d3.selectAll(".selected");
   allNodes.classed("selected", false);
   if(!selection_area){

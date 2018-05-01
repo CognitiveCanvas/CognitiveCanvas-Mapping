@@ -8,6 +8,7 @@ function log(level, content){
 		"content": content,
 		"timestamp": new Date().toUTCString()
 	}
+  console.log(level, content);
 	// temp_buffer.push(current_log);
 }
 
@@ -78,7 +79,7 @@ function logCreation(element) {
       "label_color": "green",
       "label_font": "Helvetica",
       "image_content": "", //TODO
-      "location": element.getAttribute("transform").replace('translate','')
+      "location": getNodePosition(element)
     };
   } else {
     content = {
@@ -90,6 +91,17 @@ function logCreation(element) {
     };
   }
   log(levelName, content);
+}
+
+/*
+ * Logs deletion of a node
+ */
+function logDeletion(element) {
+  let levelName = element.getAttribute("class").split(" ")[0];
+  log(levelName, {
+    "id": element.getAttribute("id"),
+    "deleted": "true"
+  });
 }
 
 /*
@@ -162,6 +174,20 @@ function logLabelToggle(type, setting){
 }
 
 /*
+ * Logs image upload
+ */
+function logImage(width, height, src, id) {
+  log("image", {
+    "location": "(0,0)",
+    "width": width,
+    "height": height,
+    "src": src,
+    "id": id
+  });
+}
+
+
+/*
  * Logs element movement/translate
  */
 function logTranslate(element) {
@@ -176,13 +202,13 @@ function logTranslate(element) {
       log("image", {
         "id": key,
         "prev_position": prev_position[key],
-        "curr_position": '(' + child.getAttribute("x") + ',' + child.getAttribute("y") + ')'
+        "curr_position": getNodePosition(child)
       });
     } else {
       log(node_type, {
         "id": key,
         "prev_position": prev_position[key],
-        "curr_position": child.getAttribute("transform").replace('translate','')
+        "curr_position": getNodePosition(child)
       });
     }
   }
@@ -197,7 +223,7 @@ function translateSavePrevPosition(element) {
     return;
   }
   if (element.tagName === 'image') { // save picture movement
-    prev_position[element.getAttribute("id")] = '(' + element.getAttribute("x") + ',' + element.getAttribute("y") + ')';
+    prev_position[element.getAttribute("id")] = getNodePosition(element);
     if (element.getAttribute("children_ids")) {
       saveChildPrevPosition(element);
     }
@@ -205,7 +231,7 @@ function translateSavePrevPosition(element) {
     if (element.getAttribute("children_ids")) {
       saveChildPrevPosition(element);
     } else {
-      prev_position[element.getAttribute("id")] = element.getAttribute("transform").replace('translate','');
+      prev_position[element.getAttribute("id")] = getNodePosition(element);
     }
   }
 }
@@ -216,19 +242,6 @@ function translateSavePrevPosition(element) {
 function saveChildPrevPosition(element) {
   let children = element.getAttribute("children_ids").split(" ");
   for (var childKey in children) {
-    prev_position[children[childKey]] = document.getElementById(children[childKey]).getAttribute("transform").replace('translate','');
+    prev_position[children[childKey]] = getNodePosition(document.getElementById(children[childKey]));
   }
-}
-
-/*
- * Logs image upload
- */
-function logImage(width, height, src, id) {
-  log("image", {
-    "location": "(0,0)",
-    "width": width,
-    "height": height,
-    "src": src,
-    "id": id
-  });
 }

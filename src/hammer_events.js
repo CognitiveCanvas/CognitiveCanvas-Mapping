@@ -98,6 +98,7 @@ function nodePanListener(event){
 		selectNode(node);
 		node.links = findConnectedLinks(node);
 		node.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(node);
 	}
 
 	var deltaPoint = node.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
@@ -111,6 +112,7 @@ function nodePanListener(event){
 	if(event.type === 'panend'){
 		node.links = null;
 		node.prevPoint = null;
+		logTranslate(node);
 	}
 }
 
@@ -223,6 +225,7 @@ function groupPanListener(event){
 	}
 
 	moveGroup(group, deltaPoint);
+	translateSavePrevPosition(group);
 }
 
 function groupDoubleTapListener(event){

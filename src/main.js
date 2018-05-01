@@ -297,6 +297,7 @@ function keyDownListener(e){
             "elements": this, 
           };
           action_done("deleteNode", data);
+          logDeletion(this);
           removeNode(this);
         });
         d3.selectAll(".link.selected").each(function(){
@@ -304,6 +305,7 @@ function keyDownListener(e){
             "elements": this
           }
           action_done("deleteEdge", data);
+          logDeletion(this);
           removeLink(this)
         });
         d3.selectAll(".map-image.selected").remove();
@@ -925,18 +927,13 @@ function quickAdd(key){
       break;
     }
   }
-<<<<<<< HEAD
-  selectNode(node);
-  logCreation(node);
-  addLabel("Node Name", node);
-=======
   let addedNode = addNode();
   let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
   hammerizeNode(node).then( (transformer)=>{
     selectNode(node);
+    logCreation(node);
     addLabel("Node Name", node);
   });
->>>>>>> transformer
 }
 
 function addEleContent(e) {
