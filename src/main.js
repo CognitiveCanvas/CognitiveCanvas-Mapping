@@ -38,122 +38,6 @@ var quickAddDist = 10 + MAX_RADIUS;
 window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
-function mouseUpListener(e) {
-  if (drawing_enabled) return; 
-    
-  mouseUp++;
-
-  if(mouseUp === 1 && dragged_object && !mouseMoved ){
-    dragged_object = null;
-  }
-
-  if (mouseUp === 1 && mouseDown === 1) {
-    singleClickTimer = setTimeout(() => {
-      console.log("single click");
-      $("#contextMenu").css({
-        display: "none"
-      });
-      singleClickEvent(e);
-    }, delay);
-
-  }
-  else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
-    console.log("double click");
-    doubleClickEvent(e);
-  }
-  else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
-    console.log("double click drag");
-    selectLineDest(e);
-  }
-  else {
-    resetState();
-  }
-}
-
-function mouseDownListener(e) {
-  if (drawing_enabled) return; 
-    
-  mouseDown++;
-  e.preventDefault();
-
-  if(temp_label_div){
-    e.stopImmediatePropagation();
-    handleClickDuringLabelInput();
-    resetState();
-    return;
-  }
-
-  if (mouseDown === 1) {
-    dragStartPos = [e.screenX, e.screenY];
-    clicked_object = $(e.target).hasClass("group") ? e.target : getParentMapElement(e.target);
-  }
-  else if (mouseDown === 2 && mouseUp === 1) {
-    clearTimeout(singleClickTimer);
-    var node = getParentMapElement(e.target);
-    selectSrcNode(node);
-    doubleClickDragTimer = setTimeout(() => {
-      let className = node.getAttribute("class").split(" ")[0];
-      if (className === "node") {
-        revealDragLine();
-      }
-    }, delay);
-  }
-  else {
-    resetState();
-  }
-}
-
-function rightClickListener(e) {
-  let className = e.target.getAttribute("class").split(" ")[0];
-
-  if (className != "canvas") {
-    e.preventDefault();
-  }
-
-  switch(className) {
-    case "node-rep":
-      break;
-    case "link-rep":
-      break;
-    case "selection_area":
-      break;
-    default:
-      break;
-  }
-  resetState();
-}
-
-function mouseMoveListener(e) {
-  if (drawing_enabled) return; 
-  
-  var canvasMousePoint = eventToCanvasPoint(e);
-
-  if (mouseDown > 0 && 
-    Math.sqrt( Math.pow(e.screenX - dragStartPos[0],2) + Math.pow(e.screenY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
-    mouseMoved = true;
-  }
-  if (mouseDown === 1 && mouseUp === 0) {
-    if(dragged_object){
-      var selection = d3.select(dragged_object);
-      if(selection.classed("node")){
-        //drawDragNode(e);
-      }else if(selection.classed("group") ){
-        moveGroup(selection.node(), e.pageX, e.pageY);
-      }
-    }else{
-      if(clicked_object){
-        selectDraggedObject(e);
-      } else {
-        console.log("drawing selection area");
-        drawSelectionArea(canvasMousePoint);
-      }
-    }
-  }
-  else if (mouseDown === 2 && source_node) {
-    drawDragLine(canvasMousePoint);
-  }
-}
-
 function mouseOverListener(e) {
   if (drawing_enabled) return;
 
@@ -319,126 +203,6 @@ function keyDownListener(e){
     default:
       break;
   }
-}
-
-/*
- * Single click interaction
- * - canvas: add a new node
- * - existing node:
- * - existing link:
- */
-function singleClickEvent(e) {
-  this.focus();
-
-  let entity = e.target.getAttribute("class").split(" ")[0];
-
-  if(selection_area){
-    //console.log("single click while there is a selection area");
-    createGroup();
-  } else if(dragged_object){
-    logTranslate("dragged", dragged_object);
-    //console.log("single click while there is a dragged object");
-  } else {
-    let addedNode = null;
-    //console.log("regular single click");
-    switch(entity) {
-      case "canvas":
-        deselectAllObjects();
-        break;
-      case "node-rep":
-      case "link-rep":
-      case "label":
-      case "label-line":
-        console.log("node rep was clicked");
-        var node = getParentMapElement(e.target);
-        styleNode = e.target;
-        console.log("styleNode", styleNode);
-        if( d3.select(node).classed("selected") ){
-          console.log("Adding a label it a selected node that was clicked");
-          addLabel(null, node);
-        } else{
-          selectNode(node, !e.shiftKey);
-        }
-        sendSearchMsgToContainer();
-        break;
-      case "selection_area":
-        addedNode = addNode(e.clientX, e.clientY);
-        addLabel("Node Name", addedNode);
-        addNodeToGroup(addedNode, e.target);
-        break;
-      case "map-image":
-        selectNode(e.target);
-        var childrenNodes = getGroupedNodes(e.target);
-        selectNode(childrenNodes, false);
-        break;
-      default:
-        break;
-    }
-  }
-
-  resetState();
-}
-
-
-/*
- * Double click interaction
- * - canvas:
- * - existing node: add label
- * - existing link: add label
- *
- */
-function doubleClickEvent(e) {
-  if (drawing_enabled) return;
-  
-  clearTimeout(doubleClickDragTimer);
-  e.preventDefault();
-  let selection = d3.select(e.target);
-  let className = selection.attr("class").split(" ")[0]
-  var node = getParentMapElement(e.target);
-  console.log(className);
-
-  var mousePoint = new Transformer.Point(e.clientX, e.clientY);
-  var canvasPoint = canvas.transformer.fromGlobalToLocal(mousePoint);
-
-  switch(className) {
-    case "canvas":
-      addedNode = addNode();
-      let data = { 
-        "node"  : node
-      };
-      action_done("insertNode", data);
-      logCreation(node);
-      var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
-      Transformer.hammerize(node).then(
-        function(success){
-          selectNode(node, !e.shiftKey);
-          addLabel("Node Name", node);
-        }, function(failure){
-          console.log(failure);
-        });
-      break;
-    case "node-rep":
-    case "label-rep":
-    case "label":
-    case "label-line":
-      if( !$(node).hasClass("selected") ){
-        selectNode(node, !e.shiftKey);
-      }
-      addLabel(null, node);
-      break;
-    case "map-image":
-      addedNode = addNode();
-      var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
-      $(node).addClass("pin");
-      selectNode(node, !e.shiftKey);
-      addLabel("Node Name", node);
-      logCreation(node);
-      addNodeToGroup(addedNode, e.target);
-      break;
-    default:
-      break;
-  }
-  resetState();
 }
 
 // Message Passing to the Container Code. Package include the id & label
@@ -676,8 +440,7 @@ function resetState() {
 }
 
 function selectDraggedObject(e) {
-  console.log("selecting dragged object");
-  console.log(e.target);
+  console.log("selecting dragged object", e.target);
   var obj = getParentMapElement(e.target);
   if (obj) {
     dragged_object = obj;
@@ -887,7 +650,6 @@ function checkIntersectionWithNodes(nodePoint, radius=null){
 function quickAdd(key){
   var selectedNode = $(".selected.node").last().get(0);
   var quickAddX, quixkAddY;
-
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
     if(key == "Enter"){
@@ -919,11 +681,12 @@ function quickAdd(key){
     }
   }
   let addedNode = addNode();
-  let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
+  var node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
   hammerizeNode(node).then( (transformer)=>{
+    console.log("NODE", node);
     selectNode(node);
-    logCreation(node);
     addLabel("Node Name", node);
+    logCreation(key,node);
   });
 }
 
