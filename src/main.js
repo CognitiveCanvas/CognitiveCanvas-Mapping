@@ -35,12 +35,14 @@ var zoom = null;
 
 var quickAddDist = 10 + MAX_RADIUS;
 
+/**
 canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
 canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
 canvas.addEventListener("contextmenu", (e) => rightClickListener(e));
 canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
 canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
 canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
+**/
 window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
@@ -68,7 +70,7 @@ function mouseUpListener(e) {
     doubleClickEvent(e);
   }
   else if (mouseUp === 2 && mouseDown === 2 && mouseMoved) {
-    console.log("double click drag")
+    console.log("double click drag");
     selectLineDest(e);
   }
   else {
@@ -90,7 +92,7 @@ function mouseDownListener(e) {
   }
 
   if (mouseDown === 1) {
-    dragStartPos = [e.pageX, e.pageY];
+    dragStartPos = [e.screenX, e.screenY];
     clicked_object = $(e.target).hasClass("group") ? e.target : getParentMapElement(e.target);
   }
   else if (mouseDown === 2 && mouseUp === 1) {
@@ -132,28 +134,31 @@ function rightClickListener(e) {
 function mouseMoveListener(e) {
   if (drawing_enabled) return; 
   
-  if (mouseDown > 0) {
-    mouseMoved = true
+  var canvasMousePoint = eventToCanvasPoint(e);
+
+  if (mouseDown > 0 && 
+    Math.sqrt( Math.pow(e.screenX - dragStartPos[0],2) + Math.pow(e.screenY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
+    mouseMoved = true;
   }
   if (mouseDown === 1 && mouseUp === 0) {
     if(dragged_object){
       var selection = d3.select(dragged_object);
       if(selection.classed("node")){
-        drawDragNode(e);
+        //drawDragNode(e);
       }else if(selection.classed("group") ){
         moveGroup(selection.node(), e.pageX, e.pageY);
       }
-    }else if ( Math.sqrt( Math.pow(e.pageX - dragStartPos[0],2) + Math.pow(e.pageY - dragStartPos[1], 2)) >= DRAG_TOLERANCE ) {
+    }else{
       if(clicked_object){
         selectDraggedObject(e);
       } else {
         console.log("drawing selection area");
-        drawSelectionArea(e);
+        drawSelectionArea(canvasMousePoint);
       }
     }
   }
   else if (mouseDown === 2 && source_node) {
-    drawDragLine(e);
+    drawDragLine(canvasMousePoint);
   }
 }
 
@@ -397,18 +402,26 @@ function doubleClickEvent(e) {
   let className = selection.attr("class").split(" ")[0]
   var node = getParentMapElement(e.target);
   console.log(className);
+
+  var mousePoint = new Transformer.Point(e.clientX, e.clientY);
+  var canvasPoint = canvas.transformer.fromGlobalToLocal(mousePoint);
+
   switch(className) {
     case "canvas":
       addedNode = addNode();
-      var node = drawNode(addedNode, e.clientX, e.clientY, defaultShape, radius, defaultColor);
-      selectNode(node, !e.shiftKey);
-      addLabel("Node Name", node);
-
       let data = { 
         "node"  : node
       };
       action_done("insertNode", data);
       logCreation(node);
+      var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
+      Transformer.hammerize(node).then(
+        function(success){
+          selectNode(node, !e.shiftKey);
+          addLabel("Node Name", node);
+        }, function(failure){
+          console.log(failure);
+        });
       break;
     case "node-rep":
     case "label-rep":
@@ -431,7 +444,7 @@ function doubleClickEvent(e) {
     default:
       break;
   }
-  resetState()
+  resetState();
 }
 
 // Message Passing to the Container Code. Package include the id & label
@@ -524,7 +537,7 @@ function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=
       .attr("class", "node")
       .attr("id", node.id)
       .attr("content", "false")
-      .attr("transform", "translate("+x+","+y+")");
+      .attr("transform", "matrix(1,0,0,1,"+x+","+y+")");
     nodeG
       .append(shape)
       .attr("class", "node-rep")
@@ -554,7 +567,6 @@ function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=
       .attr("cy", 0)
       .attr("xmlns", "http://www.w3.org/2000/svg");
   }
-
   return nodeG.node();
 }
 
@@ -562,11 +574,8 @@ function drawLink(link) {
   let linkSrcNode = document.getElementById(link.sourceId);
   let linkDestNode = document.getElementById(link.destId);
   //console.log("source node: " + linkSrcNode + ", dest node: " + linkDestNode);
-
-  let x1 = getNodePosition(linkSrcNode)[0];
-  let y1 = getNodePosition(linkSrcNode)[1];
-  let x2 = getNodePosition(linkDestNode)[0];
-  let y2 = getNodePosition(linkDestNode)[1];
+  let srcPos = getNodePosition(linkSrcNode);
+  let destPos = getNodePosition(linkDestNode);
 
   //Inserts the link before all the nodes in the canvas
   var linkG = d3.select(canvas)
@@ -580,13 +589,13 @@ function drawLink(link) {
     .append("line")
     .attr("class", "link-rep")
     .attr("id", link.id)
-    .attr("x1", x1)
-    .attr("y1", y1)
-    .attr("x2", x2)
-    .attr("y2", y2)
+    .attr("x1", srcPos.x)
+    .attr("y1", srcPos.y)
+    .attr("x2", destPos.x)
+    .attr("y2", destPos.y)
     .attr("xmlns", "http://www.w3.org/2000/svg");
 
-  addLabel("Link Name", linkG.node());
+    return linkG.node();
 }
 
 function removeNode(node) {
@@ -688,12 +697,12 @@ function selectDraggedObject(e) {
   translateSavePrevPosition(dragged_object);
 }
 
-function selectLineDest(e) {
+function selectLineDest(node) {
   hideDragLine();
   if (dragged_object) {
     dragged_object = null
   }
-  var selection = $(e.target).parents(".node");
+  var selection = $(node);
   let sourceNode = $(source_node);
   if (sourceNode && 
       $(selection).hasClass("node") && 
@@ -706,9 +715,14 @@ function selectLineDest(e) {
     console.log("adding edge data edge", data.edge)
     action_done("addEdge", data);
     drawLink(addedLink);
+    var link = drawLink(addedLink);
     source_node = null;
+    resetState()
+    return link;
+  } else{
+    resetState();
+    return null;
   }
-  resetState();
 }
 
 function revealDragLine() {
@@ -727,16 +741,21 @@ function hideDragLine() {
 
 function selectSrcNode(node) {
   source_node = node;
+  revealDragLine();
 }
 
-function drawDragLine(e) {
+/** Draws a temporary link between a source node and a point on the canvas
+  * @param canvasPoint: a local point {x,y} in the canvas space, usually the mouse, move the end of the link to
+**/
+function drawDragLine(endPoint) {
   let sourceNode = source_node;
   let dragLine = d3.select(drag_line);
+  let srcPos = getNodePosition(sourceNode);
 
-  dragLine.attr("x1", getNodePosition(sourceNode)[0])
-          .attr("y1", getNodePosition(sourceNode)[1])
-          .attr("x2", e.pageX)
-          .attr("y2", e.pageY)
+  dragLine.attr("x1", srcPos.x)
+          .attr("y1", srcPos.y)
+          .attr("x2", endPoint.x)
+          .attr("y2", endPoint.y)
 }
 
 function drawDragNode(e) {
@@ -766,76 +785,110 @@ function drawDragNode(e) {
   }
 }
 
-//TODO: Improve efficiency
 //Helper Function to move a node group
 /**
 node: the node to move along with its links
 x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
 y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
 **/
-function translateNode(node, x, y, relative=false){
+function translateNode(node, vector, relative=false, links=null){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
-  if(relative){
-    var position = getNodePosition(node);
-    x += position[0];
-    y += position[1];
+  if (!links) {
+    links = findConnectedLinks(node);
   }
 
-  var g = d3.select(node);
-  g.attr("transform", "translate(" + x + "," + y + ")");
+  var nodePosition = getNodePosition(node);
 
-  let selected_id = d3.select(node).attr("id");
+  var x = vector.x
+  var y = vector.y;
 
-  d3.selectAll(`[source_id=${selected_id}] > [class="link-rep"]`)
-    .attr("x1", x)
-    .attr("y1", y)
-    .each( function(){
-      let line = d3.select(this);
-      let label = d3.select(this.parentNode).select(".label"); 
-      label.attr("x",  (parseFloat(line.attr("x1")) + parseFloat(line.attr("x2"))) / 2.0  + "px");
-      label.attr("y",  (parseFloat(line.attr("y1")) + parseFloat(line.attr("y2"))) / 2.0  + "px");
-    });
+  if(!relative){
+     x -= nodePosition.x;
+     y -= nodePosition.y;
+  }
 
+  x += node.translateTransform.x;
+  y += node.translateTransform.y;
 
-  d3.selectAll(`[target_id=${selected_id}] > [class="link-rep"]`)
-    .attr("x2", x)
-    .attr("y2", y)
-    .each( function(){
-      let line = d3.select(this);
-      let label = d3.select(this.parentNode).select(".label"); 
-      label.attr("x",  (parseFloat(line.attr("x1")) + parseFloat(line.attr("x2"))) / 2.0  + "px");
-      label.attr("y",  (parseFloat(line.attr("y1")) + parseFloat(line.attr("y2"))) / 2.0  + "px");
-    }); 
+  node.translateTransform.set(x, y)
+  node.transformer.reapplyTransforms().then((promise)=>{
+    //update links to connect to this node
+    updateLinkPositions( links, nodePosition);
+  });
+  return new Promise((success, failure) => {success()});
+}
 
+/** Finds all the links connected to a node
+*   @param node: the node to find the links of
+*   @returns {sourceLinks, destLinks} nodeLists containing links for each
+**/
+function findConnectedLinks(node){
+  var id = node.getAttribute('id');
+  var sourceLinks = document.querySelectorAll(`[source_id=${id}]`)
+  var targetLinks = document.querySelectorAll(`[target_id=${id}]`);
+  return {'sourceLinks': sourceLinks, 'targetLinks': targetLinks};
+}
+
+/**
+*  Loops through the passed in list of links and updates their positions to match the passed node position
+*  @param links: {sourceLinks, destLinks} a list of the links to update
+*  @param nodePoint: the position of the node to connect the links to
+**/
+function updateLinkPositions( links, nodePoint ){
+  var x = nodePoint.x;
+  var y = nodePoint.y;
+  links.sourceLinks.forEach( function(link){
+    link = $(link).children('.link-rep');
+    link
+      .attr("x1", x)
+      .attr("y1", y)
+      .siblings('.label')
+      .attr("x",  (parseFloat(link.attr("x1")) + parseFloat(link.attr("x2"))) / 2.0  + "px")
+      .attr("y",  (parseFloat(link.attr("y1")) + parseFloat(link.attr("y2"))) / 2.0  + "px");
+  });
+
+  links.targetLinks.forEach( function(link){
+    link = $(link).children('.link-rep');
+    link
+      .attr("x2", x)
+      .attr("y2", y)
+      .siblings('.label')
+      .attr("x",  (parseFloat(link.attr("x1")) + parseFloat(link.attr("x2"))) / 2.0  + "px")
+      .attr("y",  (parseFloat(link.attr("y1")) + parseFloat(link.attr("y2"))) / 2.0  + "px");
+  }); 
 }
 
 function getNodePosition(node){
-  node = node instanceof d3.selection ? node : d3.select(node);
-  return d3.transform( node.attr("transform") ).translate;
+  var node = node instanceof d3.selection ? node.node() : node;
+  var transformMatrix = node.transformer.getTransformMatrix();
+  return new Point(transformMatrix.tx, transformMatrix.ty)
 }
 
 function getParentMapElement(element){
-  return $(element).parents(".node,.link").get(0);
+  if ($(element).is(".node,.link,.group")) return element;
+  return $(element).parents(".node,.link,.group").get(0) || element;
 }
 
-function checkIntersectionWithNodes(node){
-  var rect = node.getBoundingClientRect();
-  rect.center = [rect.left + rect.width / 2, rect.top + rect.height / 2];
-  var collisionDetected = false; 
-  $(".node").each( function() {
-    var test = this.getBoundingClientRect();
-    test.center = [test.left + test.width / 2, test.top + test.height / 2];
-    if( node != this){
-      if (Math.abs(rect.center[0] - test.center[0]) <= rect.width / 2 + test.width / 2 &&
-          Math.abs(rect.center[1] - test.center[1]) <= rect.height / 2 + test.height / 2){
-        console.log("collision detected: " + node.getAttribute("id") + ", " + this.getAttribute("id"));
-        console.log("rect.center: "+rect.center + ", test.center: " + test.center + "rect.width: " + rect.width + ", test.width: " + test.width);
-        collisionDetected = true;
-        return false;
+function checkIntersectionWithNodes(nodePoint, radius=null){
+  if (!radius) radius = defaultRadius;
+
+  nodePoint = canvas.transformer.fromLocalToGlobal(nodePoint);
+
+  let testPoint = new Point(nodePoint.x - radius, nodePoint.y - radius);
+  let collisionDetected = false;
+
+  for(var i = 0; i < 3; i++){
+    testPoint.x = nodePoint.x - radius;
+    for(var j = 0; j < 3; j++){
+      var elem = document.elementFromPoint(testPoint.x, testPoint.y);
+      if( $(getParentMapElement(elem)).hasClass('node') ){
+        return true
       }
+      testPoint.x += radius;
     }
-  });
-  return collisionDetected;
+    testPoint.y += radius;
+  }
+  return false
 }
 
 function quickAdd(key){
@@ -844,8 +897,6 @@ function quickAdd(key){
 
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
-    console.log(selectedNode);
-    console.log(nodeDims);
     if(key == "Enter"){
       console.log("quick adding with enter");
       quickAddX = nodeDims.left + nodeDims.width / 2.0;
@@ -859,23 +910,33 @@ function quickAdd(key){
     quickAddX = Math.floor(window.innerWidth/2.0);
     quickAddY = Math.floor(window.innerHeight/2.0)
   }
+  var quickAddPoint = canvas.transformer.fromGlobalToLocal(new Point(quickAddX, quickAddY));
   console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
 
-  let addedNode = addNode();
-  let node = drawNode(addedNode, quickAddX, quickAddY);
   for(var i = 0; i < 10; i++){
     console.log("checking for collisions");
-    if( checkIntersectionWithNodes(node) ){
+    if( checkIntersectionWithNodes(quickAddPoint) ){
       console.log("translating quickadded node away from collision");
-      translateNode(node, key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0,  true)
+      var translation = new Point(key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0);
+      quickAddPoint.x += translation.x;
+      quickAddPoint.y += translation.y;
     } else{
       console.log("found a collision-free zone");
       break;
     }
   }
+<<<<<<< HEAD
   selectNode(node);
   logCreation(node);
   addLabel("Node Name", node);
+=======
+  let addedNode = addNode();
+  let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
+  hammerizeNode(node).then( (transformer)=>{
+    selectNode(node);
+    addLabel("Node Name", node);
+  });
+>>>>>>> transformer
 }
 
 function addEleContent(e) {

@@ -5,13 +5,13 @@ webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, cl
 function onLoaded(webstrateId, clientId, user) {
   getDefaultStyle();
   initIDs(webstrateId, clientId);
-  initTransformer();
   initDragLine();
   initDataElement();
   reloadElement();
   initToolPalette();
   initDrawing();
   initLog();
+  initTransformer();
 }
 
 function initLog(){
@@ -87,7 +87,17 @@ function initToolPalette() {
     toolPalette.setAttribute("id", "tool-palette");
     document.getElementById("content_container").appendChild(toolPalette);
     document.getElementById("tool-palette").style.visibility = "hidden";
-}
+} 
 
 function initTransformer() {
+  window.Matrix = Transformer.Matrix; //Give Global access to Matrix
+  window.Point = Transformer.Point;
+
+  hammerizeCanvas();
+
+  var nodes = document.querySelectorAll(".node");
+  nodes.forEach( (node) => hammerizeNode(node) );
+
+  document.querySelectorAll(".link").forEach( (link) => hammerizeLink(link));
+  document.querySelectorAll(".group").forEach( (group) => hammerizeGroup(group));
 }
