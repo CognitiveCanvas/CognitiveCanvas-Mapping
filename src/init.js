@@ -10,9 +10,18 @@ function onLoaded(webstrateId, clientId, user) {
   reloadElement();
   initToolPalette();
   initDrawing();
+  initLog();
   initTransformer();
   initAddedNodeHandling();
 }
+
+function initLog(){
+  let minute = 3;
+  var intervalID = window.setInterval(postLogs, minute * 60000); // 3 minutes
+  log("level EVENT", "test logs");
+
+}
+
 
 function initIDs(webstrateId, clientId) {
   this.webstrateId = webstrateId;

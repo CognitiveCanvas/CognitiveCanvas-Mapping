@@ -36,6 +36,7 @@ var handleImageUpload = function(asset){
  *
  */
 function insertImage(width, height, imgSrc){
+	let imgId = getID();
 	console.log("Inserting Image: " + imgSrc);
 
 	var center = new Point( $(window).width() /2,
@@ -50,8 +51,10 @@ function insertImage(width, height, imgSrc){
 		.attr("xlink:href", imgSrc)
 		.attr("width", width)
 		.attr("height", height)
+		.attr("id", imgId)
 		.attr("transform", "matrix(1, 0, 0, 1, " + (center.x - width/2) + ", " + (center.y - height/2) + ")")
 		.attr("children_ids", "");
 
 	hammerizeGroup(pinnedImage.node());
+	logImage(width, height, imgSrc, imgId);
 }

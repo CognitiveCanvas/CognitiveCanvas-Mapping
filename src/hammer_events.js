@@ -57,6 +57,10 @@ function canvasDoubleTapListener(event){
     function(success){
       selectNode(node);
       addLabel("Node Name", node);
+	  let data = { 
+        "node"  : node
+      };
+      action_done("insertNode", data);
     }, function(failure){
       console.log(failure);
     });
@@ -176,6 +180,10 @@ function nodeDoubleTapPanListener(event){
 			addLabel("Link Name", link);
 			selectNode(link);
 			hammerizeLink(link);
+			let data = { 
+        		"edge"  : link
+      		};
+    		action_done("addEdge", data);
 		} else{
 			hideDragLine();
 			resetState();

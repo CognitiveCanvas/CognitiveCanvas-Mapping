@@ -5,8 +5,6 @@
     <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/hammerjs@2.0.8"></script>
-    <script type="text/javascript" src="./external/transformer.demangled.min.js"></script>
-
     <script
               src="http://code.jquery.com/jquery-3.3.1.min.js"
               integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -29,15 +27,19 @@
     <script type="text/javascript" src="src/label.js"></script>
     <script type="text/javascript" src="src/selections.js"></script>
     <script type="text/javascript" src="src/pinning.js"></script>
+    <script type="text/javascript" src="src/logger.js"></script>
+    <script type="text/javascript" src="src/undo-redo.js"></script>
     <script type="text/javascript" src="src/transformer_extensions.js"></script>
     <script type="text/javascript" src="src/hammer_events.js"></script>
+    <script type="text/javascript" src="src/redo.js"></script>
+    <script type="text/javascript" src="external/transformer.demangled.min.js"></script>
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <link rel="stylesheet" type="text/css" href="styles/context-menu.css">
 </head>
 <body>
     <div id="CogCanvas">
         <div id="d3_container">
-            <svg class="canvas transformable" id="canvas" style="width: 10000px; height: 10000px; z-index:0;" transform="matrix(1,0,0, 1,-5000,-5000)"></svg>
+            <svg class="canvas transformable" id="canvas" style="width: 10000px; height: 10000px; z-index:0;" ></svg>
         </div>
         <div id="content_container">
             <h3 id="content_header">Content Browser</h3>

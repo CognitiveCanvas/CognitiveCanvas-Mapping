@@ -63,6 +63,7 @@ function mouseUpListener(e) {
       });
       singleClickEvent(e);
     }, delay);
+
   }
   else if (mouseUp === 2 && mouseDown === 2 && !mouseMoved) {
     console.log("double click");
@@ -248,7 +249,8 @@ function mouseOutListener(e) {
 
 function keyPressListener(e) {
   var key = e.key;
-
+  if (e.ctrlKey || e.metaKey)
+    return;
   switch(key) {
     case "1": // #1
       if (hoveredEle && !addWindowOpen) addEleContent(e);
@@ -270,7 +272,13 @@ function keyPressListener(e) {
 
 function keyDownListener(e){
   var key = e.key;
+  console.log(e)
   console.log("keyDown: " + key);
+  if ((e.ctrlKey || e.metaKey) && e.key == "z") {
+    e.preventDefault();
+    undo()
+    return false;
+  }
   switch(key) {
     case "Enter":
     case "Tab": // Tab
@@ -283,8 +291,21 @@ function keyDownListener(e){
       if(!temp_label_div){
         e.preventDefault();
         e.stopImmediatePropagation();
-        d3.selectAll(".node.selected").each(function(){removeNode(this)});
-        d3.selectAll(".link.selected").each(function(){removeLink(this)});
+        
+        d3.selectAll(".node.selected").each(function(){
+          let data = {
+            "elements": this, 
+          };
+          action_done("deleteNode", data);
+          removeNode(this);
+        });
+        d3.selectAll(".link.selected").each(function(){
+          let data = {
+            "elements": this
+          }
+          action_done("deleteEdge", data);
+          removeLink(this)
+        });
         d3.selectAll(".map-image.selected").remove();
       }
       break;
@@ -300,6 +321,7 @@ function keyDownListener(e){
     case "ArrowDown":
       selectNodeByDirection("down");
       break;
+    
     default:
       break;
   }
@@ -320,6 +342,7 @@ function singleClickEvent(e) {
     //console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
+    logTranslate(dragged_object);
     //console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
@@ -386,6 +409,11 @@ function doubleClickEvent(e) {
   switch(className) {
     case "canvas":
       addedNode = addNode();
+      let data = { 
+        "node"  : node
+      };
+      action_done("insertNode", data);
+      logCreation(node);
       var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
       Transformer.hammerize(node).then(
         function(success){
@@ -410,12 +438,12 @@ function doubleClickEvent(e) {
       $(node).addClass("pin");
       selectNode(node, !e.shiftKey);
       addLabel("Node Name", node);
+      logCreation(node);
       addNodeToGroup(addedNode, e.target);
       break;
     default:
       break;
   }
-  
   resetState();
 }
 
@@ -426,21 +454,33 @@ function sendSearchMsgToContainer() {
     let selected = d3.select(".selected");
     if (!selected.empty()) {
       let nodeID = selected.attr("id");
-      let labelElement = document.getElementById(nodeID+"_text");
-      let labelText;
-      if (labelElement.getElementsByTagName("tspan")[0]) {
-        labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-        //console.log("In View Mode, get label: " + labelText);
-      } else {
-        labelText = labelElement.innerHTML;
-        //console.log("In Edit Mode, get label: " + labelText);
-      }
+      let labelText = labelFinder(nodeID);
       let package = {
         id: nodeID,
         label: labelText
       };
       window.parent.postMessage(package, "*");
     }
+  }
+}
+
+// Use The id of the Element to find the label of the element!
+function labelFinder(nodeID) {
+  let labelElement = document.getElementById(nodeID+"_text");
+  let labelText;
+  if (labelElement) {
+    if (labelElement.getElementsByTagName("tspan")[0]) {
+      labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
+      //console.log("In View Mode, get label: " + labelText);
+    } else {
+      labelText = labelElement.innerHTML;
+      //console.log("In Edit Mode, get label: " + labelText);
+    }
+    return labelText;
+  }
+  else {
+    console.log("label NOT FOUND")
+    return "";
   }
 }
 
@@ -563,11 +603,16 @@ function removeNode(node) {
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
+  // d3.selectAll(`[source_id=${node_id}]`)
+  //   .remove();
+
+  // d3.selectAll(`[target_id=${node_id}]`)
+  //   .remove();
   d3.selectAll(`[source_id=${node_id}]`)
-    .remove();
+    .classed("deleted", true);
 
   d3.selectAll(`[target_id=${node_id}]`)
-    .remove();
+    .classed("deleted", true);
 
   d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
     .each(function(){
@@ -576,16 +621,18 @@ function removeNode(node) {
     });
 
   closePreviewIframe("node");
-  deleteEntity(nodes, node_id); 
-  node_d3.remove();
+  // deleteEntity(nodes, node_id); TODO: should this be here 
+  // node_d3.remove();
+  node_d3.classed("deleted", true);
 }
 
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   closePreviewIframe("edge");
-  deleteEntity(links, link_id);
-  link.remove();
+  //deleteEntity(links, link_id);
+  // link.remove();
+  link.classed("deleted", true)
 }
 
 function closePreviewIframe(target) {
@@ -646,7 +693,8 @@ function selectDraggedObject(e) {
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
-  console.log("draggedObject: " + dragged_object);
+  console.log("draggedObject: ", dragged_object);
+  translateSavePrevPosition(dragged_object);
 }
 
 function selectLineDest(node) {
@@ -661,6 +709,12 @@ function selectLineDest(node) {
       selection.attr("id") != sourceNode.attr("id")) 
   {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
+    let data = { 
+        "edge"  : addedLink
+      };
+    console.log("adding edge data edge", data.edge)
+    action_done("addEdge", data);
+    drawLink(addedLink);
     var link = drawLink(addedLink);
     source_node = null;
     resetState()
@@ -875,6 +929,7 @@ function quickAdd(key){
   let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
   hammerizeNode(node).then( (transformer)=>{
     selectNode(node);
+    logCreation(node);
     addLabel("Node Name", node);
   });
 }
@@ -1018,6 +1073,7 @@ function previewContent(ele) {
 
 
 function toggleDrawFunc() {
+  console.log("eqafsCwq")
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
   let toolPalette = document.getElementById("tool-palette");
