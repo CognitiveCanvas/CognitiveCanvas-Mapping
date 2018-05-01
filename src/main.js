@@ -35,14 +35,6 @@ var zoom = null;
 
 var quickAddDist = 10 + MAX_RADIUS;
 
-/**
-canvas.addEventListener("mouseup", (e) => mouseUpListener(e));
-canvas.addEventListener("mousedown", (e) => mouseDownListener(e));
-canvas.addEventListener("contextmenu", (e) => rightClickListener(e));
-canvas.addEventListener("mousemove", (e) => mouseMoveListener(e));
-canvas.addEventListener("mouseover", (e) => mouseOverListener(e));
-canvas.addEventListener("mouseout", (e) => mouseOutListener(e));
-**/
 window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
@@ -297,6 +289,7 @@ function keyDownListener(e){
             "elements": this, 
           };
           action_done("deleteNode", data);
+          logDeletion("Backspace", this);
           removeNode(this);
         });
         d3.selectAll(".link.selected").each(function(){
@@ -304,6 +297,7 @@ function keyDownListener(e){
             "elements": this
           }
           action_done("deleteEdge", data);
+          logDeletion("Backspace", this);
           removeLink(this)
         });
         d3.selectAll(".map-image.selected").remove();
@@ -342,7 +336,7 @@ function singleClickEvent(e) {
     //console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
-    logTranslate(dragged_object);
+    logTranslate("dragged", dragged_object);
     //console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;
@@ -714,7 +708,6 @@ function selectLineDest(node) {
       };
     console.log("adding edge data edge", data.edge)
     action_done("addEdge", data);
-    drawLink(addedLink);
     var link = drawLink(addedLink);
     source_node = null;
     resetState()

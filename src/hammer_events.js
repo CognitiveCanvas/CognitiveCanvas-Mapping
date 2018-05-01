@@ -57,6 +57,7 @@ function canvasDoubleTapListener(event){
     function(success){
       selectNode(node);
       addLabel("Node Name", node);
+      logCreation("double tap", node);
 	  let data = { 
         "node"  : node
       };
@@ -122,6 +123,7 @@ function nodePanListener(event){
 		selectNode(node);
 		node.links = findConnectedLinks(node);
 		node.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(node);
 	}
 
 	var deltaPoint = node.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
@@ -135,6 +137,7 @@ function nodePanListener(event){
 	if(event.type === 'panend'){
 		node.links = null;
 		node.prevPoint = null;
+		logTranslate("pan", node);
 	}
 }
 
@@ -251,6 +254,7 @@ function groupPanListener(event){
 	if(event.type === 'panstart'){
 		group.nodes = getGroupedNodes(group);
 		group.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(group);
 	}
 
 	var deltaPoint = group.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
