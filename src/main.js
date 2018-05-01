@@ -1075,6 +1075,7 @@ function previewContent(ele) {
 
 
 function toggleDrawFunc() {
+  console.log("eqafsCwq")
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
   let toolPalette = document.getElementById("tool-palette");
