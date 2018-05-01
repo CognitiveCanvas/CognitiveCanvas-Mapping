@@ -93,8 +93,8 @@ function addLabel(text, node, placeholderText=true){
   switch(name){
     case "node":
       translation = getNodePosition(node);
-      cx = translation[0];
-      cy = translation[1];
+      cx = translation.x
+      cy = translation.y
       break;
     case "link":
       let line = d3.select(node).select(".link-rep");
@@ -108,8 +108,11 @@ function addLabel(text, node, placeholderText=true){
     default:
       break;
   }
-  label.style.left = cx + "px";
-  label.style.top = cy + "px";
+
+  var screenPos = canvas.transformer.fromLocalToGlobal(new Transformer.Point(cx,cy));
+
+  label.style.left = screenPos.x + "px";
+  label.style.top = screenPos.y + "px";
   
   label.onkeydown = (e) => {
     //console.log(e.key)
@@ -126,7 +129,7 @@ function addLabel(text, node, placeholderText=true){
         break;
       default:
         setTimeout(function(){
-          scaleNode(label, node, cx, cy)
+          scaleNode(label, node, screenPos.x, screenPos.y)
         },1);
         break;
     }
@@ -134,7 +137,7 @@ function addLabel(text, node, placeholderText=true){
 
   container.appendChild(label);
 
-  scaleNode(label, node, cx, cy);
+  scaleNode(label, node, screenPos.x, screenPos.y);
 
   if(placeholderText){
     selectText(textNode);
@@ -195,6 +198,7 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
+  sendSearchMsgToContainer();
   return;
 }
 
