@@ -155,14 +155,16 @@ function createGroup(){
 }
 
 function moveGroup(group, vector){
-  var group = d3.select(group);
-  var nodeIds = group.attr("children_ids").split(" ").filter(x => x);
+  var group_d3 = d3.select(group);
+  var nodeIds = group_d3.attr("children_ids").split(" ").filter(x => x);
 
-  var xMove = vector.x - group.attr("x") + drag_offset[0];
-  var yMove = vector.x - group.attr("y") + drag_offset[1];
+  var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y)
 
-  group.node().translateTransform.set(xMove, yMove);
-  group.node().reapplyTransforms();
+  var xMove = oldGroupTranlate.x + vector.x ;
+  var yMove = vector.y - group_d3.attr("y") + drag_offset[1];
+
+  group.translateTransform.set(xMove, yMove);
+  group.reapplyTransforms();
 
   for(i = 0; i < nodeIds.length; i++){
     let nodeId = nodeIds[i];
