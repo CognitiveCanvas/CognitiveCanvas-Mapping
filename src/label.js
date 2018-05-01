@@ -116,6 +116,7 @@ function addLabel(text, node, placeholderText=true){
   
   label.onkeydown = (e) => {
     //console.log(e.key)
+    let labelInteraction = e.key;
     switch(e.key){
       case "Enter":
         if (e.shiftKey) {
@@ -126,7 +127,7 @@ function addLabel(text, node, placeholderText=true){
         e.preventDefault();
         e.stopImmediatePropagation();
         createLabelFromInput(node, label);
-        logLabel(node); // Logging for the data team
+        logLabel(labelInteraction, node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
@@ -224,7 +225,7 @@ function handleClickDuringLabelInput(){
   } else{
     var nodeId = label.attr("node-id");
     createLabelFromInput(node, label);
-    logLabel(node[0][0]); // Logging for the data team     
+    logLabel("Single Tap", node[0][0]); // Logging for the data team     
   }
   return;
 }

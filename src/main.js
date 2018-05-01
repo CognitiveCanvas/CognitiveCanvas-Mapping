@@ -297,7 +297,7 @@ function keyDownListener(e){
             "elements": this, 
           };
           action_done("deleteNode", data);
-          logDeletion(this);
+          logDeletion("Backspace", this);
           removeNode(this);
         });
         d3.selectAll(".link.selected").each(function(){
@@ -305,7 +305,7 @@ function keyDownListener(e){
             "elements": this
           }
           action_done("deleteEdge", data);
-          logDeletion(this);
+          logDeletion("Backspace", this);
           removeLink(this)
         });
         d3.selectAll(".map-image.selected").remove();
@@ -344,7 +344,7 @@ function singleClickEvent(e) {
     //console.log("single click while there is a selection area");
     createGroup();
   } else if(dragged_object){
-    logTranslate(dragged_object);
+    logTranslate("dragged", dragged_object);
     //console.log("single click while there is a dragged object");
   } else {
     let addedNode = null;

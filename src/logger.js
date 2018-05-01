@@ -1,14 +1,16 @@
 var temp_buffer = [];
 var prev_position = {};
 var prev_label = "";
+const DEFAULT_INTERACTION = "Single Tap";
 
-function log(level, content){
+function log(level, interaction, content){
 	var current_log = {
 		"level": level, 
+    "interaction": interaction,
 		"content": content,
 		"timestamp": new Date().toUTCString()
 	}
-  console.log(level, content);
+  console.log(current_log);
 	// temp_buffer.push(current_log);
 }
 
@@ -38,20 +40,20 @@ function logColorChanges(type, color){
   // let selectedEdgeShapes = document.querySelectorAll(".selected .link-rep");
   let prev_color = "prev_" + type + "_color";
   let curr_color = "curr_" + type + "_color";
-  for (var nodeIndex in selectedNodes) {
-    log("node", {
-      "id": selectedNodes[nodeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedNodes.length; i++) {
+    log("node", DEFAULT_INTERACTION, {
+      "id": selectedNodes[i].getAttribute("id"),
       // "label": labelFinder(selectedNodes[i].getAttribute("id")),
-      [prev_color]: selectedNodes[nodeIndex].children[0].style.cssText,
+      [prev_color]: selectedNodes[i].children[0].style.cssText,
       [curr_color]: color
     })
   }
 
-  for (var edgeIndex in selectedEdges) {
-    log("edge", {
-      "id": selectedEdges[edgeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedEdges.length; i++) {
+    log("edge", DEFAULT_INTERACTION, {
+      "id": selectedEdges[i].getAttribute("id"),
       // "label": labelFinder(selectedEdges[j].getAttribute("id")),
-      [prev_color]: selectedEdges[edgeIndex].children[0].style.cssText,
+      [prev_color]: selectedEdges[i].children[0].style.cssText,
       [curr_color]: color
       // "source_id": selectedEdges[j].getAttribute("source_id"),
       // "target_id": selectedEdges[j].getAttribute("target_id")
@@ -62,7 +64,7 @@ function logColorChanges(type, color){
 /*
  * Logs creation of a node/edge
  */
-function logCreation(element) {
+function logCreation(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
@@ -90,24 +92,24 @@ function logCreation(element) {
       "target_id": element.getAttribute("target_id")
     };
   }
-  log(levelName, content);
+  log(levelName, interaction, content);
 }
 
 /*
  * Logs deletion of a node
  */
-function logDeletion(element) {
+function logDeletion(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
-  log(levelName, {
+  log(levelName, interaction, {
     "id": element.getAttribute("id"),
-    "deleted": "true"
+    "deleted": true
   });
 }
 
 /*
  * Logs label changes
  */
-function logLabel(element) {
+function logLabel(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   if (levelName === "node") {
     if (element.getAttribute("class").split(" ").length === 3) {
@@ -120,7 +122,7 @@ function logLabel(element) {
     "curr_label_text": element.children[1].children[0].innerHTML
   };
   prev_label = "";
-  log(levelName, content);
+  log(levelName, interaction, content);
 }
 
 function setPrevLabel(label) {
@@ -134,17 +136,17 @@ function logFontChanges(prev_size, curr_size){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
-  for (var nodeIndex in selectedNodes) {
-    log("node", {
-      "id": selectedNodes[nodeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedNodes.length; i++) {
+    log("node", DEFAULT_INTERACTION, {
+      "id": selectedNodes[i].getAttribute("id"),
       "prev_font_size": prev_size,
       "curr_font_size": curr_size
     });
   }
 
-  for (var edgeIndex in selectedEdges) {
-    log("edge", {
-      "id": selectedEdges[edgeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedEdges.length; i++) {
+    log("edge", DEFAULT_INTERACTION, {
+      "id": selectedEdges[i].getAttribute("id"),
       "prev_font_size": prev_size,
       "curr_font_size": curr_size
     });
@@ -158,16 +160,16 @@ function logLabelToggle(type, setting){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
-  for (var nodeIndex in selectedNodes) {
-    log("node", {
-      "id": selectedNodes[nodeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedNodes.length; i++) {
+    log("node", DEFAULT_INTERACTION, {
+      "id": selectedNodes[i].getAttribute("id"),
       [type]: setting
     })
   }
 
-  for (var edgeIndex in selectedEdges) {
-    log("edge", {
-      "id": selectedEdges[edgeIndex].getAttribute("id"),
+  for (var i = 0; i < selectedEdges.length; i++) {
+    log("edge", DEFAULT_INTERACTION, {
+      "id": selectedEdges[i].getAttribute("id"),
       [type]: setting
     })
   }
@@ -177,7 +179,7 @@ function logLabelToggle(type, setting){
  * Logs image upload
  */
 function logImage(width, height, src, id) {
-  log("image", {
+  log("image", DEFAULT_INTERACTION, {
     "location": "(0,0)",
     "width": width,
     "height": height,
@@ -190,7 +192,7 @@ function logImage(width, height, src, id) {
 /*
  * Logs element movement/translate
  */
-function logTranslate(element) {
+function logTranslate(interaction, element) {
   if (prev_position.length === 0) {
     return;
   }
@@ -199,13 +201,13 @@ function logTranslate(element) {
     let child = document.getElementById(key);
     if (child.tagName === 'image') {
       node_type += " pin";
-      log("image", {
+      log("image", interaction, {
         "id": key,
         "prev_position": prev_position[key],
         "curr_position": getNodePosition(child)
       });
     } else {
-      log(node_type, {
+      log(node_type, interaction, {
         "id": key,
         "prev_position": prev_position[key],
         "curr_position": getNodePosition(child)

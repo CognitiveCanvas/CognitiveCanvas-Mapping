@@ -35,7 +35,7 @@ function canvasDoubleTapListener(event){
     function(success){
       selectNode(node);
       addLabel("Node Name", node);
-      logCreation(node)
+      logCreation("double tap", node);
 
     }, function(failure){
       console.log(failure);
@@ -112,7 +112,7 @@ function nodePanListener(event){
 	if(event.type === 'panend'){
 		node.links = null;
 		node.prevPoint = null;
-		logTranslate(node);
+		logTranslate("pan", node);
 	}
 }
 
@@ -222,10 +222,10 @@ function groupPanListener(event){
 
 	if( event.type === 'panstart'){
 		group.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(group);
 	}
 
 	moveGroup(group, deltaPoint);
-	translateSavePrevPosition(group);
 }
 
 function groupDoubleTapListener(event){
