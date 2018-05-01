@@ -1035,6 +1035,7 @@ function toggleDrawFunc() {
     eraser_enabled = false;
   }
   drawing_enabled = !drawing_enabled;
+  toggleNonDrawingHammers(!drawing_enabled);
   // Reset Eraser and Eraser Button Below;
   eraser_enabled = false;
   let eraser = document.querySelector(".drawing-instrument-tools .erase-drawing-canvas");

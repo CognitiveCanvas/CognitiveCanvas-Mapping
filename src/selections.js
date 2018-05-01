@@ -156,21 +156,24 @@ function createGroup(){
 
 function moveGroup(group, vector){
   var group_d3 = d3.select(group);
-  var nodeIds = group_d3.attr("children_ids").split(" ").filter(x => x);
 
-  var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y)
+  var nodes = group.nodes;
 
-  var xMove = oldGroupTranlate.x + vector.x ;
-  var yMove = vector.y - group_d3.attr("y") + drag_offset[1];
+  if( !nodes ){
+    group.nodes = getGroupedNodes(group);
+    nodes = group.nodes;
+  }
+
+  var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y);
+
+  var xMove = oldGroupTranslate.x + vector.x;
+  var yMove = oldGroupTranslate.y + vector.y;
 
   group.translateTransform.set(xMove, yMove);
-  group.reapplyTransforms();
-
-  for(i = 0; i < nodeIds.length; i++){
-    let nodeId = nodeIds[i];
-    var node = d3.select('#'+ nodeId);
-    translateNode(node.node(), xMove, yMove, true);
-  }
+  group.transformer.reapplyTransforms()
+  nodes.forEach( (node)=>{ 
+    translateNode(node, vector, true) 
+  });
 }
 
 function addNodeToGroup(node, group){
@@ -192,7 +195,7 @@ function getGroupedNodes(group){
       nodes.push(document.getElementById(nodeIds[i]));
    }
    console.log("Grouped Nodes: " + nodes );
-   return d3.selectAll(nodes);
+   return nodes;
 }
 
 function BBIsInGroup(nodeBB, group){
