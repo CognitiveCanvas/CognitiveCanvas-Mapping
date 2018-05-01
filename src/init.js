@@ -11,6 +11,7 @@ function onLoaded(webstrateId, clientId, user) {
   initToolPalette();
   initDrawing();
   initTransformer();
+  initAddedNodeHandling();
 }
 
 function initIDs(webstrateId, clientId) {
@@ -91,4 +92,10 @@ function initTransformer() {
 
   document.querySelectorAll(".link").forEach( (link) => hammerizeLink(link));
   document.querySelectorAll(".group").forEach( (group) => hammerizeGroup(group));
+}
+
+function initAddedNodeHandling(){
+  canvas.webstrate.on("nodeAdded", function(node) {
+    if(canHammerize(node)) autoHammerize(node);
+  });
 }

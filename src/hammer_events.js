@@ -4,6 +4,22 @@ function toggleNonDrawingHammers( enable ){
 	});
 }
 
+function canHammerize( element ){
+	return $(element).is('.canvas,.node,.link,.group');
+}
+
+function autoHammerize( element ){
+	var ele = $(element);
+
+	if( ele.hasClass("canvas") ) hammerizeCanvas();
+	else if( ele.hasClass("node") ) hammerizeNode(element);
+	else if( ele.hasClass("link") ) hammerizeLink(element);
+	else if( ele.hasClass("group") ) hammerizeGroup(element);
+	else{
+		console.log("Could not autoHammerize ", element);
+	}
+}
+
 function hammerizeCanvas(){
 	Transformer.hammerize(canvas, {pan: false, callback: isContainingParent}).then(function(transformer){
 		var hammer = canvas.hammer;
