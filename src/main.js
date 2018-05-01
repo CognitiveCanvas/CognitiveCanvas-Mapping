@@ -925,18 +925,13 @@ function quickAdd(key){
       break;
     }
   }
-<<<<<<< HEAD
-  selectNode(node);
-  logCreation(node);
-  addLabel("Node Name", node);
-=======
   let addedNode = addNode();
   let node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
   hammerizeNode(node).then( (transformer)=>{
     selectNode(node);
+    logCreation(node);
     addLabel("Node Name", node);
   });
->>>>>>> transformer
 }
 
 function addEleContent(e) {

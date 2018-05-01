@@ -35,8 +35,10 @@ function canvasDoubleTapListener(event){
     function(success){
       selectNode(node);
       addLabel("Node Name", node);
-      logCreation(node)
-
+	  let data = { 
+        "node"  : node
+      };
+      action_done("insertNode", data);
     }, function(failure){
       console.log(failure);
     });

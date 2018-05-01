@@ -35,7 +35,7 @@ var handleImageUpload = function(asset){
 /*Inserts an image at [0,0] to the back of the canvas.  The image acts like a group
  *
  */
-function insertImage(width, height, imgSrc){\
+function insertImage(width, height, imgSrc){
 	let imgId = getID();
 	console.log("Inserting Image: " + imgSrc);
 
