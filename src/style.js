@@ -195,5 +195,4 @@ function setLabelColor(color) {
   logColorChanges("label", color);
   current_style = d3.selectAll(".selected .label")
     .style("fill", color);
-
 }
