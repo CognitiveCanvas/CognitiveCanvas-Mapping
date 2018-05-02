@@ -709,12 +709,7 @@ function selectLineDest(node) {
       selection.attr("id") != sourceNode.attr("id")) 
   {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
-    let data = { 
-        "edge"  : addedLink
-      };
-    console.log("adding edge data edge", data.edge)
-    action_done("addEdge", data);
-    drawLink(addedLink);
+    
     var link = drawLink(addedLink);
     source_node = null;
     resetState()
