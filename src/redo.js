@@ -124,3 +124,12 @@ function redoAddEdge(data){
   	// link.remove();
   	link.classed("deleted", false);
 }
+
+function redoRemoveEdge(data){
+	console.log("redo-ing edge removal", data);
+	let id = data.edge.id;
+	link = d3.select("#"+id);
+  	//deleteEntity(links, link_id);
+  	// link.remove();
+  	link.classed("deleted", true);
+}
