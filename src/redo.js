@@ -93,7 +93,7 @@ function redoDeleteNode(data){
 }
 
 function redoInsertNode(data){
-	console.log("redo-ing node insertion", data);
+	console.log("redo-ing node insertion");
 	let node = data.node;
   	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
@@ -114,4 +114,13 @@ function redoInsertNode(data){
   	//deleteEntity(nodes, node_id); 
 
   	node_d3.classed("deleted", false);
+}
+
+function redoAddEdge(data){
+	console.log("redo-ing edge insertion");
+	let id = data.edge.id
+	link = d3.select("#"+id)
+  	// deleteEntity(links, link_id);
+  	// link.remove();
+  	link.classed("deleted", false);
 }
