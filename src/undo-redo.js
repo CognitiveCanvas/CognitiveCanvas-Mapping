@@ -95,7 +95,7 @@ function undoInsertNode(data){
     	});
 
   	closePreviewIframe("node");
-  	deleteEntity(nodes, node_id); 
+  	//deleteEntity(nodes, node_id); 
 
   	node_d3.classed("deleted", true);
 }
