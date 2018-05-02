@@ -21,6 +21,7 @@ function undo(){
 		return;
 
 	let last_action = undo_redo_buffer.pop();
+	undo_action(last_action.type, last_action.data);
 	switch (last_action.type){
 		case "style": 
 			undoStyle(last_action.data);
@@ -32,6 +33,7 @@ function undo(){
 			undoInsertNode(last_action.data);
 			break;
 		case "dragNode":
+		    // TODO: not yet implemented
 			undoDragNode();
 			break;
 		case "addEdge":
@@ -51,6 +53,7 @@ function undo(){
 
 
 function undoStyle(data){
+	console.log("undo-ing style");
 	switch (data.style_type){
 		case "change_color":
 			data.nodes.style("fill", ""+data.old_color);
@@ -98,7 +101,7 @@ function undoInsertNode(data){
 }
 
 function undoDeleteNode(data){
-	console.log("undoing node deletion")
+	console.log("undo-ing node deletion")
 	let node = data.elements;
 	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
@@ -132,7 +135,8 @@ function undoAddEdge(data){
 
 function undoRemoveEdge(data){
 	console.log("undo-ing edge removal");
-	link = link instanceof d3.selection ? link : d3.select(link);
+	let id = data.edge.id
+	link = d3.select("#"+id)
   	//deleteEntity(links, link_id);
   	// link.remove();
   	link.classed("deleted", false);

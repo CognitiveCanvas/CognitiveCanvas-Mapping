@@ -12,12 +12,13 @@ function onLoaded(webstrateId, clientId, user) {
   initDrawing();
   initLog();
   initTransformer();
+  initAddedNodeHandling();
 }
 
 function initLog(){
   let minute = 3;
   var intervalID = window.setInterval(postLogs, minute * 60000); // 3 minutes
-  log("level EVENT", "test logs");
+  // log("level EVENT", "test interaction", "test logs");
 
 }
 
@@ -100,4 +101,10 @@ function initTransformer() {
 
   document.querySelectorAll(".link").forEach( (link) => hammerizeLink(link));
   document.querySelectorAll(".group").forEach( (group) => hammerizeGroup(group));
+}
+
+function initAddedNodeHandling(){
+  canvas.webstrate.on("nodeAdded", function(node) {
+    if(canHammerize(node)) autoHammerize(node);
+  });
 }

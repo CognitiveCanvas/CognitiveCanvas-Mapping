@@ -1,3 +1,25 @@
+function toggleNonDrawingHammers( enable ){
+	document.querySelectorAll("#canvas,.node,.link,.group").forEach((element)=>{
+		element.hammer.set({'enable': enable})
+	});
+}
+
+function canHammerize( element ){
+	return $(element).is('.canvas,.node,.link,.group');
+}
+
+function autoHammerize( element ){
+	var ele = $(element);
+
+	if( ele.hasClass("canvas") ) hammerizeCanvas();
+	else if( ele.hasClass("node") ) hammerizeNode(element);
+	else if( ele.hasClass("link") ) hammerizeLink(element);
+	else if( ele.hasClass("group") ) hammerizeGroup(element);
+	else{
+		console.log("Could not autoHammerize ", element);
+	}
+}
+
 function hammerizeCanvas(){
 	Transformer.hammerize(canvas, {pan: false, callback: isContainingParent}).then(function(transformer){
 		var hammer = canvas.hammer;
@@ -35,6 +57,7 @@ function canvasDoubleTapListener(event){
     function(success){
       selectNode(node);
       addLabel("Node Name", node);
+      logCreation("double tap", node);
 	  let data = { 
         "node"  : node
       };
@@ -100,6 +123,7 @@ function nodePanListener(event){
 		selectNode(node);
 		node.links = findConnectedLinks(node);
 		node.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(node);
 	}
 
 	var deltaPoint = node.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
@@ -113,6 +137,7 @@ function nodePanListener(event){
 	if(event.type === 'panend'){
 		node.links = null;
 		node.prevPoint = null;
+		logTranslate("pan", node);
 	}
 }
 
@@ -209,26 +234,41 @@ function linkDoubleTapListener(event){
 }
 
 function hammerizeGroup(group){
-	return Transformer.hammerize(group).then((transformer)=>{
+	return Transformer.hammerize(group, {pan:false}).then((transformer)=>{
 		var hammer = group.hammer;
 
+		hammer.remove(hammer.get('pan'));
+
+		var pan = new Hammer.Pan({event: 'pan'});
 		var doubleTap = new Hammer.Tap( {event: 'doubletap', taps : 2});
-		hammer.add([doubleTap]);
+		hammer.add([doubleTap, pan]);
 
 		hammer.on('doubletap', groupDoubleTapListener);
-		//hammer.on('pan panstart', groupPanListener);
+		hammer.on('pan panstart panend', groupPanListener);
 	});
 }
 
 function groupPanListener(event){
 	var group = getParentMapElement(event.target);
-	var canvasPoint = eventToCanvasPoint(event);
 
-	if( event.type === 'panstart'){
+	if(event.type === 'panstart'){
+		group.nodes = getGroupedNodes(group);
 		group.prevPoint = new Point(0, 0);
+		translateSavePrevPosition(group);
 	}
 
-	moveGroup(group, deltaPoint);
+	var deltaPoint = group.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
+	var deltaDeltaPoint = new Point(deltaPoint.x - group.prevPoint.x, deltaPoint.y - group.prevPoint.y)
+
+	moveGroup(group, deltaDeltaPoint);
+
+	group.prevPoint.x = deltaPoint.x;
+	group.prevPoint.y = deltaPoint.y;
+
+	if(event.type === 'panend'){
+		group.nodes = null;
+		group.prevPoint = null;
+	}
 }
 
 function groupDoubleTapListener(event){

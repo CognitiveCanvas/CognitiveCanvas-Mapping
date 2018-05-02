@@ -15,6 +15,59 @@ function undo_action(type, data){
 }
 
 function redo(){
-	if(redo_buffer.length == 0)
+	// Do nothing if the stack is empty
+	if (redo_buffer.length == 0)
 		return;
+
+	let last_action = redo_buffer.pop();
+	switch (last_action.type){
+		case "style": 
+			redoStyle(last_action.data);
+			break;
+		case "deleteNode":
+			redoDeleteNode(last_action.data);
+			break;
+		case "insertNode":
+			redoInsertNode(last_action.data);
+			break;
+		case "dragNode":
+		    // TODO: not yet implemented
+			redoDragNode();
+			break;
+		case "addEdge":
+			redoAddEdge(last_action.data);
+			break;
+		case "removeEdge":
+			redoRemoveEdge(last_action.data);
+			break;
+		case "changeLabel":
+			redoChangeLabel();
+			break;
+		default:
+			console.log("undefined action type encountered ", last_action.type);
+	}
+}
+
+function redoStyle(data){
+	console.log("redo-ing style");
+	switch (data.style_type){
+		case "change_color":
+			data.nodes.style("fill", ""+data.new_color);
+			data.edges.style("stroke", ""+data.new_color);
+			break;
+		case "change_border_color":
+			data.elements.style("stroke", ""+data.new_color);
+			break;
+		case "label_font_size":
+			data.elements.style("font-size", ""+data.new_size);
+			break;
+		case "label_font_italics":
+			data.elements.style("font-style", ""+data.new_style);
+			break;
+		case "label_font_bold":
+			data.elements.style("font-weight", ""+data.new_style);
+			break;
+		case "label_font_color":
+			data.elements.style("fill", ""+data.new_color)
+	}
 }
