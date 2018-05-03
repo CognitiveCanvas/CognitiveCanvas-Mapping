@@ -1,6 +1,13 @@
-function toggleNonDrawingHammers( enable ){
-	document.querySelectorAll("#canvas,.node,.link,.group").forEach((element)=>{
-		element.hammer.set({'enable': enable})
+/**
+*	Enables/disables all touch interactions from a hammerized element
+*	@param enable boolean: true for enabling interactions, false for disabling
+*	@param element: the element to toggle; if null, acts on all hammerizable elements
+*/
+function toggleNonDrawingHammers( enable, elements=null ){
+	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
+	elements = (elements instanceof Element) ? [elements] : elements; 
+	elements.forEach((element)=>{
+		if(element.hammer) element.hammer.set({'enable': enable});
 	});
 }
 

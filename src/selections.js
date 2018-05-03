@@ -53,16 +53,16 @@ function selectNodeByDirection(direction){
 
   var newSelection = d3.selectAll(".node:not(.selected)")
   newSelection = newSelection.filter(function(){
-      let xy = getNodePosition(this);
-      let angle = Math.atan2( -1*(xy[1]-nodePos[1]), xy[0]-nodePos[0] ) / Math.PI * 180;
+      let pos = getNodePosition(this);
+      let angle = Math.atan2( -1*(pos.y-nodePos.y), pos.x-nodePos.x ) / Math.PI * 180;
       return (angle >= minAngle && angle <= maxAngle)
         || (minAngle > maxAngle && (angle >= minAngle || angle <= maxAngle)) 
       })
   newSelection = newSelection[0].sort(function(a,b){
       let aPos = getNodePosition(d3.select(a));
       let bPos = getNodePosition(d3.select(b));
-      let aDist = Math.sqrt(Math.pow( nodePos[0]-aPos[0] , 2) + Math.pow( nodePos[1] - aPos[1], 2));
-      let bDist = Math.sqrt(Math.pow( nodePos[0]-bPos[0] , 2) + Math.pow( nodePos[1] - bPos[1], 2));
+      let aDist = Math.sqrt(Math.pow( nodePos.x-aPos.x , 2) + Math.pow( nodePos.y - aPos.y, 2));
+      let bDist = Math.sqrt(Math.pow( nodePos.x-bPos.x , 2) + Math.pow( nodePos.y - bPos.y, 2));
       return aDist - bDist;
     })[0];
   if(newSelection){

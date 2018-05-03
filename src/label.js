@@ -137,7 +137,11 @@ function addLabel(text, node, placeholderText=true){
     }
   }
 
-  container.appendChild(label);
+  var transientEle = document.createElement("transient");
+  transientEle.appendChild(label);
+  container.appendChild(transientEle);
+
+  toggleNonDrawingHammers(false, node); //Disable interactions during edit
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
@@ -148,6 +152,7 @@ function addLabel(text, node, placeholderText=true){
     var cursorPosition = label.appendChild(document.createTextNode(""));  
     selectText(cursorPosition);
   }
+
 }
 
 function createLabelFromInput(node, label){
@@ -200,6 +205,7 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
+  toggleNonDrawingHammers(true, node.node());
   sendSearchMsgToContainer();
   return;
 }
