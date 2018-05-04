@@ -112,17 +112,14 @@ function redoInsertNode(data){
     	});
 
   	closePreviewIframe("node");
-  	//deleteEntity(nodes, node_id); 
 
   	node_d3.classed("deleted", false);
 }
 
 function redoAddEdge(data){
 	console.log("redo-ing edge insertion");
-	let id = data.edge.id
-	link = d3.select("#"+id)
-  	// deleteEntity(links, link_id);
-  	// link.remove();
+	let id = data.edge.id;
+	link = d3.select("#"+id);
   	link.classed("deleted", false);
 }
 
@@ -130,7 +127,5 @@ function redoRemoveEdge(data){
 	console.log("redo-ing edge removal", data);
 	let id = data.edge.id;
 	link = d3.select("#"+id);
-  	//deleteEntity(links, link_id);
-  	// link.remove();
   	link.classed("deleted", true);
 }
