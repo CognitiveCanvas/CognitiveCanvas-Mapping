@@ -45,7 +45,7 @@ body {
 
 #canvas {
     overflow: hidden;
-    background-color: beige;
+    fill: beige;
 }
 
 #d3_container {

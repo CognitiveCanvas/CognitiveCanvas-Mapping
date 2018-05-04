@@ -148,7 +148,7 @@ function keyPressListener(e) {
 
 function keyDownListener(e){
   var key = e.key;
-  console.log(e)
+  var selectedNode = document.querySelector(".node.selected");
   console.log("keyDown: " + key);
   if ((e.ctrlKey || e.metaKey) && e.key == "z") {
     e.preventDefault();
@@ -188,18 +188,12 @@ function keyDownListener(e){
       }
       break;
     case "ArrowRight":
-      selectNodeByDirection("right");
-      break;
     case "ArrowLeft":
-      selectNodeByDirection("left");
-      break;
     case "ArrowUp":
-      selectNodeByDirection("up");
-      break;
     case "ArrowDown":
-      selectNodeByDirection("down");
+      if(selectedNode) selectNodeByDirection(key)
+      else translateCanvas( ARROW_TRANSLATES[key] )
       break;
-    
     default:
       break;
   }
@@ -541,6 +535,17 @@ function drawDragNode(e) {
   }
 }
 
+/*
+* Tranlates the canvas by the Point: {x, y}
+* @pama vector: Point{x, y} to tranlate the vector by;
+*/
+function translateCanvas(vector){
+  var currentTranslate = canvas.translateTransform;
+  var newTranslate = new Point(vector.x + currentTranslate.x, vector.y + currentTranslate.y);
+  canvas.translateTransform.set(newTranslate.x, newTranslate.y);
+  canvas.transformer.reapplyTransforms();
+}
+
 //Helper Function to move a node group
 /**
 node: the node to move along with its links
@@ -706,50 +711,6 @@ function addEleContent(e) {
   addEleToList(e);    
   addWindowOpen = true;
 }
-
-/*
- * Add Conent Alternative Way
- * (Break AddPic Functionality, need exploration later) 
- */
-//function addEleContent(e) {
-//  let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
-//  let wrapper = document.createElement('div');
-//  wrapper.setAttribute("id", "addContentWrapper");
-//  
-//  let toFrame = document.createElement('iframe');
-//  toFrame.setAttribute("id", "addWindow");
-//  toFrame.setAttribute("src", newNodeAddress);
-//  let warningTxt = document.createElement('p');
-//  warningTxt.innerHTML = "ERROR: Your browser does not support iframes.";
-//  toFrame.appendChild(warningTxt);
-//  
-//  let addNoteButton = document.createElement('button');
-//  addNoteButton.setAttribute("id", "addNoteBtn");
-//  addNoteButton.setAttribute("type", "button");
-//  addNoteButton.setAttribute("onclick", "appendNote()");
-//  addNoteButton.innerHTML = "Add Sticky Note";
-//    
-//  let addPicButton = document.createElement('input');
-//  addPicButton.setAttribute("id", "addPicBtn");
-//  addPicButton.setAttribute("type", "file");
-//  addPicButton.setAttribute("onclick", "appendPic()");
-//    
-//  let closeButton = document.createElement('button');
-//  closeButton.setAttribute("id", "closeWindowBtn");
-//  closeButton.setAttribute("type", "button");
-//  closeButton.setAttribute("onclick", "closeContentWindow()");
-//  closeButton.innerHTML = "Close Content Window";
-//  
-//  wrapper.appendChild(toFrame);
-//  wrapper.appendChild(addNoteButton);
-//  wrapper.appendChild(addPicButton);
-//  wrapper.appendChild(closeButton);
-//  
-//  
-//  document.getElementById("content_container").appendChild(wrapper);
-//  addEleToList(e);    
-//  addWindowOpen = true;
-//}
 
 function closeContentWindow() {
   let wrapper = document.getElementById("addContentWrapper");

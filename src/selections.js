@@ -32,18 +32,22 @@ function selectNodeByDirection(direction){
 
   switch(direction){
     case "right":
+    case "ArrowRight":
       minAngle = RIGHT_MIN_ANGLE;
       maxAngle = RIGHT_MAX_ANGLE;
       break;
     case "up":
+    case "ArrowUp":
       minAngle = UP_MIN_ANGLE;
       maxAngle = UP_MAX_ANGLE;
       break;
     case "left":
+    case "ArrowLeft":
       minAngle = LEFT_MIN_ANGLE;
       maxAngle = LEFT_MAX_ANGLE;
       break;
     case "down":
+    case "ArrowDown":
       minAngle = DOWN_MIN_ANGLE;
       maxAngle = DOWN_MAX_ANGLE;
       break;
