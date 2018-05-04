@@ -41,6 +41,7 @@ function redo(){
 			redoRemoveEdge(last_action.data);
 			break;
 		case "changeLabel":
+			// TODO: not yet implemented
 			redoChangeLabel();
 			break;
 		default:

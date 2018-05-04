@@ -95,8 +95,6 @@ function undoInsertNode(data){
     	});
 
   	closePreviewIframe("node");
-  	//deleteEntity(nodes, node_id); 
-
   	node_d3.classed("deleted", true);
 }
 
@@ -118,9 +116,6 @@ function undoDeleteNode(data){
       	group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     	});
 
-  	// deleteEntity(nodes, node_id); 
-  	// TODO: do inverse of this
-
   	node_d3.classed("deleted", false);
 }
 
@@ -128,8 +123,6 @@ function undoAddEdge(data){
 	console.log("undo-ing edge insertion");
 	let id = data.edge.id;
 	link = d3.select("#"+id);
-  	// deleteEntity(links, link_id);
-  	// link.remove();
   	link.classed("deleted", true);
 }
 
@@ -137,7 +130,5 @@ function undoRemoveEdge(data){
 	console.log("undo-ing edge removal");
 	let id = data.edge.id;
 	link = d3.select("#"+id);
-  	//deleteEntity(links, link_id);
-  	// link.remove();
   	link.classed("deleted", false);
 }
