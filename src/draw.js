@@ -404,6 +404,7 @@ function initDrawing() {
         
         if (!hoveredEle) return;
         hoveredEle.parentNode.removeChild(hoveredEle);
+        logErasure("mouse", hoveredEle);
         original_color = null;
         hoveredEle = null;
       }
@@ -412,9 +413,10 @@ function initDrawing() {
     canvas.addEventListener("mousemove", event => {
       if (!drawing_enabled) return;
       if (mouseDown === 0) return;
-      
+
       if (!eraser_enabled) {
         if (mouseUp >= 1 && mouseDown >= 1) {
+          logDrawing("mouse", path);
           resetState();
           return;
         }
@@ -448,6 +450,7 @@ function initDrawing() {
         
         if (!hoveredEle) return;
         hoveredEle.parentNode.removeChild(hoveredEle);
+        logErasure("mouse", hoveredEle);
         original_color = null;
         hoveredEle = null;
       }
@@ -543,6 +546,7 @@ function initDrawing() {
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);
+          logErasure("touch", toRemove);
         }
         
       }
@@ -589,6 +593,7 @@ function initDrawing() {
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);
+          logErasure("touch", toRemove);
         }
       }
     }, true);
@@ -605,6 +610,7 @@ function initDrawing() {
       timeout = setTimeout(() => {
         window.isManipulationEnabled = true;
       }, 250);
+      logDrawing("touch", path);
     }, true);
 
 
