@@ -20,6 +20,7 @@ function redo(){
 		return;
 
 	let last_action = redo_buffer.pop();
+	action_done (last_action.type, last_action.data)
 	switch (last_action.type){
 		case "style": 
 			redoStyle(last_action.data);
