@@ -858,3 +858,18 @@ function toggleDrawFunc() {
   eraser.style.background = "darkgrey";
   
 }
+
+function wrapInTransient(element){
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(element);
+  document.getElementById("canvas").appendChild(temp_transient);
+}
+
+function removeFromTransient(element){
+  // Remove the node from inside the transient element
+  let inner_node = element.node();
+  d3.select(inner_node.parentNode).remove();
+  element.remove();
+  document.getElementById("canvas").appendChild(inner_node);
+
+}

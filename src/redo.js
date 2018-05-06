@@ -89,10 +89,7 @@ function redoDeleteNode(data){
     removeNodeFromGroup(node);
   	
     node_d3.classed("deleted", true);
-    // Nest the node inside a transient
-  	let temp_transient = document.createElement("transient");
-  	temp_transient.appendChild(node_d3.node());
-  	document.getElementById("canvas").appendChild(temp_transient);
+    wrapInTransient(node_d3.node());
 }
 
 function redoInsertNode(data){
@@ -109,14 +106,8 @@ function redoInsertNode(data){
     	.classed("deleted", false);
 
   	insertNodeToGroup(node, groups);
-
   	node_d3.classed("deleted", false);
-
-  	// Removing it from the nested tag
-  	let inner_node = node_d3.node();
-  	d3.select(inner_node.parentNode).remove();
-  	node_d3.remove();
-  	document.getElementById("canvas").appendChild(inner_node);
+  	removeFromTransient(node_d3);
 }
 
 function redoAddEdge(data){
@@ -124,11 +115,7 @@ function redoAddEdge(data){
 	let id = data.edge.id;
 	link = d3.select("#"+id);
   	link.classed("deleted", false);
-  	// Removing it from the nested tag
-  	let inner_link = link.node();
-  	d3.select(inner_link.parentNode).remove();
-  	link.remove();
-  	document.getElementById("canvas").appendChild(inner_link);
+  	removeFromTransient(link);
 }
 
 function redoRemoveEdge(data){
@@ -136,8 +123,5 @@ function redoRemoveEdge(data){
 	let id = data.edge.id;
 	link = d3.select("#"+id);
   	link.classed("deleted", true);
-  	// Nest the edge inside a transient
-  	let temp_transient = document.createElement("transient");
-  	temp_transient.appendChild(link.node());
-  	document.getElementById("canvas").appendChild(temp_transient);
+  	wrapInTransient(link.node());
 }
