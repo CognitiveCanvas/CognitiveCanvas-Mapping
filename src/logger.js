@@ -11,7 +11,7 @@ function log(level, interaction, content){
 		"timestamp": new Date().toUTCString()
 	}
   console.log(current_log);
-	// temp_buffer.push(current_log);
+	temp_buffer.push(current_log);
 }
 
 function postLogs(){
@@ -80,7 +80,6 @@ function logCreation(interaction, element) {
       "label_size": "15px",
       "label_color": "green",
       "label_font": "Helvetica",
-      // "image_content": "", //TODO
       "location": getNodePosition(element)
     };
   } else {
@@ -254,7 +253,7 @@ function translateSavePrevPosition(element) {
     if (element.getAttribute("children_ids")) {
       saveChildPrevPosition(element);
     } else {
-        prev_position[element.getAttribute("id")] = getNodePosition(element);
+      prev_position[element.getAttribute("id")] = getNodePosition(element);
     }
   }
 }

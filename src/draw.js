@@ -546,7 +546,7 @@ function initDrawing() {
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);
-          logErasure("touch", toRemove);
+          // logErasure("touch", toRemove);
         }
         
       }
@@ -593,7 +593,7 @@ function initDrawing() {
         if (event.target.tagName == "path") {
           let toRemove = event.target;
           toRemove.parentNode.removeChild(toRemove);
-          logErasure("touch", toRemove);
+          // logErasure("touch", toRemove);
         }
       }
     }, true);
@@ -610,7 +610,7 @@ function initDrawing() {
       timeout = setTimeout(() => {
         window.isManipulationEnabled = true;
       }, 250);
-      logDrawing("touch", path);
+      // logDrawing("touch", path);
     }, true);
 
 
