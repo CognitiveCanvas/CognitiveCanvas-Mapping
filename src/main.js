@@ -175,7 +175,8 @@ function keyDownListener(e){
         
         d3.selectAll(".node.selected").each(function(){
           let data = {
-            "elements": this, 
+            "node": this, 
+            "groups": getNodeGroups(this)
           };
           action_done("deleteNode", data);
           logDeletion("Backspace", this);
@@ -366,11 +367,6 @@ function removeNode(node) {
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
-  // d3.selectAll(`[source_id=${node_id}]`)
-  //   .remove();
-
-  // d3.selectAll(`[target_id=${node_id}]`)
-  //   .remove();
   d3.selectAll(`[source_id=${node_id}]`)
     .classed("deleted", true);
 
@@ -384,18 +380,20 @@ function removeNode(node) {
     });
 
   closePreviewIframe("node");
-  // deleteEntity(nodes, node_id); TODO: should this be here 
-  // node_d3.remove();
   node_d3.classed("deleted", true);
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(node_d3.node());
+  document.getElementById("canvas").appendChild(temp_transient);
 }
 
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   closePreviewIframe("edge");
-  //deleteEntity(links, link_id);
-  // link.remove();
-  link.classed("deleted", true)
+  link.classed("deleted", true);
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(link.node());
+  document.getElementById("canvas").appendChild(temp_transient);
 }
 
 function closePreviewIframe(target) {
