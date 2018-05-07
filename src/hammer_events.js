@@ -28,7 +28,7 @@ function autoHammerize( element ){
 }
 
 function hammerizeCanvas(){
-	Transformer.hammerize(canvas, {pan: false, callback: isContainingParent}).then(function(transformer){
+	Transformer.hammerize(canvas, {pan: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
 		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
@@ -40,7 +40,17 @@ function hammerizeCanvas(){
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
 		hammer.on("pan panend", canvasPanListener);
+
+		hammer.on("pinch rotate", updateMinimapPosition);
+		Hammer.on(canvas, "wheel", updateMinimapPosition);
 	})
+}
+
+//Checks to see if the canvas is larger than the viewport.  If not, returns false and stops the transformation
+function canvasTransformerCallback( elementMatrix ){
+	var transformer = this;
+	var element = transformer.element;
+	return isContainingParent( element, elementMatrix, true);
 }
 
 /**
@@ -294,3 +304,41 @@ function groupDoubleTapListener(event){
       console.log(failure);
     });	
 }
+
+function hammerizeMinimap(){
+	var minimapPlacer = document.getElementById("minimap-placer");
+	return Transformer.hammerize( minimapPlacer, { pan: false, rotate: false, pinch: false, callback: minimapTransformerCallback}).then( (Transformer) =>{
+		var hammer = minimapPlacer.hammer;
+
+		hammer.remove(hammer.get('pan'));
+
+		var pan = new Hammer.Pan({event: 'pan'});
+		hammer.add([pan]);
+
+		hammer.on("pan", minimapPanListener);
+	});
+}
+
+//Checks that the minimap place indicator is within the minimap.  If not, it cancels the transform
+function minimapTransformerCallback( elementMatrix ){
+	var transformer = this;
+	var element = transformer.element;
+	return isContainingParent( element, elementMatrix, false);
+}
+
+function minimapPanListener( event ){
+	var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
+	var placer = document.getElementById("minimap-placer");
+	var placerBBox = placer.getBoundingClientRect();
+	var newPos = {
+		left: (event.center.x - minimapBBox.left - placerBBox.width / 2) / minimapBBox.width * 100,
+	 	top: (event.center.y - minimapBBox.top - placerBBox.height / 2) / minimapBBox.height * 100 
+	}
+
+	console.log("EVENT CENTER:", event.center, " NEW POS", newPos);
+
+	placer.style.left = newPos.left + "%";
+	placer.style.top = newPos.top + "%";
+
+	updateMapPositionFromMinimap();
+};

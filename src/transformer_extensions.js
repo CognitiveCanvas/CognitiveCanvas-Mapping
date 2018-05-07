@@ -3,23 +3,32 @@ function eventToCanvasPoint(e){
   return canvas.transformer.fromGlobalToLocal( eventPoint );
 }
 
-function isContainingParent(elementMatrix){
+function isContainingParent(element, elementMatrix, isOutsideParent = true ){
 
-  var ele = this.element;
-  var oldElementMatrix = this.getTransformMatrix();
+  var ele = element;
+  var oldElementMatrix = element.transformer.getTransformMatrix();
   var eleCorners = getCornerMatrix(ele);
   var invOldMatrix = oldElementMatrix.inverse;
   var origCorners = invOldMatrix.multiply(eleCorners);
   var newCorners = elementMatrix.multiply(origCorners);
   var newBB = getBBoxFromCorners(newCorners);
 
-  var parentEle = this.element.parentNode;
+  var parentEle = element.parentNode;
   parentBB = parentEle.getBoundingClientRect();
 
-  var isContained = newBB.left <= parentBB.left &&
-    newBB.top <= parentBB.top &&
-    newBB.right >= parentBB.right &&
-    newBB.bottom >= parentBB.bottom;
+  var isContained;
+
+  if( isOutsideParent ){
+    isContained = newBB.left <= parentBB.left &&
+      newBB.top <= parentBB.top &&
+      newBB.right >= parentBB.right &&
+      newBB.bottom >= parentBB.bottom;
+  }else{
+    isContained = newBB.left >= parentBB.left &&
+      newBB.top >= parentBB.top &&
+      newBB.right <= parentBB.right &&
+      newBB.bottom <= parentBB.bottom;     
+  }
   return (isContained)
 };
 
@@ -41,4 +50,27 @@ function getBBoxFromCorners(corners){
     bottom: m[1][2],
     left:   m[0][0]
   })
+}
+
+function translateFromHammerEvent(event){
+  var element = getParentMapElement(event.target);
+
+  if(event.type === 'panstart' || !element.prevPoint){
+    element.prevPoint = new Point(0, 0);
+  }
+
+  var deltaPoint = element.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
+
+  var newPoint = new Point( element.translateTransform.x - element.prevPoint.x + deltaPoint.x,
+                            element.translateTransform.y - element.prevPoint.y + deltaPoint.y);
+
+  element.prevPoint.x = deltaPoint.x;
+  element.prevPoint.y = deltaPoint.y;
+
+  if(event.type === 'panend'){
+    element.prevPoint = null;
+  }
+
+  element.translateTransform.set( newPoint.x, newPoint.y);
+  element.transformer.reapplyTransforms()
 }

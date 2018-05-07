@@ -1,0 +1,17 @@
+#minimap-wrapper{
+	position: relative;
+	width : 100%;
+	padding-bottom: 50%;
+}
+
+#minimap{
+	width: 100%;
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+	background-color: darkblue;
+}
+
+#minimap-placer{
+	position: relative;
+	background-color: blue;
+}

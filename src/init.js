@@ -13,6 +13,7 @@ function onLoaded(webstrateId, clientId, user) {
   initLog();
   initTransformer();
   initAddedNodeHandling();
+  initMinimap();
 }
 
 function initLog(){
@@ -107,4 +108,9 @@ function initAddedNodeHandling(){
   canvas.webstrate.on("nodeAdded", function(node) {
     if(canHammerize(node)) autoHammerize(node);
   });
+}
+
+function initMinimap(){
+  updateMinimapPosition();
+  hammerizeMinimap();
 }

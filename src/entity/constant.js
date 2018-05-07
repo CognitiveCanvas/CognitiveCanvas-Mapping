@@ -17,6 +17,7 @@ var LEFT_MAX_ANGLE = -135;
 var DOWN_MIN_ANGLE = -135;
 var DOWN_MAX_ANGLE = -45;
 
+//Distances and directions for translating the canvas by the arrow keys
 var ARROW_DIST = 10;
 var ARROW_TRANSLATES = {
 	"ArrowUp" : 	{ x: 0, 				y: 1 * ARROW_DIST },

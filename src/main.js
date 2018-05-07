@@ -537,13 +537,27 @@ function drawDragNode(e) {
 
 /*
 * Tranlates the canvas by the Point: {x, y}
-* @pama vector: Point{x, y} to tranlate the vector by;
+* @param vector: Point{x, y} to tranlate the vector by.  If not relative, this will be the upper left
+*                corner of the viewport relative to the canvas
+* @param isRelative: If true, translates by a vector.  If false, sets the upper left corner equal to vector
 */
-function translateCanvas(vector){
+function translateCanvas(vector, isRelative=true ){
   var currentTranslate = canvas.translateTransform;
-  var newTranslate = new Point(vector.x + currentTranslate.x, vector.y + currentTranslate.y);
-  canvas.translateTransform.set(newTranslate.x, newTranslate.y);
-  canvas.transformer.reapplyTransforms();
+  var newTranslate;
+
+  if( isRelative ){
+    newTranslate = new Point(vector.x + currentTranslate.x, vector.y + currentTranslate.y);
+    canvas.translateTransform.set(newTranslate.x, newTranslate.y);
+  } else{
+    var newTranslate = Matrix.identity(3);
+    newTranslate.translate( -1 * vector.x, -1 * vector.y);
+    canvas.transformer.applyToGlobalTransform( newTranslate);
+    canvas.translateTransform.update( newTranslate );
+  }
+  canvas.transformer.reapplyTransforms().then( () => { 
+    canvas.transformer.complete();
+    updateMinimapPosition();
+  });
 }
 
 //Helper Function to move a node group
