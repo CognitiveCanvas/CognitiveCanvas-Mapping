@@ -335,7 +335,7 @@ function minimapPanListener( event ){
 	 	top: (event.center.y - minimapBBox.top - placerBBox.height / 2) / minimapBBox.height * 100 
 	}
 
-	console.log("EVENT CENTER:", event.center, " NEW POS", newPos);
+	//console.log("EVENT CENTER:", event.center, " NEW POS", newPos);
 
 	placer.style.left = newPos.left + "%";
 	placer.style.top = newPos.top + "%";

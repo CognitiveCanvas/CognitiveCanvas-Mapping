@@ -6,12 +6,24 @@
 
 #minimap{
 	width: 100%;
+	overflow:hidden;
 	position: absolute;
 	top: 0; bottom: 0; left: 0; right: 0;
-	background-color: darkblue;
+}
+
+#minimap-bg{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width:400%;
+	height:400%;
+	overflow:hidden;
+	transform: scale(0.25);
+	transform-origin: 0 0;
 }
 
 #minimap-placer{
-	position: relative;
+	position: absolute;
 	background-color: blue;
+	z-index: 10;
 }
