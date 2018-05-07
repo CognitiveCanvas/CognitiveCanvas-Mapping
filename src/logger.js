@@ -80,7 +80,6 @@ function logCreation(interaction, element) {
       "label_size": "15px",
       "label_color": "green",
       "label_font": "Helvetica",
-      "image_content": "", //TODO
       "location": getNodePosition(element)
     };
   } else {
@@ -188,7 +187,6 @@ function logImage(width, height, src, id) {
   });
 }
 
-
 /*
  * Logs element movement/translate
  */
@@ -215,6 +213,28 @@ function logTranslate(interaction, element) {
     }
   }
   prev_position = {};
+}
+
+/*
+ * Logs stroke paths
+ */
+function logDrawing(interaction, path) {
+  path.setAttribute("id", this.getID());
+  log("drawing", interaction, {
+    "id": path.getAttribute("id"),
+    "path": path.getAttribute("d"),
+    "color": path.getAttribute("fill"),
+  });
+}
+
+/*
+ * Logs drawing erasures
+ */
+function logErasure(interaction, path) {
+  log("drawing", interaction, {
+    "id": path.getAttribute("id"),
+    "deleted": true
+  });
 }
 
 /*
