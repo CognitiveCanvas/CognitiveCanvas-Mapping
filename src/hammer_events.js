@@ -105,35 +105,46 @@ function hammerizeNode(node){
 		
 		hammer.remove('pan');
 		var pan = new Hammer.Pan({event: 'pan'});
-	
+		var singleTap = new Hammer.Tap({ event: 'singletap' });
+		var prePanTap = new Hammer.Tap({ event: 'prepantap'});
+		var tapPan = new Hammer.Pan({event: 'tappan', enable: false });
 		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2});
-		var singleTap = new Hammer.Tap({ event: 'singletap' })
 
-		var prePanTap = new Hammer.Tap({event: 'prepantap'})
-		var doubleTapPan = new Hammer.Pan({event: 'doubletappan'});
+		hammer.add([doubleTap, tapPan, singleTap, prePanTap, pan]);
 
-		hammer.add([doubleTap, singleTap, prePanTap, pan, doubleTapPan]);
+		doubleTap.recognizeWith([tapPan, singleTap, pan]);
 
-		doubleTap.recognizeWith([singleTap, pan]);
+		tapPan.requireFailure([doubleTap]);
+		tapPan.recognizeWith([singleTap, pan]);
 
-		doubleTapPan.requireFailure([doubleTap, pan]);
+		singleTap.requireFailure([doubleTap, tapPan]);
+		singleTap.recognizeWith([pan]);
 
-		singleTap.requireFailure([doubleTap]);
 		prePanTap.recognizeWith([singleTap]);
+
+		pan.requireFailure([singleTap, tapPan, doubleTap]);
+
+		hammer.on('pan panstart panend', nodePanListener);
+		hammer.on('singletap', nodeSingleTapListener);
+		hammer.on('tappan tappanstart tappanend', nodeTapPanListener);
+		hammer.on('doubletap', nodeDoubleTapListener);
 
 		//Disables moving the node after the first tap so a link can be made
 		hammer.on('prepantap', (event) => {
 			console.log("PREPANTAP");
-			pan.set({enable : false});
+			tapPan.set({enable : true});
 		});
-		hammer.on('doubletappanend', (event) =>{
-			pan.set({enable : true});
+		/**
+		hammer.on('tappanend', (event) =>{
+			tapPan.set({enable : false});
 		});
-
-		hammer.on('pan panstart panend', nodePanListener);
-		hammer.on('singletap', nodeSingleTapListener);
-		hammer.on('doubletap', nodeDoubleTapListener)
-		hammer.on('doubletappan doubletappanstart doubletappanend', nodeDoubleTapPanListener)
+		**/
+		hammer.on('singletap doubletap tappanend', (event) =>{
+			if( event.isFinal ){
+				tapPan.set({enable : false});
+				console.log("FINAL EVENT");
+			}
+		})
 	});
 }
 
@@ -175,28 +186,21 @@ function nodeSingleTapListener(event){
 	}
 }
 
-function nodeDoubleTapListener(event){
-	console.log("Double Tap on node");
-	var node = getParentMapElement(event.target);
-	selectNode( node );
-	addLabel(null, node);
-}
-
 /**
 *	Create a link starting from the target node
 **/
-function nodeDoubleTapPanListener(event){
+function nodeTapPanListener(event){
 	var node = getParentMapElement(event.target);
 	var canvasPoint = eventToCanvasPoint(event);
 
-	if( event.type === 'doubletappanstart' ) {
+	if( event.type === 'tappanstart' ) {
 		selectNode(node);
 		selectSrcNode(node)
 	};
 	
 	drawDragLine(canvasPoint);
 
-	if( event.type === 'doubletappanend' ){ 
+	if( event.type === 'tappanend' ){ 
 		var linkDest = document.elementFromPoint(event.center.x, event.center.y);
 		linkDest = getParentMapElement(linkDest);
 		if( $(linkDest).hasClass("node") && $(node).attr('id') != $(linkDest).attr('id') ){
@@ -213,6 +217,14 @@ function nodeDoubleTapPanListener(event){
 			resetState();
 		}
 	}
+}
+
+
+function nodeDoubleTapListener(event){
+	console.log("Double Tap on node");
+	var node = getParentMapElement(event.target);
+	selectNode( node );
+	addLabel(null, node);
 }
 
 function hammerizeLink(link){
