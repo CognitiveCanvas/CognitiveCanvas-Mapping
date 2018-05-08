@@ -15,15 +15,22 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	width:400%;
-	height:400%;
+	width:100%;
+	height:100%;
 	overflow:hidden;
-	transform: scale(0.25);
-	transform-origin: 0 0;
 }
 
 #minimap-placer{
 	position: absolute;
 	background-color: blue;
 	z-index: 10;
+}
+
+body[transient-is-minimap='true'] #content_container{
+	display: none;
+}
+body[transient-is-minimap='true'] #canvas{
+	width: 100% !important;
+	height: 100% !important;
+	transform: none !important;
 }

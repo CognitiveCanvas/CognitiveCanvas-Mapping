@@ -113,4 +113,11 @@ function initAddedNodeHandling(){
 function initMinimap(){
   updateMinimapPosition();
   hammerizeMinimap();
+  
+  var minimapIframe = document.getElementById("minimap-bg");
+  minimapIframe.webstrate.on("transcluded", (event)=>{
+    var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.body.setAttribute("transient-is-minimap", true);
+    
+  })
 }
