@@ -42,7 +42,7 @@ function hammerizeCanvas(){
 		hammer.on("pan panend", canvasPanListener);
 
 		hammer.on("pinch rotate", updateMinimapPosition);
-		Hammer.on(canvas, "wheel", updateMinimapPosition);
+		Hammer.on(document, "wheel", updateMinimapPosition);
 	})
 }
 

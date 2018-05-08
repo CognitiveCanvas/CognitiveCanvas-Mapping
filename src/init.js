@@ -95,6 +95,7 @@ function initTransformer() {
   window.Matrix = Transformer.Matrix; //Give Global access to Matrix
   window.Point = Transformer.Point;
 
+  canvas.addEventListener("wheel", updateMinimapPosition)
   hammerizeCanvas();
 
   var nodes = document.querySelectorAll(".node");

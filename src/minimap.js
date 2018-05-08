@@ -23,8 +23,9 @@ function updateMapPositionFromMinimap(){
 	var placerBBox = document.getElementById('minimap-placer').getBoundingClientRect();
 	var canvasBBox = canvas.getBoundingClientRect();
 
-	newPoint = new Point( Math.round( (placerBBox.left - minimapBBox.left) / minimapBBox.width * canvasBBox.width ),
-						  Math.round( (placerBBox.top - minimapBBox.top) / minimapBBox.height * canvasBBox.height ) );
+	newPoint = new Point( ( (placerBBox.left - minimapBBox.left) / minimapBBox.width * canvasBBox.width ).toFixed(2),
+						  ( (placerBBox.top - minimapBBox.top) / minimapBBox.height * canvasBBox.height ).toFixed(2) 
+						);
 
 	translateCanvas( newPoint, false );
 }

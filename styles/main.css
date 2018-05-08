@@ -1,7 +1,8 @@
 #content_container {
+    position: absolute;
     height: 100%;
     width: 20%;
-    float: right;
+    right:0px;
     overflow: auto;
     background: white;
     z-index: 9999999;
@@ -51,7 +52,7 @@ body {
 #d3_container {
     position: absolute;
     height: 100%;
-    width: 70%;
+    width: 100%;
     overflow: hidden;
     margin: 0;
     float: left;
