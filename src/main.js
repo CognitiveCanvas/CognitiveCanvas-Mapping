@@ -155,6 +155,11 @@ function keyDownListener(e){
     undo()
     return false;
   }
+  if ((e.ctrlKey || e.metaKey) && e.key == "y") {
+    e.preventDefault();
+    redo();
+    return false;
+  }
   switch(key) {
     case "Enter":
     case "Tab": // Tab
@@ -170,7 +175,8 @@ function keyDownListener(e){
         
         d3.selectAll(".node.selected").each(function(){
           let data = {
-            "elements": this, 
+            "node": this, 
+            "groups": getNodeGroups(this)
           };
           action_done("deleteNode", data);
           logDeletion("Backspace", this);
@@ -178,9 +184,9 @@ function keyDownListener(e){
         });
         d3.selectAll(".link.selected").each(function(){
           let data = {
-            "elements": this
+            "edge": this
           }
-          action_done("deleteEdge", data);
+          action_done("removeEdge", data);
           logDeletion("Backspace", this);
           removeLink(this)
         });
@@ -355,11 +361,6 @@ function removeNode(node) {
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
-  // d3.selectAll(`[source_id=${node_id}]`)
-  //   .remove();
-
-  // d3.selectAll(`[target_id=${node_id}]`)
-  //   .remove();
   d3.selectAll(`[source_id=${node_id}]`)
     .classed("deleted", true);
 
@@ -373,18 +374,20 @@ function removeNode(node) {
     });
 
   closePreviewIframe("node");
-  // deleteEntity(nodes, node_id); TODO: should this be here 
-  // node_d3.remove();
   node_d3.classed("deleted", true);
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(node_d3.node());
+  document.getElementById("canvas").appendChild(temp_transient);
 }
 
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   closePreviewIframe("edge");
-  //deleteEntity(links, link_id);
-  // link.remove();
-  link.classed("deleted", true)
+  link.classed("deleted", true);
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(link.node());
+  document.getElementById("canvas").appendChild(temp_transient);
 }
 
 function closePreviewIframe(target) {
@@ -460,6 +463,7 @@ function selectLineDest(node) {
       selection.attr("id") != sourceNode.attr("id")) 
   {
     let addedLink = addLink(sourceNode.attr("id"), selection.attr("id"));
+
     let data = { 
         "edge"  : addedLink
       };
@@ -828,4 +832,19 @@ function toggleDrawFunc() {
   let eraser = document.querySelector(".drawing-instrument-tools .erase-drawing-canvas");
   eraser.style.background = "darkgrey";
   
+}
+
+function wrapInTransient(element){
+  let temp_transient = document.createElement("transient");
+  temp_transient.appendChild(element);
+  document.getElementById("canvas").appendChild(temp_transient);
+}
+
+function removeFromTransient(element){
+  // Remove the node from inside the transient element
+  let inner_node = element.node();
+  d3.select(inner_node.parentNode).remove();
+  element.remove();
+  document.getElementById("canvas").appendChild(inner_node);
+
 }

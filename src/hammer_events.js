@@ -79,7 +79,8 @@ function canvasDoubleTapListener(event){
       addLabel("Node Name", node);
       logCreation("double tap", node);
 	  let data = { 
-        "node"  : node
+        "node"  : node,
+        "groups": getNodeGroups(node)
       };
       action_done("insertNode", data);
     }, function(failure){
