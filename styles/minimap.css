@@ -26,6 +26,10 @@
 	z-index: 10;
 }
 
+body[transient-is-minimap='true']{
+	pointer-events: none;
+}
+
 body[transient-is-minimap='true'] #content_container{
 	display: none;
 }
