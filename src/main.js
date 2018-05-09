@@ -597,7 +597,7 @@ function translateNode(node, vector, relative=false, links=null){
   return new Promise((success, failure) => {success()});
 }
 
-/** Finds all the links connected to a node
+/** Finds all the links connected to a ndoe
 *   @param node: the node to find the links of
 *   @returns {sourceLinks, destLinks} nodeLists containing links for each
 **/

@@ -131,18 +131,11 @@ function hammerizeNode(node){
 
 		//Disables moving the node after the first tap so a link can be made
 		hammer.on('prepantap', (event) => {
-			console.log("PREPANTAP");
 			tapPan.set({enable : true});
 		});
-		/**
-		hammer.on('tappanend', (event) =>{
-			tapPan.set({enable : false});
-		});
-		**/
 		hammer.on('singletap doubletap tappanend', (event) =>{
 			if( event.isFinal ){
 				tapPan.set({enable : false});
-				console.log("FINAL EVENT");
 			}
 		})
 	});
@@ -322,16 +315,19 @@ function groupDoubleTapListener(event){
 }
 
 function hammerizeMinimap(){
+	var minimap = document.getElementById("minimap");
 	var minimapPlacer = document.getElementById("minimap-placer");
-	return Transformer.hammerize( minimapPlacer, { pan: false, rotate: false, pinch: false, callback: minimapTransformerCallback}).then( (Transformer) =>{
-		var hammer = minimapPlacer.hammer;
+	//Transformer.hammerize( minimap, {pan: false, rotate: false, pinch: false} );
+	return Transformer.hammerize( minimap, { pan: false, rotate: false, pinch: false, callback: minimapTransformerCallback}).then( (Transformer) =>{
+		var hammer = minimap.hammer;
 
 		hammer.remove(hammer.get('pan'));
 
-		var pan = new Hammer.Pan({event: 'pan'});
+		var pan = new Hammer.Pan({event: 'pan', threshold: "1"});
 		hammer.add([pan]);
 
-		hammer.on("pan", minimapPanListener);
+		hammer.on("panstart panend panmove pancancel", minimapPanListener);
+
 	});
 }
 
@@ -343,18 +339,32 @@ function minimapTransformerCallback( elementMatrix ){
 }
 
 function minimapPanListener( event ){
-	var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
+
+	//console.log("CHANGEDPOINTERS", event.changedPointers);
+
+	var minimap = document.getElementById("minimap")
+	var minimapBBox = minimap.getBoundingClientRect();
 	var placer = document.getElementById("minimap-placer");
 	var placerBBox = placer.getBoundingClientRect();
+
+	if( event.type == "panstart" || !placer.prevPoint ) placer.prevPoint = new Point(0, 0);
+
+	var deltaPoint = minimap.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
+
 	var newPos = {
-		left: (event.center.x - minimapBBox.left - placerBBox.width / 2) / minimapBBox.width * 100,
-	 	top: (event.center.y - minimapBBox.top - placerBBox.height / 2) / minimapBBox.height * 100 
+		left: (deltaPoint.x - placer.prevPoint.x + placerBBox.left - minimapBBox.left) / minimapBBox.width * 100,
+	 	top:  (deltaPoint.y - placer.prevPoint.y + placerBBox.top - minimapBBox.top) / minimapBBox.height * 100 
 	}
 
-	//console.log("EVENT CENTER:", event.center, " NEW POS", newPos);
+	console.log("NEWPOS:", newPos, ", PREVPOINT:", placer.prevPoint, ", DELTAPOINT:", deltaPoint, ", CENTER:", new Point(event.center.x,event.center.y), ", MINIMAP:", minimapBBox, ", PLACER:", placerBBox);
 
 	placer.style.left = newPos.left + "%";
 	placer.style.top = newPos.top + "%";
+
+	placer.prevPoint.x = deltaPoint.x;
+	placer.prevPoint.y = deltaPoint.y;
+
+	if( event.type == "panend" || event.type == "pancancel") placer.prevPoint = null;
 
 	updateMapPositionFromMinimap();
 };

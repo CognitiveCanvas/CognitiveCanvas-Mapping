@@ -95,7 +95,8 @@ function initTransformer() {
   window.Matrix = Transformer.Matrix; //Give Global access to Matrix
   window.Point = Transformer.Point;
 
-  canvas.addEventListener("wheel", updateMinimapPosition)
+  canvas.addEventListener("wheel", updateMinimapPosition) //So it fires before Hammerize's mouse scroll event stops propagation
+
   hammerizeCanvas();
 
   var nodes = document.querySelectorAll(".node");
@@ -112,7 +113,6 @@ function initAddedNodeHandling(){
 }
 
 function initMinimap(){
-  updateMinimapPosition();
   hammerizeMinimap();
   
   var minimapIframe = document.getElementById("minimap-bg");
@@ -137,5 +137,7 @@ function initMinimap(){
 
     minimapIframe.style.height = (100 / scale.y) + "%";
     minimapIframe.style.width = (100 / scale.x) + "%";
+
+    updateMinimapPosition();
   })
 }

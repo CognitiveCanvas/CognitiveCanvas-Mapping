@@ -2,6 +2,7 @@
 	position: relative;
 	width : 100%;
 	padding-bottom: 50%;
+	border: 3px solid black;
 }
 
 #minimap{
@@ -9,7 +10,6 @@
 	overflow:hidden;
 	position: absolute;
 	top: 0; bottom: 0; left: 0; right: 0;
-	border: 3px solid black;
 }
 
 #minimap-bg{
@@ -17,6 +17,13 @@
 	transform-origin: 0 0;
 	top: 0;
 	left: 0;
+}
+
+#minimap-barrier{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 9;
 }
 
 #minimap-placer{
