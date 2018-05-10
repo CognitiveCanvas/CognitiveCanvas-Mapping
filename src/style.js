@@ -46,8 +46,6 @@ function setNodeColor(color){
 	};
 	action_done ("style", data);
 	logColorChanges("fill", color);
-	d3.selectAll(".selected .node-rep")
-    	.style("fill", color);
 }
 
 function setLinkColor(color){
@@ -62,8 +60,6 @@ function setLinkColor(color){
 	};
 	action_done ("style", data);
 	logColorChanges("fill", color);
-  	d3.selectAll(".selected .link-rep")
-    	.style("stroke", color);
 }
 
 function setBorderColor(color) {
