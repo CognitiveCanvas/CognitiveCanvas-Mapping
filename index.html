@@ -44,7 +44,10 @@
         <div id="content_container">
             
             <div id="toolSection" class="tabcontent">
-            <div onclick="showEdit()"><h1>Edit</h1></div>
+            <div onclick="showEdit()"><h1>
+                <img src="src/images/editNode.svg" style="padding-bottom: 10px">
+                Edit
+            </h1></div>
             <div id="edit">
 
                 <!-- Working color switch, leave here for now
@@ -98,7 +101,10 @@
                 </span>
                 <br></br>
             </div>
-            <div onclick="showDraw()""><h1>Draw</h1></div>
+            <div onclick="showDraw()""><h1>
+                <img src="src/images/draw.svg" style="padding-bottom: 10px">
+                Draw
+            </h1></div>
             <div id="draw">
                 <span id="node_border_container">
                   <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div>
@@ -176,6 +182,7 @@
 
     h1 {
         background-color: #FCE946;
+        padding-top: 5px;
     }
 
 </style>
