@@ -42,20 +42,19 @@
             <svg class="canvas transformable" id="canvas" style="width: 10000px; height: 10000px; z-index:0;" ></svg>
         </div>
         <div id="content_container">
-            <h3 id="content_header">Content Browser</h3>
-            <button id="uploadImageBtn">Upload Image to Map</button>
-                <span id="label_edit_container">
-                    <button id="label_text_increase">A</button>
-                    <button id="label_text_decrease">A</button>
-                    <button id="label_text_bold">B</button>
-                    <button id="label_text_italics">I</button>
-                </span>
-                <span id="text_color_container">
-                    <button class="text_color_button" id="green_text">A</button>
-                    <button class="text_color_button" id="red_text">A</button>
-                    <button class="text_color_button" id="blue_text">A</button>
-                    <button class="text_color_button" id="black_text">A</button>
-                </span>
+            
+            <div id="toolSection" class="tabcontent">
+            <div onclick="showEdit()"><h1>Edit</h1></div>
+            <div id="edit">
+
+                <!-- Working color switch, leave here for now
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider round"></span>
+                </label>
+                -->
+
+                <h2>Node</h2>
                 <span id="node_color_container">
                     <button class="node_color_button" id="green_node"></button>
                     <button class="node_color_button" id="red_node"></button>
@@ -68,10 +67,48 @@
                     <button class="node_color_button" id="blue_border"></button>
                     <button class="node_color_button" id="black_border"></button>
                 </span>
-                <br>
-                <span id="node_border_container">
-                  <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div><h4>Enable Drawing</h4></div></button>
+                <h2>Link</h2>
+                <span id="link_color_container">
+                    <button class="link_color_button" id="green_link"></button>
+                    <button class="link_color_button" id="red_link"></button>
+                    <button class="link_color_button" id="blue_link"></button>
+                    <button class="link_color_button" id="black_link"></button>
                 </span>
+                <span id="link_thickness_container">
+                    <!-- placeholder -->
+                </span>
+                <h2>Text</h2>
+                <span id="text_color_container">
+                    <button class="text_color_button" id="green_text">A</button>
+                    <button class="text_color_button" id="red_text">A</button>
+                    <button class="text_color_button" id="blue_text">A</button>
+                    <button class="text_color_button" id="black_text">A</button>
+                </span>
+                <br></br>
+                <h2>Font</h2>
+                <span id="label_edit_container">
+                    <button id="label_text_increase">
+                        <img src="src/images/font-size-increase.png" width="80%">
+                    </button>
+                    <button id="label_text_decrease">
+                        <img src="src/images/font-size-decrease.png" width="80%">
+                    </button>
+                    <button id="label_text_bold" style="font-weight: bold">B</button>
+                    <button id="label_text_italics" style="font-weight: italic">I</button>
+                </span>
+                <br></br>
+            </div>
+            <div onclick="showDraw()""><h1>Draw</h1></div>
+            <div id="draw">
+                <span id="node_border_container">
+                  <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div>
+                        <h4 style="font-size: 15px">Enable</h4>
+                    </div></button>
+                </span>
+            </div>
+            <button id="uploadImageBtn" class="toolbar">
+                <h5>Upload Image to Map</h5>
+            </button>
 
         </div>
     </div>
@@ -99,4 +136,48 @@
     </div>
 </ul>
 </body>
+
+<style>
+
+    @font-face {
+      font-family: "Miso Bold";
+      src: url("src/miso-bold-webfont.woff");
+    }
+
+    @font-face {
+      font-family: "Miso Light";
+      src: url("src/miso-light-webfont.woff");
+    }
+
+    @font-face {
+      font-family: "Miso Regular";
+      src: url("src/miso-regular-webfont.woff");
+    }
+
+    h1, h2, button, div {
+        font-family: 'Miso Regular';
+    }
+
+    h2 {
+        color: #FCE946;
+    }
+
+    #toolSection {
+        text-align: center;
+        background-color: #5D5D5D;
+    }
+
+    #uploadImageBtn {
+        background-color: #E55060;
+        border: 0;
+        height: 30px;
+        color: white;
+    }
+
+    h1 {
+        background-color: #FCE946;
+    }
+
+</style>
+
 </html>
