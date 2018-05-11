@@ -35,31 +35,31 @@ function setColor(color) {
 }
 
 function setNodeColor(color){
-	d3.selectAll(".selected .node-rep")
-	  	.style("fill", color);
+	let nodes = d3.selectAll(".selected .node-rep");
 	let data = {
 		"style_type": "change_color", 
-		"old_color" : d3.selectAll(".selected .node-rep").style("fill"),
+		"old_color" : nodes.style("fill"),
 		"new_color" : color, 
-		"nodes"     : d3.selectAll(".selected .node-rep"),
+		"nodes"     : nodes,
 		"edges"     : []
 	};
 	action_done ("style", data);
 	logColorChanges("fill", color);
+	nodes.style("fill", color)
 }
 
 function setLinkColor(color){
-	d3.selectAll(".selected .link-rep")
-	  	.style("stroke", color);
+	let links = d3.selectAll(".selected .link-rep");
 	let data = {
 		"style_type": "change_color", 
-		"old_color" : d3.selectAll(".selected .node-rep").style("fill"),
+		"old_color" : links.style("fill"),
 		"new_color" : color, 
 		"nodes"     : [],
-		"edges"     : d3.selectAll(".selected .link-rep")
+		"edges"     : links
 	};
 	action_done ("style", data);
 	logColorChanges("fill", color);
+	links.style("stroke", color);
 }
 
 function setBorderColor(color) {
