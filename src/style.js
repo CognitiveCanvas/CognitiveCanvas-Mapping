@@ -24,7 +24,7 @@ function setColor(color) {
 		"nodes"     : d3.selectAll(".selected .node-rep"),
 		"edges"     : d3.selectAll(".selected .link-rep")
 	}
-	action_done ("style", data)
+	action_done ("style", data);
 
   logColorChanges("fill", color);
   d3.selectAll(".selected .node-rep")
@@ -34,6 +34,33 @@ function setColor(color) {
 
 }
 
+function setNodeColor(color){
+	let nodes = d3.selectAll(".selected .node-rep");
+	let data = {
+		"style_type": "change_color", 
+		"old_color" : nodes.style("fill"),
+		"new_color" : color, 
+		"nodes"     : nodes,
+		"edges"     : []
+	};
+	action_done ("style", data);
+	logColorChanges("fill", color);
+	nodes.style("fill", color)
+}
+
+function setLinkColor(color){
+	let links = d3.selectAll(".selected .link-rep");
+	let data = {
+		"style_type": "change_color", 
+		"old_color" : links.style("fill"),
+		"new_color" : color, 
+		"nodes"     : [],
+		"edges"     : links
+	};
+	action_done ("style", data);
+	logColorChanges("fill", color);
+	links.style("stroke", color);
+}
 
 function setBorderColor(color) {
 
