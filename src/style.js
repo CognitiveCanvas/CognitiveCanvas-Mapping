@@ -62,6 +62,11 @@ function setLinkColor(color){
 	links.style("stroke", color);
 }
 
+function setLinkThickness(thickness){
+	let links = d3.selectAll(".selected .link-rep");
+	links.style("stroke-width", thickness);
+}
+
 function setBorderColor(color) {
 
 	d3.selectAll(".selected .node-rep")
