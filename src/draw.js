@@ -413,7 +413,6 @@ function initDrawing() {
     canvas.addEventListener("mousemove", event => {
       if (!drawing_enabled) return;
       if (mouseDown === 0) return;
-
       if (!eraser_enabled) {
         if (mouseUp >= 1 && mouseDown >= 1) {
           logDrawing("mouse", path);
@@ -459,6 +458,10 @@ function initDrawing() {
 
     canvas.addEventListener("mouseup", event => {
       if (!drawing_enabled) return;
+      if (path != null) {
+        // logDrawing("mouse", 1);
+        // setLogDrawing(false);
+      }
       if (eraser_enabled) {
         resetState();
         return;

@@ -1,6 +1,7 @@
 var temp_buffer = [];
 var prev_position = {};
 var prev_label = "";
+var total_strokes = 0;
 const DEFAULT_INTERACTION = "Single Tap";
 
 function log(level, interaction, content){
