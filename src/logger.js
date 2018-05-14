@@ -8,7 +8,8 @@ function log(level, interaction, content){
 		"level": level, 
     "interaction": interaction,
 		"content": content,
-		"timestamp": new Date().toUTCString()
+		"timestamp": new Date().toUTCString(),
+    "map_id": window.location.pathname
 	}
   console.log(current_log);
 	temp_buffer.push(current_log);
