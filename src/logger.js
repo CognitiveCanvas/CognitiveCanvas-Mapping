@@ -1,6 +1,7 @@
 var temp_buffer = [];
 var prev_position = {};
 var prev_label = "";
+var total_strokes = 0;
 const DEFAULT_INTERACTION = "Single Tap";
 
 function log(level, interaction, content){
@@ -8,7 +9,8 @@ function log(level, interaction, content){
 		"level": level, 
     "interaction": interaction,
 		"content": content,
-		"timestamp": new Date().toUTCString()
+		"timestamp": new Date().toUTCString(),
+    "map_id": window.location.pathname
 	}
   console.log(current_log);
 	temp_buffer.push(current_log);
