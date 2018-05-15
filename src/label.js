@@ -210,6 +210,16 @@ function createLabelFromInput(node, label){
   return;
 }
 
+/* Blocks the user from interacting with other elements while a node is being edited
+ *
+ */
+function toggleListenersForLabelInput( isInputtingLabel ){
+  toggleNonDrawingHammers( !isInputtingLabel )
+  if (isInputtingLabel){
+
+  }
+}
+
 function handleClickDuringLabelInput(){
   console.log("Handling click during label input");
   var label = d3.select(temp_label_div);

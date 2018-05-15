@@ -54,6 +54,11 @@ function hammerizeCanvas(){
 function canvasTransformerCallback( elementMatrix ){
 	var transformer = this;
 	var element = transformer.element;
+
+	if (element.hammer){
+		if( !element.hammer.options.enable ) return false;
+	}
+
 	return isContainingParent( element, elementMatrix, true);
 }
 
