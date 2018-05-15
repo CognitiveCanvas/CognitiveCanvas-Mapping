@@ -4,6 +4,7 @@
 *	@param element: the element to toggle; if null, acts on all hammerizable elements
 */
 function toggleNonDrawingHammers( enable, elements=null ){
+	console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
 	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
 	elements = (elements instanceof Element) ? [elements] : elements; 
 	elements.forEach((element)=>{

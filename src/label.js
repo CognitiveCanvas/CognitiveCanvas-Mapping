@@ -141,7 +141,7 @@ function addLabel(text, node, placeholderText=true){
   transientEle.appendChild(label);
   container.appendChild(transientEle);
 
-  toggleNonDrawingHammers(false, node); //Disable interactions during edit
+  toggleNonDrawingHammers(false); //Disable interactions during edit
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
@@ -205,7 +205,7 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
-  toggleNonDrawingHammers(true, node.node());
+  toggleNonDrawingHammers(true);
   sendSearchMsgToContainer();
   return;
 }
