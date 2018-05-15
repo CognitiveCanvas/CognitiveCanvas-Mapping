@@ -197,7 +197,7 @@ function toggleLabelFontItalics() {
     d3.selectAll(".selected .label")
       .style("font-style", "normal");
   }
-  logLabelToggle("italicized", italicized);
+  logLabelToggle("italicized", italicized, 7);
 }
 
 
@@ -215,7 +215,7 @@ function toggleLabelFontBold() {
     d3.selectAll(".selected .label")
       .style("font-weight", FONT_BOLD);
   }
-  logLabelToggle("bolded", bolded);
+  logLabelToggle("bolded", bolded, 6);
 }
 
 function setLabelColor(color) {
