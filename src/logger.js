@@ -14,7 +14,7 @@ function log(level, interaction, event_type, content){
     "event_type": event_type,
 		"content": content,
     "timestamp": new Date().toUTCString(),
-    "map_id": window.location.pathname
+    "map_id": window.location.pathname.replace(/\//g, '')
 	}
   console.log(current_log);
 	temp_buffer.push(current_log);
