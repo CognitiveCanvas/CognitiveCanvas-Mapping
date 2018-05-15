@@ -33,7 +33,7 @@ function postLogs(){
 			error: ()=>{console.log("Error with postLogs in logger.js")}, 
 			processData: false,
 			type: "POST",
-			url: "http://169.228.188.233:8081/api/log"
+			url: "http://169.228.188.233:8081/api/actionLog"
 		})
 		temp_buffer = []
 	}
