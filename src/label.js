@@ -137,17 +137,22 @@ function addLabel(text, node, placeholderText=true){
     }
   }
 
-  container.appendChild(label);
+  var transientEle = document.createElement("transient");
+  transientEle.appendChild(label);
+  container.appendChild(transientEle);
+
+  toggleNonDrawingHammers(false, node); //Disable interactions during edit
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
   if(placeholderText){
-    selectText(textNode);
+    selectText(label);
     label.focus();
   } else{
-    var cursorPosition = label.appendChild(document.createTextNode(""));  
+    var cursorPosition = label.appendChild(document.createTextNode(" "));  
     selectText(cursorPosition);
   }
+
 }
 
 function createLabelFromInput(node, label){
@@ -200,6 +205,7 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
+  toggleNonDrawingHammers(true, node.node());
   sendSearchMsgToContainer();
   return;
 }
@@ -230,20 +236,33 @@ function handleClickDuringLabelInput(){
   return;
 }
 
-function selectText(element) {
-    var doc = document
-        , text = element
-        , range, selection
-    ;    
-    if (doc.body.createTextRange) {
-        range = document.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-    } else if (window.getSelection) {
-        selection = window.getSelection();        
-        range = document.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
+function selectText (elem) {
+  var range, selection;
+  // A jQuery selector should pass through too
+  elem = (elem.jquery && elem.length) ? elem[0] : elem;
+  if ( !elem ) {
+    return;
+  } else if ( elem.nodeName.match(/^(INPUT|TEXTAREA)$/i) ) {
+    elem.focus();
+    elem.select();
+  } else if ( typeof document.body.createTextRange === "function" ) {
+    // IE or Opera <10.5
+    range = document.body.createTextRange();
+    range.moveToElementText(elem);
+    range.select();
+  } else if ( typeof window.getSelection === "function" ) {
+    selection = window.getSelection();
+    if ( typeof selection.setBaseAndExtent === "function" ) {
+      // Safari
+      selection.setBaseAndExtent(elem, 0, elem, 1);
+    } else if ( typeof selection.addRange === "function"
+      && typeof selection.removeAllRanges === "function"
+      && typeof document.createRange === "function" ) {
+      // Mozilla or Opera 10.5+
+      range = document.createRange();
+      range.selectNodeContents(elem);
+      selection.removeAllRanges();
+      selection.addRange(range);  
     }
+  }
 }

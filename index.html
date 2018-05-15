@@ -26,6 +26,7 @@
     <script type="text/javascript" src="src/style.js"></script>
     <script type="text/javascript" src="src/label.js"></script>
     <script type="text/javascript" src="src/selections.js"></script>
+    <script type="text/javascript" src="src/minimap.js"></script>
     <script type="text/javascript" src="src/pinning.js"></script>
     <script type="text/javascript" src="src/logger.js"></script>
     <script type="text/javascript" src="src/undo-redo.js"></script>
@@ -33,46 +34,56 @@
     <script type="text/javascript" src="src/hammer_events.js"></script>
     <script type="text/javascript" src="src/redo.js"></script>
     <script type="text/javascript" src="external/transformer.demangled.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <link rel="stylesheet" type="text/css" href="styles/context-menu.css">
+    <link rel="stylesheet" type="text/css" href="styles/minimap.css">
 </head>
 <body>
     <div id="CogCanvas">
         <div id="d3_container">
-            <svg class="canvas transformable" id="canvas" style="width: 10000px; height: 10000px; z-index:0;" ></svg>
+            <svg class="canvas transformable" id="canvas" style="width: 5760px; height: 3240px; z-index:0;" transform="matrix(1, 0, 0, 1, -2000, -1000)" xmlns="http://www.w3.org/2000/svg">
+            </svg>
         </div>
         <div id="content_container">
             <h3 id="content_header">Content Browser</h3>
             <button id="uploadImageBtn">Upload Image to Map</button>
-                <span id="label_edit_container">
-                    <button id="label_text_increase">A</button>
-                    <button id="label_text_decrease">A</button>
-                    <button id="label_text_bold">B</button>
-                    <button id="label_text_italics">I</button>
-                </span>
-                <span id="text_color_container">
-                    <button class="text_color_button" id="green_text">A</button>
-                    <button class="text_color_button" id="red_text">A</button>
-                    <button class="text_color_button" id="blue_text">A</button>
-                    <button class="text_color_button" id="black_text">A</button>
-                </span>
-                <span id="node_color_container">
-                    <button class="node_color_button" id="green_node"></button>
-                    <button class="node_color_button" id="red_node"></button>
-                    <button class="node_color_button" id="blue_node"></button>
-                    <button class="node_color_button" id="black_node"></button>
-                </span>
-                <span id="node_border_container">
-                    <button class="node_color_button" id="green_border"></button>
-                    <button class="node_color_button" id="red_border"></button>
-                    <button class="node_color_button" id="blue_border"></button>
-                    <button class="node_color_button" id="black_border"></button>
-                </span>
-                <br>
-                <span id="node_border_container">
-                  <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div><h4>Enable Drawing</h4></div></button>
-                </span>
-
+            <span id="label_edit_container">
+                <button id="label_text_increase">A</button>
+                <button id="label_text_decrease">A</button>
+                <button id="label_text_bold">B</button>
+                <button id="label_text_italics">I</button>
+            </span>
+            <span id="text_color_container">
+                <button class="text_color_button" id="green_text">A</button>
+                <button class="text_color_button" id="red_text">A</button>
+                <button class="text_color_button" id="blue_text">A</button>
+                <button class="text_color_button" id="black_text">A</button>
+            </span>
+            <span id="node_color_container">
+                <button class="node_color_button" id="green_node"></button>
+                <button class="node_color_button" id="red_node"></button>
+                <button class="node_color_button" id="blue_node"></button>
+                <button class="node_color_button" id="black_node"></button>
+            </span>
+            <span id="node_border_container">
+                <button class="node_color_button" id="green_border"></button>
+                <button class="node_color_button" id="red_border"></button>
+                <button class="node_color_button" id="blue_border"></button>
+                <button class="node_color_button" id="black_border"></button>
+            </span>
+            <br>
+            <span id="node_border_container">
+              <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div><h4>Enable Drawing</h4></div></button>
+            </span>
+            <div id="minimap-wrapper">
+                <div id="minimap">
+                    <iframe id="minimap-bg" src="."></iframe>
+                    <div id="minimap-barrier"></div>
+                    <div id="minimap-placer"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -1,0 +1,45 @@
+#minimap-wrapper{
+	position: relative;
+	width : 100%;
+	padding-bottom: 50%;
+	border: 3px solid black;
+}
+
+#minimap{
+	width: 100%;
+	overflow:hidden;
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+}
+
+#minimap-bg{
+	position: absolute;
+	transform-origin: 0 0;
+	top: 0;
+	left: 0;
+}
+
+#minimap-barrier{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 9;
+}
+
+#minimap-placer{
+	position: absolute;
+	background-color: blue;
+	opacity: 0.25;
+	z-index: 10;
+}
+
+body[transient-is-minimap='true']{
+	pointer-events: none;
+}
+
+body[transient-is-minimap='true'] #content_container{
+	display: none;
+}
+body[transient-is-minimap='true'] #canvas{
+	transform: none !important;
+}
