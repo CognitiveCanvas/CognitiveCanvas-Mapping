@@ -4,10 +4,15 @@
 *	@param element: the element to toggle; if null, acts on all hammerizable elements
 */
 function toggleNonDrawingHammers( enable, elements=null ){
+	console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
 	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
 	elements = (elements instanceof Element) ? [elements] : elements; 
 	elements.forEach((element)=>{
-		if(element.hammer) element.hammer.set({'enable': enable});
+		if(element.hammer){ 
+			element.hammer.recognizers.forEach( (recognizer) =>{
+				recognizer.set({'enable': enable});
+			});
+		}
 	});
 }
 
@@ -33,6 +38,7 @@ function hammerizeCanvas(){
 		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
 		hammer.add( new Hammer.Pan({ event: 'pan'}) )
+		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
 
 		hammer.get('doubletap').recognizeWith('singletap');
 		hammer.get('singletap').requireFailure('doubletap');
@@ -43,9 +49,7 @@ function hammerizeCanvas(){
 
 		hammer.on("pinch rotate", updateMinimapPosition);
 
-		hammer.on("hammer.input", (event)=>{
-			if(temp_label_div) handleClickDuringLabelInput();
-		})
+		hammer.on("labelinputtap", handleClickDuringLabelInput);
 	})
 }
 
@@ -53,6 +57,11 @@ function hammerizeCanvas(){
 function canvasTransformerCallback( elementMatrix ){
 	var transformer = this;
 	var element = transformer.element;
+
+	if (element.hammer){
+		if( element.hammer.get( 'labelinputtap' ).options.enable ) return false;
+	}
+
 	return isContainingParent( element, elementMatrix, true);
 }
 

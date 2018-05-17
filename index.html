@@ -1,43 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+<html><head>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1"/>
     <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/hammerjs@2.0.8"></script>
+
     <script
-              src="http://code.jquery.com/jquery-3.3.1.min.js"
-              integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-              crossorigin="anonymous">
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+      crossorigin="anonymous"></script>
+
     </script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anoxnymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anoxnymous"/>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="src/entity/constant.js"></script>
-    <script type="text/javascript" src="src/init.js"></script>
-    <script type="text/javascript" src="src/main.js"></script>
-    <script type="text/javascript" src="src/draw.js"></script>
-    <script type="text/javascript" src="src/data.js"></script>
-    <script type="text/javascript" src="src/default-style.js"></script>
-    <script type="text/javascript" src="src/custom-style.js"></script>
-    <script type="text/javascript" src="src/layout.js"></script>
-    <script type="text/javascript" src="src/style.js"></script>
-    <script type="text/javascript" src="src/label.js"></script>
-    <script type="text/javascript" src="src/selections.js"></script>
-    <script type="text/javascript" src="src/minimap.js"></script>
-    <script type="text/javascript" src="src/pinning.js"></script>
-    <script type="text/javascript" src="src/logger.js"></script>
-    <script type="text/javascript" src="src/undo-redo.js"></script>
-    <script type="text/javascript" src="src/transformer_extensions.js"></script>
-    <script type="text/javascript" src="src/hammer_events.js"></script>
-    <script type="text/javascript" src="src/redo.js"></script>
-    <script type="text/javascript" src="external/transformer.demangled.min.js"></script>
+    <script id="constant.js" type="text/javascript" src="src/entity/constant.js"></script>
+    <script id="init.js" type="text/javascript" src="src/init.js"></script>
+    <script id="main.js" type="text/javascript" src="src/main.js"></script>
+    <script id="draw.js" type="text/javascript" src="src/draw.js"></script>
+    <script id="data.js" type="text/javascript" src="src/data.js"></script>
+    <script id="default-style.js" type="text/javascript" src="src/default-style.js"></script>
+    <script id="custom-style.js" type="text/javascript" src="src/custom-style.js"></script>
+    <script id="layout.js" type="text/javascript" src="src/layout.js"></script>
+    <script id="style.js" type="text/javascript" src="src/style.js"></script>
+    <script id="label.js" type="text/javascript" src="src/label.js"></script>
+    <script id="selections.js" type="text/javascript" src="src/selections.js"></script>
+    <script id="minimap.js" type="text/javascript" src="src/minimap.js"></script>
+    <script id="pinning.js" type="text/javascript" src="src/pinning.js"></script>
+    <script id="logger.js" type="text/javascript" src="src/logger.js"></script>
+    <script id="undo-redo.js" type="text/javascript" src="src/undo-redo.js"></script>
+    <script id="transformer_extensions.js" type="text/javascript" src="src/transformer_extensions.js"></script>
+    <script id="hammer_events.js" type="text/javascript" src="src/hammer_events.js"></script>
+    <script id="redo.js" type="text/javascript" src="src/redo.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="styles/main.css">
-    <link rel="stylesheet" type="text/css" href="styles/context-menu.css">
-    <link rel="stylesheet" type="text/css" href="styles/minimap.css">
+    <script id="transformer.js" type="text/javascript" src="external/transformer.demangled.min.js"></script>
+
+    <link id="main.css" rel="stylesheet" type="text/css" href="styles/main.css"/>
+    <link id="context-menu.css" rel="stylesheet" type="text/css" href="styles/context-menu.css"/>
+    <link id="minimap.css" rel="stylesheet" type="text/css" href="styles/minimap.css"/>
 </head>
 <body>
     <div id="CogCanvas">
@@ -72,7 +73,7 @@
                 <button class="node_color_button" id="blue_border"></button>
                 <button class="node_color_button" id="black_border"></button>
             </span>
-            <br>
+            <br/>
             <span id="node_border_container">
               <button id="toggle_touch_drawing" onclick="toggleDrawFunc()"><div><h4>Enable Drawing</h4></div></button>
             </span>
@@ -85,7 +86,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    
 
     <div id="contextMenu" role="menu">
         <div>
@@ -108,6 +109,6 @@
         </div>
         
     </div>
-</ul>
-</body>
-</html>
+
+
+</body></html>
