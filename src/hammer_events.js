@@ -62,6 +62,7 @@ function canvasTransformerCallback( elementMatrix ){
 function canvasSingleTapListener(event){
 	//console.log("CANVAS SINGLE TAP");
 	deselectAllObjects();
+	closeContextMenu();
 }
 
 /**

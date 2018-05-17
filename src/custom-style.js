@@ -34,14 +34,23 @@ $(document).ready(function() {
 });
 
 $(document).bind("contextmenu", function (event) {
-    var $contextMenu = $("#contextMenu");
+    var contextMenu = $("#contextMenu");
     // Avoid the real one
     event.preventDefault();
-    $contextMenu.css({
+    contextMenu.css({
         display: "block",
         left: event.pageX,
         top: event.pageY
     });
 });
+
+function closeContextMenu(){
+    console.log("closing context menu");
+    let contextMenu = $("#contextMenu");
+    contextMenu.css({
+        display: "none"
+    })
+
+}
 
 
