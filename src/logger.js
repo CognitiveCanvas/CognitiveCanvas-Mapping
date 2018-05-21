@@ -20,23 +20,25 @@ function log(level, interaction, event_type, content){
 	temp_buffer.push(current_log);
 }
 
+function sendToContainer(data){
+  if (window.parent) {
+    //console.log(window.parent);
+    let package = {
+      id: "action-log",
+      label: data
+    }
+    window.parent.postMessage(package, "*");
+  }
+}
+
 /*
  * Sends a POST request to the cogcanvas server
  */
 function postLogs(){
-	if (temp_buffer.length > 0){
-		$.ajax({
-			contentType: "application/json",
-			data: JSON.stringify(temp_buffer), 
-			dataType: "json", 
-			success: (data)=>{console.log(data)}, 
-			error: ()=>{console.log("Error with postLogs in logger.js")}, 
-			processData: false,
-			type: "POST",
-			url: "http://169.228.188.233:8081/api/actionLog"
-		})
-		temp_buffer = []
-	}
+  if(temp_buffer.length > 0){
+    sendToContainer(JSON.stringify(temp_buffer));
+    temp_buffer = [];
+  }
 }
 
 /*
