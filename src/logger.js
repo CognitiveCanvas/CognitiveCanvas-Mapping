@@ -35,10 +35,26 @@ function sendToContainer(data){
  * Sends a POST request to the cogcanvas server
  */
 function postLogs(){
+<<<<<<< HEAD
   if(temp_buffer.length > 0){
     sendToContainer(JSON.stringify(temp_buffer));
     temp_buffer = [];
   }
+=======
+	if (temp_buffer.length > 0){
+		$.ajax({
+			contentType: "application/json",
+			data: JSON.stringify(temp_buffer), 
+			dataType: "json", 
+			success: (data)=>{console.log(data)}, 
+			error: ()=>{console.log("Error with postLogs in logger.js")}, 
+			processData: false,
+			type: "POST",
+			url: "http://169.228.188.87:8081/api/log"
+		})
+		temp_buffer = []
+	}
+>>>>>>> d3e115c069fdb2a479eab72360866210b195c8be
 }
 
 /*
