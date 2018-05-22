@@ -18,7 +18,7 @@ function log(level, interaction, event_type, content){
     "map_id": window.location.pathname.replace(/\//g, '')
 	}
   console.log(current_log); 
-  temp_buffer["action-log"].push(current_log);
+  temp_buffer["action_log"].push(current_log);
 }
 
 /*
@@ -31,7 +31,7 @@ function postLogs(){
       window.parent.postMessage(JSON.stringify(temp_buffer), "*");
     }
     temp_buffer = {};
-    temp_buffer["action-log"] = [];
+    temp_buffer["action_log"] = [];
   }
 }
 
