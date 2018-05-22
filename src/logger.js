@@ -1,7 +1,7 @@
 const DEFAULT_INTERACTION = "Single Tap";
 
 var temp_buffer = {};
-temp_buffer["action-log"] = [];
+temp_buffer["action_log"] = [];
 var prev_position = {};
 var prev_label = "";
 
@@ -13,7 +13,7 @@ function log(level, interaction, event_type, content){
 		"level": level, 
     "interaction": interaction,
     "event_type": event_type,
-		"content": content,
+		"property": content,
     "timestamp": new Date().toUTCString(),
     "map_id": window.location.pathname.replace(/\//g, '')
 	}
