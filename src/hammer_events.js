@@ -1,6 +1,18 @@
-function toggleNonDrawingHammers( enable ){
-	document.querySelectorAll("#canvas,.node,.link,.group").forEach((element)=>{
-		element.hammer.set({'enable': enable})
+/**
+*	Enables/disables all touch interactions from a hammerized element
+*	@param enable boolean: true for enabling interactions, false for disabling
+*	@param element: the element to toggle; if null, acts on all hammerizable elements
+*/
+function toggleNonDrawingHammers( enable, elements=null ){
+	console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
+	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
+	elements = (elements instanceof Element) ? [elements] : elements; 
+	elements.forEach((element)=>{
+		if(element.hammer){ 
+			element.hammer.recognizers.forEach( (recognizer) =>{
+				recognizer.set({'enable': enable});
+			});
+		}
 	});
 }
 
@@ -21,11 +33,12 @@ function autoHammerize( element ){
 }
 
 function hammerizeCanvas(){
-	Transformer.hammerize(canvas, {pan: false, callback: isContainingParent}).then(function(transformer){
+	Transformer.hammerize(canvas, {pan: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
 		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
 		hammer.add( new Hammer.Pan({ event: 'pan'}) )
+		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
 
 		hammer.get('doubletap').recognizeWith('singletap');
 		hammer.get('singletap').requireFailure('doubletap');
@@ -33,7 +46,23 @@ function hammerizeCanvas(){
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
 		hammer.on("pan panend", canvasPanListener);
+
+		hammer.on("pinch rotate", updateMinimapPosition);
+
+		hammer.on("labelinputtap", handleClickDuringLabelInput);
 	})
+}
+
+//Checks to see if the canvas is larger than the viewport.  If not, returns false and stops the transformation
+function canvasTransformerCallback( elementMatrix ){
+	var transformer = this;
+	var element = transformer.element;
+
+	if (element.hammer){
+		if( element.hammer.get( 'labelinputtap' ).options.enable ) return false;
+	}
+
+	return isContainingParent( element, elementMatrix, true);
 }
 
 /**
@@ -42,6 +71,7 @@ function hammerizeCanvas(){
 function canvasSingleTapListener(event){
 	//console.log("CANVAS SINGLE TAP");
 	deselectAllObjects();
+	closeContextMenu();
 }
 
 /**
@@ -85,35 +115,39 @@ function hammerizeNode(node){
 		
 		hammer.remove('pan');
 		var pan = new Hammer.Pan({event: 'pan'});
-	
+		var singleTap = new Hammer.Tap({ event: 'singletap' });
+		var prePanTap = new Hammer.Tap({ event: 'prepantap'});
+		var tapPan = new Hammer.Pan({event: 'tappan', enable: false });
 		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2});
-		var singleTap = new Hammer.Tap({ event: 'singletap' })
 
-		var prePanTap = new Hammer.Tap({event: 'prepantap'})
-		var doubleTapPan = new Hammer.Pan({event: 'doubletappan'});
+		hammer.add([doubleTap, tapPan, singleTap, prePanTap, pan]);
 
-		hammer.add([doubleTap, singleTap, prePanTap, pan, doubleTapPan]);
+		doubleTap.recognizeWith([tapPan, singleTap, pan]);
 
-		doubleTap.recognizeWith([singleTap, pan]);
+		tapPan.requireFailure([doubleTap]);
+		tapPan.recognizeWith([singleTap, pan]);
 
-		doubleTapPan.requireFailure([doubleTap, pan]);
+		singleTap.requireFailure([doubleTap, tapPan]);
+		singleTap.recognizeWith([pan]);
 
-		singleTap.requireFailure([doubleTap]);
 		prePanTap.recognizeWith([singleTap]);
 
-		//Disables moving the node after the first tap so a link can be made
-		hammer.on('prepantap', (event) => {
-			console.log("PREPANTAP");
-			pan.set({enable : false});
-		});
-		hammer.on('doubletappanend', (event) =>{
-			pan.set({enable : true});
-		});
+		pan.requireFailure([singleTap, tapPan, doubleTap]);
 
 		hammer.on('pan panstart panend', nodePanListener);
 		hammer.on('singletap', nodeSingleTapListener);
-		hammer.on('doubletap', nodeDoubleTapListener)
-		hammer.on('doubletappan doubletappanstart doubletappanend', nodeDoubleTapPanListener)
+		hammer.on('tappan tappanstart tappanend', nodeTapPanListener);
+		hammer.on('doubletap', nodeDoubleTapListener);
+
+		//Disables moving the node after the first tap so a link can be made
+		hammer.on('prepantap', (event) => {
+			tapPan.set({enable : true});
+		});
+		hammer.on('singletap doubletap tappanend', (event) =>{
+			if( event.isFinal ){
+				tapPan.set({enable : false});
+			}
+		})
 	});
 }
 
@@ -155,28 +189,21 @@ function nodeSingleTapListener(event){
 	}
 }
 
-function nodeDoubleTapListener(event){
-	console.log("Double Tap on node");
-	var node = getParentMapElement(event.target);
-	selectNode( node );
-	addLabel(null, node);
-}
-
 /**
 *	Create a link starting from the target node
 **/
-function nodeDoubleTapPanListener(event){
+function nodeTapPanListener(event){
 	var node = getParentMapElement(event.target);
 	var canvasPoint = eventToCanvasPoint(event);
 
-	if( event.type === 'doubletappanstart' ) {
+	if( event.type === 'tappanstart' ) {
 		selectNode(node);
 		selectSrcNode(node)
 	};
 	
 	drawDragLine(canvasPoint);
 
-	if( event.type === 'doubletappanend' ){ 
+	if( event.type === 'tappanend' ){ 
 		var linkDest = document.elementFromPoint(event.center.x, event.center.y);
 		linkDest = getParentMapElement(linkDest);
 		if( $(linkDest).hasClass("node") && $(node).attr('id') != $(linkDest).attr('id') ){
@@ -193,6 +220,14 @@ function nodeDoubleTapPanListener(event){
 			resetState();
 		}
 	}
+}
+
+
+function nodeDoubleTapListener(event){
+	console.log("Double Tap on node");
+	var node = getParentMapElement(event.target);
+	selectNode( node );
+	addLabel(null, node);
 }
 
 function hammerizeLink(link){
@@ -288,3 +323,58 @@ function groupDoubleTapListener(event){
       console.log(failure);
     });	
 }
+
+function hammerizeMinimap(){
+	var minimap = document.getElementById("minimap");
+	var minimapPlacer = document.getElementById("minimap-placer");
+	//Transformer.hammerize( minimap, {pan: false, rotate: false, pinch: false} );
+	return Transformer.hammerize( minimap, { pan: false, rotate: false, pinch: false, callback: minimapTransformerCallback}).then( (Transformer) =>{
+		var hammer = minimap.hammer;
+
+		hammer.remove(hammer.get('pan'));
+
+		var pan = new Hammer.Pan({event: 'pan', threshold: "1"});
+		hammer.add([pan]);
+
+		hammer.on("panstart panend panmove pancancel", minimapPanListener);
+
+	});
+}
+
+//Checks that the minimap place indicator is within the minimap.  If not, it cancels the transform
+function minimapTransformerCallback( elementMatrix ){
+	var transformer = this;
+	var element = transformer.element;
+	return isContainingParent( element, elementMatrix, false);
+}
+
+function minimapPanListener( event ){
+
+	//console.log("CHANGEDPOINTERS", event.changedPointers);
+
+	var minimap = document.getElementById("minimap")
+	var minimapBBox = minimap.getBoundingClientRect();
+	var placer = document.getElementById("minimap-placer");
+	var placerBBox = placer.getBoundingClientRect();
+
+	if( event.type == "panstart" || !placer.prevPoint ) placer.prevPoint = new Point(0, 0);
+
+	var deltaPoint = minimap.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
+
+	var newPos = {
+		left: (deltaPoint.x - placer.prevPoint.x + placerBBox.left - minimapBBox.left) / minimapBBox.width * 100,
+	 	top:  (deltaPoint.y - placer.prevPoint.y + placerBBox.top - minimapBBox.top) / minimapBBox.height * 100 
+	}
+
+	console.log("NEWPOS:", newPos, ", PREVPOINT:", placer.prevPoint, ", DELTAPOINT:", deltaPoint, ", CENTER:", new Point(event.center.x,event.center.y), ", MINIMAP:", minimapBBox, ", PLACER:", placerBBox);
+
+	placer.style.left = newPos.left + "%";
+	placer.style.top = newPos.top + "%";
+
+	placer.prevPoint.x = deltaPoint.x;
+	placer.prevPoint.y = deltaPoint.y;
+
+	if( event.type == "panend" || event.type == "pancancel") placer.prevPoint = null;
+
+	updateMapPositionFromMinimap();
+};
