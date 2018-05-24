@@ -18,20 +18,19 @@ function log(level, interaction, event_type, content){
     "map_id": window.location.pathname.replace(/\//g, '')
 	}
   console.log(current_log); 
-  temp_buffer["action_log"].push(current_log);
+  window.parent.postMessage({
+    "id": "action_log",
+    "data": current_log
+  }, "*");
 }
 
 /*
  * Sends a POST request to the cogcanvas server
  */
-function postLogs(){
-  if(temp_buffer.length > 0){
-    if (window.parent) {
-      //console.log(window.parent);
-      window.parent.postMessage(JSON.stringify(temp_buffer), "*");
-    }
-    temp_buffer = {};
-    temp_buffer["action_log"] = [];
+function postLogs(current_log){
+  if (window.parent) {
+    //console.log(window.parent);
+    window.parent.postMessage("post_action_log", "*");
   }
 }
 

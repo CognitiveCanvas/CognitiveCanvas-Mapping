@@ -18,9 +18,8 @@ function onLoaded(webstrateId, clientId, user) {
 
 function initLog(){
   let minutes = 3;
-  var intervalID = window.setInterval(postLogs, minutes * 60000); // 3 minutes
+  var intervalID = window.setInterval(postLogs, minutes * 600); // 3 minutes
   // log("level EVENT", "test interaction", "test logs");
-
 }
 
 
