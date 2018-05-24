@@ -75,17 +75,15 @@ function addLabel(text, node, placeholderText=true){
   labelText = text ? text : labelText;
   setPrevLabel(labelText);
   // Adding an editable div outside
-  let label = document.createElement("div");
+  let label = document.createElement("input");
   d3.select(label).classed("label-input", true);
   label.style.position = "absolute";
-  label.setAttribute("contenteditable", "true");
   label.setAttribute("id", node.getAttribute('id')+"_text");
   label.setAttribute("node-id", node.getAttribute('id'));
   label.setAttribute("size", labelText.length || 1);
-  var textNode = label.appendChild(document.createTextNode(labelText));
 
   if(placeholderText){
-    label.setAttribute("placeholder-text", text);
+    label.setAttribute("placeholder", text);
   }
   temp_label_div = label;
 
@@ -116,6 +114,7 @@ function addLabel(text, node, placeholderText=true){
   label.style.left = screenPos.x + "px";
   label.style.top = screenPos.y + "px";
   
+
   label.onkeydown = (e) => {
     //console.log(e.key)
     let labelInteraction = e.key;
@@ -128,13 +127,13 @@ function addLabel(text, node, placeholderText=true){
       case "Tab":
         e.preventDefault();
         e.stopImmediatePropagation();
-        createLabelFromInput(node, label);
-        logLabel(labelInteraction, node); // Logging for the data team
+        handleClickDuringLabelInput();
+        //logLabel(labelInteraction, node); // Logging for the data team
         break;
       default:
         setTimeout(function(){
           scaleNode(label, node)
-        },1);
+        }, 1);
         break;
     }
   }
@@ -148,8 +147,16 @@ function addLabel(text, node, placeholderText=true){
   scaleNode(label, node, screenPos.x, screenPos.y);
 
   if(placeholderText){
-    selectText(label);
-    label.focus();
+    console.log("Creating Label input with placeholder text");
+    //label.focus();
+    //label.setSelectionRange(0, 9999);
+    
+    setTimeout( function(){ 
+      label.focus()
+      label.setSelectionRange(0, 9999);
+      //selectText(label);
+    }, 1);
+
   } else{
     var cursorPosition = label.appendChild(document.createTextNode(" "));  
     selectText(cursorPosition);
@@ -161,7 +168,7 @@ function createLabelFromInput(node, label){
   console.log("creating label from input");
   node = node instanceof d3.selection ? node : d3.select(node);
   label = label instanceof d3.selection ? label : d3.select(label);
-  var txt = label.text().split("\n");
+  var txt = label.node().value;
   cx = 0;
   cy = 0;
   switch(node.attr("class").split(" ")[0]){
@@ -188,11 +195,12 @@ function createLabelFromInput(node, label){
     .classed("label", true)
     .attr("id", node.attr("id")+"_text")
 
-  for (let t in txt) {
-    console.log(t);
+  var textLines = txt.split('\n').filter((val)=>val);
+  for (let t in textLines ) {
+    console.log(textLines[t]);
     let tspan = textSVG
                   .append("tspan")
-                  .text(txt[t])
+                  .text(textLines[t])
                   .classed("label-line", true);
 
     if (name === "node") {
@@ -240,17 +248,15 @@ function handleClickDuringLabelInput(){
   ];
 
   var label = d3.select(temp_label_div);
-  var inputText = label.text();
-  var placeholderText = label.attr("placeholder-text");
+  var inputText = label.node().value;
+  var placeholderText = label.attr("placeholder");
   var node = d3.select('#' + label.attr("node-id"));
 
-  if(inputText === placeholderText || inputText.length === 0 || inputText === errorMessages[temp_label_div.nErrors] ){
+  if( inputText.length === 0 ){
     temp_label_div.nErrors = Math.min( temp_label_div.nErrors + 1, errorMessages.length - 1 );
 
-    label.text( errorMessages[ Math.min( temp_label_div.nErrors, errorMessages.length - 1  )] );
+    label.attr("placeholder", errorMessages[ Math.min( temp_label_div.nErrors, errorMessages.length - 1  )] );
     scaleNode( label.node(), node.node() );
-    selectText( label.node() );
-    label.node().focus();
 
     console.log("Label needs input");
     var nodeRep = node.select(".node-rep");
@@ -262,14 +268,16 @@ function handleClickDuringLabelInput(){
     }, 1);
 
     resetState();
+    label.node().focus();
   } else{
     var nodeId = label.attr("node-id");
     createLabelFromInput(node, label);
-    logLabel("Single Tap", node[0][0]); // Logging for the data team     
+    //logLabel("Single Tap", node[0][0]); // Logging for the data team     
   }
   return;
 }
 
+/**
 function selectText (elem) {
   var range, selection;
   // A jQuery selector should pass through too
@@ -299,4 +307,24 @@ function selectText (elem) {
       selection.addRange(range);  
     }
   }
+}
+**/
+
+/**
+function selectText (elem) {
+  var selection = window.getSelection();
+  var range = document.createRange();
+  range.selectNodeContents( elem );
+  selection.removeAllRanges();
+  selection.addRange( range );
+}
+**/
+
+function selectText( element ){
+  var selection = window.getSelection();
+  var range = document.createRange();
+  range.setStart( element, 0);
+  range.setEnd( element, 0);
+  selection.removeAllRanges();
+  selection.addRange( range );
 }
