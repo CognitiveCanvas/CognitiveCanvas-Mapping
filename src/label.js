@@ -133,10 +133,6 @@ function addLabel(text, node, placeholderText=true){
         //logLabel(labelInteraction, node); // Logging for the data team
         break;
       default:
-        setTimeout(function(){
-          //scaleNode(label, node);
-        }, 50);
-        break;
     }
     label.oninput = (e) => {
       scaleNode(label, node);

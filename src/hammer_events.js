@@ -35,7 +35,7 @@ function autoHammerize( element ){
 function hammerizeCanvas(){
 	Transformer.hammerize(canvas, {pan: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
-		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2}) );
+		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
 		hammer.add( new Hammer.Pan({ event: 'pan'}) )
 		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
