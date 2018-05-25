@@ -10,7 +10,11 @@ function toggleNonDrawingHammers( enable, elements=null ){
 	elements.forEach((element)=>{
 		if(element.hammer){ 
 			element.hammer.recognizers.forEach( (recognizer) =>{
-				recognizer.set({'enable': enable});
+				if( recognizer.options.event === 'tappan' ){
+					recognizer.set({ 'enable' : false });
+				} else{
+					recognizer.set({'enable': enable});
+				}
 			});
 		}
 	});
