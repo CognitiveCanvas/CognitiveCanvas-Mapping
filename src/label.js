@@ -35,27 +35,27 @@ function checkLabelExisted(node) {
  * @return {[type]}       [description]
  */
 function scaleNode(label, node) {
-  let nodeRep = node.children[0];
+  label = $(label);
+  node = $(node);
+  let nodeRep = node.find(".node-rep");
 
-  let labelSize = label.getBoundingClientRect(); 
-  let nodeBB = node.getBoundingClientRect();
+  let newLabelWidth = (label.val().length || label.attr("placeholder").length) + LABEL_INPUT_PADDING;
+  label.attr("size", newLabelWidth);
+
+  let labelBB = label[0].getBoundingClientRect(); 
+  let nodeBB = node[0].getBoundingClientRect();
   nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
                     y: nodeBB.top + nodeBB.height/2 };
 
-  let labelLeft = nodeBB.center.x - labelSize.width / 2;
-  let labelTop = nodeBB.center.y - labelSize.height / 2;
-  label.style.left = labelLeft + "px";
-  label.style.top = labelTop + "px";
+  let labelLeft = nodeBB.center.x - labelBB.width / 2;
+  let labelTop = nodeBB.center.y - labelBB.height / 2;
+  label.css("left", labelLeft + "px");
+  label.css("top", labelTop + "px");
 
-  if($(node).hasClass("node")){
-    if (d3.select(nodeRep).attr("r") <= MAX_RADIUS) {
-        d3.select(nodeRep)
-          .attr("r", labelSize.width / 2 + 6);
-    } 
-    else {
-      d3.select(label)
-        .attr("max", d3.select(nodeRep).attr("r") * 2 - 12);
-    }
+  if(node.hasClass("node")){
+    let newRadius = Math.min(labelBB.width/2 + 6 , MAX_RADIUS);
+    console.log("New Radius: ", newRadius);
+    nodeRep.attr("r", newRadius);
   }
 }
 
@@ -84,6 +84,8 @@ function addLabel(text, node, placeholderText=true){
 
   if(placeholderText){
     label.setAttribute("placeholder", text);
+  } else{
+    label.value = labelText;
   }
   temp_label_div = label;
 
@@ -132,10 +134,14 @@ function addLabel(text, node, placeholderText=true){
         break;
       default:
         setTimeout(function(){
-          scaleNode(label, node)
-        }, 1);
+          //scaleNode(label, node);
+        }, 50);
         break;
     }
+    label.oninput = (e) => {
+      scaleNode(label, node);
+    }
+
   }
 
   var transientEle = document.createElement("transient");
@@ -146,21 +152,7 @@ function addLabel(text, node, placeholderText=true){
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
-  if(placeholderText){
-    console.log("Creating Label input with placeholder text");
-    //label.focus();
-    //label.setSelectionRange(0, 9999);
-    
-    setTimeout( function(){ 
-      label.focus()
-      label.setSelectionRange(0, 9999);
-      //selectText(label);
-    }, 1);
-
-  } else{
-    var cursorPosition = label.appendChild(document.createTextNode(" "));  
-    selectText(cursorPosition);
-  }
+  label.focus();
 
 }
 
@@ -247,84 +239,36 @@ function handleClickDuringLabelInput(){
     "Just press enter..."
   ];
 
-  var label = d3.select(temp_label_div);
-  var inputText = label.node().value;
-  var placeholderText = label.attr("placeholder");
-  var node = d3.select('#' + label.attr("node-id"));
+  var label = temp_label_div;
+  var inputText = label.value;
+  var placeholderText = label.getAttribute("placeholder");
+  var node = document.querySelector('#' + label.getAttribute("node-id"));
 
   if( inputText.length === 0 ){
-    temp_label_div.nErrors = Math.min( temp_label_div.nErrors + 1, errorMessages.length - 1 );
-
-    label.attr("placeholder", errorMessages[ Math.min( temp_label_div.nErrors, errorMessages.length - 1  )] );
-    scaleNode( label.node(), node.node() );
-
     console.log("Label needs input");
-    var nodeRep = node.select(".node-rep");
-    label.classed("shaking", false);
-    nodeRep.classed("shaking", false);
+    label.nErrors = Math.min( label.nErrors + 1, errorMessages.length - 1 );
+
+    var errorMessage = errorMessages[label.nErrors];
+
+    label.setAttribute("placeholder", errorMessage);
+    label.setAttribute("size", errorMessage.length);
+
+    scaleNode( label, node );
+
+    var labelSel = $(label);
+
+    labelSel.toggleClass("shaking", false);
     setTimeout(function(){ 
-      label.classed("shaking", true);
-      nodeRep.classed("shaking", true);
+      labelSel.toggleClass("shaking", true);
+      setTimeout(function(){
+        labelSel.toggleClass("shaking", false);
+      }, 1000);
     }, 1);
 
     resetState();
-    label.node().focus();
+    label.focus();
   } else{
-    var nodeId = label.attr("node-id");
-    createLabelFromInput(node, label);
-    //logLabel("Single Tap", node[0][0]); // Logging for the data team     
+    createLabelFromInput(node, label);   
   }
   return;
-}
-
-/**
-function selectText (elem) {
-  var range, selection;
-  // A jQuery selector should pass through too
-  elem = (elem.jquery && elem.length) ? elem[0] : elem;
-  if ( !elem ) {
-    return;
-  } else if ( elem.nodeName.match(/^(INPUT|TEXTAREA)$/i) ) {
-    elem.focus();
-    elem.select();
-  } else if ( typeof document.body.createTextRange === "function" ) {
-    // IE or Opera <10.5
-    range = document.body.createTextRange();
-    range.moveToElementText(elem);
-    range.select();
-  } else if ( typeof window.getSelection === "function" ) {
-    selection = window.getSelection();
-    if ( typeof selection.setBaseAndExtent === "function" ) {
-      // Safari
-      selection.setBaseAndExtent(elem, 0, elem, 1);
-    } else if ( typeof selection.addRange === "function"
-      && typeof selection.removeAllRanges === "function"
-      && typeof document.createRange === "function" ) {
-      // Mozilla or Opera 10.5+
-      range = document.createRange();
-      range.selectNodeContents(elem);
-      selection.removeAllRanges();
-      selection.addRange(range);  
-    }
-  }
-}
-**/
-
-/**
-function selectText (elem) {
-  var selection = window.getSelection();
-  var range = document.createRange();
-  range.selectNodeContents( elem );
-  selection.removeAllRanges();
-  selection.addRange( range );
-}
-**/
-
-function selectText( element ){
-  var selection = window.getSelection();
-  var range = document.createRange();
-  range.setStart( element, 0);
-  range.setEnd( element, 0);
-  selection.removeAllRanges();
-  selection.addRange( range );
 }

@@ -308,7 +308,7 @@ body {
 .label-input{
     z-index: 1;
     position: absolute;
-    height: 25px;
+    text-align:center;
 }
 
 .shaking{
