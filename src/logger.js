@@ -1,6 +1,7 @@
 const DEFAULT_INTERACTION = "Single Tap";
 
-var temp_buffer = [];
+var temp_buffer = {};
+temp_buffer["action_log"] = [];
 var prev_position = {};
 var prev_label = "";
 
@@ -12,31 +13,25 @@ function log(level, interaction, event_type, content){
 		"level": level, 
     "interaction": interaction,
     "event_type": event_type,
-		"content": content,
+		"property": content,
     "timestamp": new Date().toUTCString(),
     "map_id": window.location.pathname.replace(/\//g, '')
 	}
-  console.log(current_log);
-	temp_buffer.push(current_log);
+  console.log(current_log); 
+  window.parent.postMessage({
+    "id": "action_log",
+    "data": current_log
+  }, "*");
 }
 
 /*
  * Sends a POST request to the cogcanvas server
  */
-function postLogs(){
-	if (temp_buffer.length > 0){
-		$.ajax({
-			contentType: "application/json",
-			data: JSON.stringify(temp_buffer), 
-			dataType: "json", 
-			success: (data)=>{console.log(data)}, 
-			error: ()=>{console.log("Error with postLogs in logger.js")}, 
-			processData: false,
-			type: "POST",
-			url: "http://169.228.188.233:8081/api/log"
-		})
-		temp_buffer = []
-	}
+function postLogs(current_log){
+  if (window.parent) {
+    //console.log(window.parent);
+    window.parent.postMessage("post_action_log", "*");
+  }
 }
 
 /*

@@ -17,10 +17,10 @@ function onLoaded(webstrateId, clientId, user) {
 }
 
 function initLog(){
-  let minute = 3;
-  var intervalID = window.setInterval(postLogs, minute * 60000); // 3 minutes
+  let logIntervalMinute = 3;
+  let minute = 60000;
+  var intervalID = window.setInterval(postLogs, minute * logIntervalMinute); // 3 minutes
   // log("level EVENT", "test interaction", "test logs");
-
 }
 
 
