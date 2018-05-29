@@ -37,19 +37,21 @@ function autoHammerize( element ){
 }
 
 function hammerizeCanvas(){
-	Transformer.hammerize(canvas, {pan: false, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
+	Transformer.hammerize(canvas, {pan: true, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
 		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
-		hammer.add( new Hammer.Pan({ event: 'pan'}) )
+		hammer.add( new Hammer.Pan({ event: 'singlefingerpan', pointers: 1}) )
 		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
+		
+		hammer.get('pan').set({pointers: 2}); //Sets normal canvas pan to need two fingers on touch devices
 
 		hammer.get('doubletap').recognizeWith('singletap');
 		hammer.get('singletap').requireFailure('doubletap');
 
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
-		hammer.on("pan panend", canvasPanListener);
+		hammer.on("singlefingerpan singlefingerpanend", canvasPanListener);
 
 		hammer.on("pinch rotate", updateMinimapPosition);
 
@@ -107,7 +109,7 @@ function canvasDoubleTapListener(event){
 function canvasPanListener(event){
 	var canvasMousePoint = eventToCanvasPoint(event);
 	drawSelectionArea(canvasMousePoint);
-	if( event.type === 'panend'){
+	if( event.type === 'singlefingerpanend'){
 		createGroup();
 	}
 }
