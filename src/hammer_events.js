@@ -192,6 +192,7 @@ function nodeSingleTapListener(event){
 		addLabel(null, node);
 	}else{
 		selectNode( node );
+    sendSearchMsgToContainer();
 	}
 }
 
