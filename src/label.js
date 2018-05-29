@@ -12,7 +12,7 @@ function checkLabelExisted(node) {
   let num_labels = d3.select(node)
                      .selectAll(".label")
                      .size();
-  console.log("num_labels", num_labels);
+  //console.log("num_labels", num_labels);
   if (num_labels > 0){
     text = d3.select(node)
              .select(".label")
@@ -54,7 +54,7 @@ function scaleNode(label, node) {
 
   if(node.hasClass("node")){
     let newRadius = Math.min(labelBB.width/2 + 6 , MAX_RADIUS);
-    console.log("New Radius: ", newRadius);
+    //console.log("New Radius: ", newRadius);
     nodeRep.attr("r", newRadius);
   }
 }
@@ -65,7 +65,7 @@ node: The node to add or change the label of
 placeholderText: if true, will select all text in the input field to be replaced by user's input.  If false, will put cursor at the end of text
 */
 function addLabel(text, node, placeholderText=true){
-  console.log("adding labels");
+  //console.log("adding labels");
 
   node = node instanceof d3.selection ? node.node() : node;
   let container = document.getElementById("d3_container");
@@ -83,6 +83,7 @@ function addLabel(text, node, placeholderText=true){
   label.setAttribute("size", labelText.length || 1);
 
   if(placeholderText){
+    text = text ? text : "Node Name";
     label.setAttribute("placeholder", text);
   } else{
     label.value = labelText;
@@ -153,7 +154,7 @@ function addLabel(text, node, placeholderText=true){
 }
 
 function createLabelFromInput(node, label){
-  console.log("creating label from input");
+  //console.log("creating label from input");
   node = node instanceof d3.selection ? node : d3.select(node);
   label = label instanceof d3.selection ? label : d3.select(label);
   var txt = label.node().value;
@@ -185,7 +186,7 @@ function createLabelFromInput(node, label){
 
   var textLines = txt.split('\n').filter((val)=>val);
   for (let t in textLines ) {
-    console.log(textLines[t]);
+    //console.log(textLines[t]);
     let tspan = textSVG
                   .append("tspan")
                   .text(textLines[t])
@@ -212,13 +213,13 @@ function createLabelFromInput(node, label){
  *
  */
 function toggleListenersForLabelInput( isInputtingLabel ){
-  console.log("Toggling listeners for label input to: ", isInputtingLabel);
+  //console.log("Toggling listeners for label input to: ", isInputtingLabel);
   toggleNonDrawingHammers( !isInputtingLabel )
   canvas.hammer.get( 'labelinputtap' ).set({ 'enable' : isInputtingLabel })
 }
 
 function handleClickDuringLabelInput(){
-  console.log("Handling click during label input");
+  //console.log("Handling click during label input");
   
   if (!temp_label_div.nErrors) temp_label_div.nErrors = 0;
 
@@ -241,7 +242,7 @@ function handleClickDuringLabelInput(){
   var node = document.querySelector('#' + label.getAttribute("node-id"));
 
   if( inputText.length === 0 ){
-    console.log("Label needs input");
+    //console.log("Label needs input");
     label.nErrors = Math.min( label.nErrors + 1, errorMessages.length - 1 );
 
     var errorMessage = errorMessages[label.nErrors];
