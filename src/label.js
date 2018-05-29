@@ -12,7 +12,7 @@ function checkLabelExisted(node) {
   let num_labels = d3.select(node)
                      .selectAll(".label")
                      .size();
-  console.log("num_labels", num_labels);
+  //console.log("num_labels", num_labels);
   if (num_labels > 0){
     text = d3.select(node)
              .select(".label")
@@ -35,27 +35,27 @@ function checkLabelExisted(node) {
  * @return {[type]}       [description]
  */
 function scaleNode(label, node) {
-  let nodeRep = node.children[0];
+  label = $(label);
+  node = $(node);
+  let nodeRep = node.find(".node-rep");
 
-  let labelSize = label.getBoundingClientRect(); 
-  let nodeBB = node.getBoundingClientRect();
+  let newLabelWidth = (label.val().length || label.attr("placeholder").length) + LABEL_INPUT_PADDING;
+  label.attr("size", newLabelWidth);
+
+  let labelBB = label[0].getBoundingClientRect(); 
+  let nodeBB = node[0].getBoundingClientRect();
   nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
                     y: nodeBB.top + nodeBB.height/2 };
 
-  let labelLeft = nodeBB.center.x - labelSize.width / 2;
-  let labelTop = nodeBB.center.y - labelSize.height / 2;
-  label.style.left = labelLeft + "px";
-  label.style.top = labelTop + "px";
+  let labelLeft = nodeBB.center.x - labelBB.width / 2;
+  let labelTop = nodeBB.center.y - labelBB.height / 2;
+  label.css("left", labelLeft + "px");
+  label.css("top", labelTop + "px");
 
-  if($(node).hasClass("node")){
-    if (d3.select(nodeRep).attr("r") <= MAX_RADIUS) {
-        d3.select(nodeRep)
-          .attr("r", labelSize.width / 2 + 6);
-    } 
-    else {
-      d3.select(label)
-        .attr("max", d3.select(nodeRep).attr("r") * 2 - 12);
-    }
+  if(node.hasClass("node")){
+    let newRadius = Math.min(labelBB.width/2 + 6 , MAX_RADIUS);
+    //console.log("New Radius: ", newRadius);
+    nodeRep.attr("r", newRadius);
   }
 }
 
@@ -65,7 +65,7 @@ node: The node to add or change the label of
 placeholderText: if true, will select all text in the input field to be replaced by user's input.  If false, will put cursor at the end of text
 */
 function addLabel(text, node, placeholderText=true){
-  console.log("adding labels");
+  //console.log("adding labels");
 
   node = node instanceof d3.selection ? node.node() : node;
   let container = document.getElementById("d3_container");
@@ -75,17 +75,18 @@ function addLabel(text, node, placeholderText=true){
   labelText = text ? text : labelText;
   setPrevLabel(labelText);
   // Adding an editable div outside
-  let label = document.createElement("div");
+  let label = document.createElement("input");
   d3.select(label).classed("label-input", true);
   label.style.position = "absolute";
-  label.setAttribute("contenteditable", "true");
   label.setAttribute("id", node.getAttribute('id')+"_text");
   label.setAttribute("node-id", node.getAttribute('id'));
   label.setAttribute("size", labelText.length || 1);
-  var textNode = label.appendChild(document.createTextNode(labelText));
 
   if(placeholderText){
-    label.setAttribute("placeholder-text", text);
+    text = text ? text : "Node Name";
+    label.setAttribute("placeholder", text);
+  } else{
+    label.value = labelText;
   }
   temp_label_div = label;
 
@@ -116,6 +117,7 @@ function addLabel(text, node, placeholderText=true){
   label.style.left = screenPos.x + "px";
   label.style.top = screenPos.y + "px";
   
+
   label.onkeydown = (e) => {
     //console.log(e.key)
     let labelInteraction = e.key;
@@ -128,15 +130,15 @@ function addLabel(text, node, placeholderText=true){
       case "Tab":
         e.preventDefault();
         e.stopImmediatePropagation();
-        createLabelFromInput(node, label);
-        logLabel(labelInteraction, node); // Logging for the data team
+        handleClickDuringLabelInput();
+        //logLabel(labelInteraction, node); // Logging for the data team
         break;
       default:
-        setTimeout(function(){
-          scaleNode(label, node)
-        },1);
-        break;
     }
+    label.oninput = (e) => {
+      scaleNode(label, node);
+    }
+
   }
 
   var transientEle = document.createElement("transient");
@@ -147,21 +149,15 @@ function addLabel(text, node, placeholderText=true){
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
-  if(placeholderText){
-    selectText(label);
-    label.focus();
-  } else{
-    var cursorPosition = label.appendChild(document.createTextNode(" "));  
-    selectText(cursorPosition);
-  }
+  label.focus();
 
 }
 
 function createLabelFromInput(node, label){
-  console.log("creating label from input");
+  //console.log("creating label from input");
   node = node instanceof d3.selection ? node : d3.select(node);
   label = label instanceof d3.selection ? label : d3.select(label);
-  var txt = label.text().split("\n");
+  var txt = label.node().value;
   cx = 0;
   cy = 0;
   switch(node.attr("class").split(" ")[0]){
@@ -188,11 +184,12 @@ function createLabelFromInput(node, label){
     .classed("label", true)
     .attr("id", node.attr("id")+"_text")
 
-  for (let t in txt) {
-    console.log(t);
+  var textLines = txt.split('\n').filter((val)=>val);
+  for (let t in textLines ) {
+    //console.log(textLines[t]);
     let tspan = textSVG
                   .append("tspan")
-                  .text(txt[t])
+                  .text(textLines[t])
                   .classed("label-line", true);
 
     if (name === "node") {
@@ -216,13 +213,13 @@ function createLabelFromInput(node, label){
  *
  */
 function toggleListenersForLabelInput( isInputtingLabel ){
-  console.log("Toggling listeners for label input to: ", isInputtingLabel);
+  //console.log("Toggling listeners for label input to: ", isInputtingLabel);
   toggleNonDrawingHammers( !isInputtingLabel )
   canvas.hammer.get( 'labelinputtap' ).set({ 'enable' : isInputtingLabel })
 }
 
 function handleClickDuringLabelInput(){
-  console.log("Handling click during label input");
+  //console.log("Handling click during label input");
   
   if (!temp_label_div.nErrors) temp_label_div.nErrors = 0;
 
@@ -239,64 +236,36 @@ function handleClickDuringLabelInput(){
     "Just press enter..."
   ];
 
-  var label = d3.select(temp_label_div);
-  var inputText = label.text();
-  var placeholderText = label.attr("placeholder-text");
-  var node = d3.select('#' + label.attr("node-id"));
+  var label = temp_label_div;
+  var inputText = label.value;
+  var placeholderText = label.getAttribute("placeholder");
+  var node = document.querySelector('#' + label.getAttribute("node-id"));
 
-  if(inputText === placeholderText || inputText.length === 0 || inputText === errorMessages[temp_label_div.nErrors] ){
-    temp_label_div.nErrors = Math.min( temp_label_div.nErrors + 1, errorMessages.length - 1 );
+  if( inputText.length === 0 ){
+    //console.log("Label needs input");
+    label.nErrors = Math.min( label.nErrors + 1, errorMessages.length - 1 );
 
-    label.text( errorMessages[ Math.min( temp_label_div.nErrors, errorMessages.length - 1  )] );
-    scaleNode( label.node(), node.node() );
-    selectText( label.node() );
-    label.node().focus();
+    var errorMessage = errorMessages[label.nErrors];
 
-    console.log("Label needs input");
-    var nodeRep = node.select(".node-rep");
-    label.classed("shaking", false);
-    nodeRep.classed("shaking", false);
+    label.setAttribute("placeholder", errorMessage);
+    label.setAttribute("size", errorMessage.length);
+
+    scaleNode( label, node );
+
+    var labelSel = $(label);
+
+    labelSel.toggleClass("shaking", false);
     setTimeout(function(){ 
-      label.classed("shaking", true);
-      nodeRep.classed("shaking", true);
+      labelSel.toggleClass("shaking", true);
+      setTimeout(function(){
+        labelSel.toggleClass("shaking", false);
+      }, 1000);
     }, 1);
 
     resetState();
+    label.focus();
   } else{
-    var nodeId = label.attr("node-id");
-    createLabelFromInput(node, label);
-    logLabel("Single Tap", node[0][0]); // Logging for the data team     
+    createLabelFromInput(node, label);   
   }
   return;
-}
-
-function selectText (elem) {
-  var range, selection;
-  // A jQuery selector should pass through too
-  elem = (elem.jquery && elem.length) ? elem[0] : elem;
-  if ( !elem ) {
-    return;
-  } else if ( elem.nodeName.match(/^(INPUT|TEXTAREA)$/i) ) {
-    elem.focus();
-    elem.select();
-  } else if ( typeof document.body.createTextRange === "function" ) {
-    // IE or Opera <10.5
-    range = document.body.createTextRange();
-    range.moveToElementText(elem);
-    range.select();
-  } else if ( typeof window.getSelection === "function" ) {
-    selection = window.getSelection();
-    if ( typeof selection.setBaseAndExtent === "function" ) {
-      // Safari
-      selection.setBaseAndExtent(elem, 0, elem, 1);
-    } else if ( typeof selection.addRange === "function"
-      && typeof selection.removeAllRanges === "function"
-      && typeof document.createRange === "function" ) {
-      // Mozilla or Opera 10.5+
-      range = document.createRange();
-      range.selectNodeContents(elem);
-      selection.removeAllRanges();
-      selection.addRange(range);  
-    }
-  }
 }
