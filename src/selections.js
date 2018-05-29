@@ -6,7 +6,7 @@ nodes: The node or selection of multiple nodes to be give the selected class
 deselectCurrentSelection: if true, will remove the selected class from all currently sected nodes before selecting the new one
 **/
 function selectNode(nodes, deselectCurrentSelection=true){
-  console.log("Nodes being selected: ", nodes);
+  //console.log("Nodes being selected: ", nodes);
 
   nodes = nodes instanceof d3.selection ? nodes : d3.select(nodes);
   
@@ -75,7 +75,7 @@ function selectNodeByDirection(direction){
 }
 
 function deselectAllObjects(){
-  console.log("deselecting all objects");
+  //console.log("deselecting all objects");
   var allNodes = d3.selectAll(".selected");
   allNodes.classed("selected", false);
   if(!selection_area){
@@ -85,9 +85,9 @@ function deselectAllObjects(){
 
 function drawSelectionArea(canvasPoint){
     var canvasPoint;
-    console.log("canvasPoint", canvasPoint);
+    //console.log("canvasPoint", canvasPoint);
     if (!selection_area){
-      //console.log("Creating Selection Area");
+      ////console.log("Creating Selection Area");
       d3.select(".selection_area").remove();
       selection_area = d3.select(canvas).insert("rect", ":first-child")
         .classed("selection_area", true)
@@ -96,7 +96,7 @@ function drawSelectionArea(canvasPoint){
         .attr("y", canvasPoint.y)
         .attr("width", 0)
         .attr("height", 0)
-      //console.log("selection is created");
+      ////console.log("selection is created");
     }
     var rectX = Number(selection_area.attr("x"));
     var rectY = Number(selection_area.attr("y"));
@@ -117,14 +117,14 @@ function drawSelectionArea(canvasPoint){
       selection_area.attr("height", rectY - canvasPoint.y + height);
       selection_area.attr("y", canvasPoint.y);
     }
-    //console.log("selection area drawn");
+    ////console.log("selection area drawn");
 }
 
 function createGroup(){
-  //console.log("creating group");
+  ////console.log("creating group");
 
   var group = selection_area.node();
-  console.log("GROUP: ", group);
+  //console.log("GROUP: ", group);
 
   deselectAllObjects();
 
@@ -135,16 +135,16 @@ function createGroup(){
 
   var allNodes = d3.selectAll(".node")
   var children_ids = [];
-  //console.log(grouped_nodes);
-  //console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
+  ////console.log(grouped_nodes);
+  ////console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
   var grouped_nodes = allNodes.filter( function() {
     var position = getNodePosition(this);
     var x = position.x;
     var y = position.y;
-    //console.log("x: ", x, ", y: ", y);
+    ////console.log("x: ", x, ", y: ", y);
     return x >= left && x <= right && y >= top && y <= bottom;
   });
-  //console.log(grouped_nodes)
+  ////console.log(grouped_nodes)
   grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
   if(grouped_nodes.size() > 0){
     selectNode(grouped_nodes);
@@ -155,7 +155,7 @@ function createGroup(){
 
   selection_area = null;
   dragged_object = null;
-  console.log('creating the group')
+  //console.log('creating the group')
 }
 
 function moveGroup(group, vector){
@@ -198,7 +198,7 @@ function getGroupedNodes(group){
    for(var i=0; i < nodeIds.length; i++){111
       nodes.push(document.getElementById(nodeIds[i]));
    }
-   console.log("Grouped Nodes: " + nodes );
+   //console.log("Grouped Nodes: " + nodes );
    return nodes;
 }
 

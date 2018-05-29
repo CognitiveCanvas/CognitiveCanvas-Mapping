@@ -4,7 +4,11 @@ var DEFAULT_STYLE = "default-style-data";
 var SPATIAL_LAYOUT = "spatial-layout-data";
 var SPATIAL_LAYOUT_DP = "spatial-layout";
 
+//Node and label sizez
 var MAX_RADIUS = 60;
+var LABEL_INPUT_PADDING = 1;
+
+
 var WEBSTRATES_URL_PREFIX = "http://webstrates.ucsd.edu/";
 
 //Constants for traversing nodes on map using arow keys
