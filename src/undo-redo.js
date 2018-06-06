@@ -72,7 +72,10 @@ function undoStyle(data){
 			data.elements.style("font-weight", ""+data.old_style);
 			break;
 		case "label_font_color":
-			data.elements.style("fill", ""+data.old_color)
+			data.elements.style("fill", ""+data.old_color);
+			break;
+		case "change_edge_thickness":
+			data.elements.style("stroke-width", ""+data.old_size);
 	}
 }
 

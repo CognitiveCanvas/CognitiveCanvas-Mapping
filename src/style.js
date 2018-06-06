@@ -12,25 +12,21 @@ var FONT_NORMAL = 100;
 var FONT_BOLD = 700;
 
 function setColor(color) {
-	d3.selectAll(".selected .node-rep")
-	  .style("fill", color);
-	d3.selectAll(".selected .link-rep")
-	  .style("stroke", color);
+	let nodes = d3.selectAll(".selected .node-rep");
+	let edges = d3.selectAll(".selected .link-rep");
 
 	let data = {
 		"style_type": "change_color", 
-		"old_color" : d3.selectAll(".selected .node-rep").style("fill"),
+		"old_color" : nodes.style("fill"),
 		"new_color" : color, 
-		"nodes"     : d3.selectAll(".selected .node-rep"),
-		"edges"     : d3.selectAll(".selected .link-rep")
-	}
+		"nodes"     : nodes,
+		"edges"     : edges
+	};
 	action_done ("style", data);
+	logColorChanges("fill", color);
 
-  logColorChanges("fill", color);
-  d3.selectAll(".selected .node-rep")
-    .style("fill", color);
-  d3.selectAll(".selected .link-rep")
-    .style("stroke", color);
+	nodes.style("fill", color);
+	edges.style("stroke", color);
 
 }
 
@@ -62,17 +58,30 @@ function setLinkColor(color){
 	links.style("stroke", color);
 }
 
-function setBorderColor(color) {
+function setLinkThickness(thickness){
+	let links = d3.selectAll(".selected .link-rep");
+	
+	let data = {
+		"style_type": "change_edge_thickness",
+		"old_size"  : links.style("stroke-width"),
+		"new_size"  : thickness, 
+		"elements"  : links
+	}
+	action_done("style", data);
 
-	d3.selectAll(".selected .node-rep")
-	  .style("stroke", color);
+	links.style("stroke-width", thickness);
+}
+
+function setBorderColor(color) {
+	let nodes = d3.selectAll(".selected .node-rep");
 	let data = {
 		"style_type": "change_border_color", 
-		"old_color" : d3.selectAll(".selected .node-rep").style("stroke"),
+		"old_color" : nodes.style("stroke"),
 		"new_color" : color, 
-		"elements"  : d3.selectAll(".selected .node-rep")
+		"elements"  : nodes
 	};
 	action_done("style", data);
+	nodes.style("stroke", color);
 }
 
 function increaseLabelFontSize(){
@@ -197,7 +206,7 @@ function toggleLabelFontItalics() {
     d3.selectAll(".selected .label")
       .style("font-style", "normal");
   }
-  logLabelToggle("italicized", italicized);
+  logLabelToggle("italicized", italicized, 7);
 }
 
 
@@ -215,7 +224,7 @@ function toggleLabelFontBold() {
     d3.selectAll(".selected .label")
       .style("font-weight", FONT_BOLD);
   }
-  logLabelToggle("bolded", bolded);
+  logLabelToggle("bolded", bolded, 6);
 }
 
 function setLabelColor(color) {

@@ -34,14 +34,16 @@ function checkLabelExisted(node) {
  * @param  {[type]} cy    [description]
  * @return {[type]}       [description]
  */
-function scaleNode(label, node, cx, cy) {
-  console.log("Scaling Node");
+function scaleNode(label, node) {
   let nodeRep = node.children[0];
 
   let labelSize = label.getBoundingClientRect(); 
-  console.log(labelSize);
-  let labelLeft = cx - labelSize.width / 2;
-  let labelTop = cy - labelSize.height / 2;
+  let nodeBB = node.getBoundingClientRect();
+  nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
+                    y: nodeBB.top + nodeBB.height/2 };
+
+  let labelLeft = nodeBB.center.x - labelSize.width / 2;
+  let labelTop = nodeBB.center.y - labelSize.height / 2;
   label.style.left = labelLeft + "px";
   label.style.top = labelTop + "px";
 
@@ -131,23 +133,28 @@ function addLabel(text, node, placeholderText=true){
         break;
       default:
         setTimeout(function(){
-          scaleNode(label, node, screenPos.x, screenPos.y)
+          scaleNode(label, node)
         },1);
         break;
     }
   }
 
-  container.appendChild(label);
+  var transientEle = document.createElement("transient");
+  transientEle.appendChild(label);
+  container.appendChild(transientEle);
+
+  toggleListenersForLabelInput(true); //Disable interactions during edit
 
   scaleNode(label, node, screenPos.x, screenPos.y);
 
   if(placeholderText){
-    selectText(textNode);
+    selectText(label);
     label.focus();
   } else{
-    var cursorPosition = label.appendChild(document.createTextNode(""));  
+    var cursorPosition = label.appendChild(document.createTextNode(" "));  
     selectText(cursorPosition);
   }
+
 }
 
 function createLabelFromInput(node, label){
@@ -200,27 +207,60 @@ function createLabelFromInput(node, label){
   // Remove the outside editable div
   label.remove();
   temp_label_div = null;
+  toggleListenersForLabelInput(false);
   sendSearchMsgToContainer();
   return;
 }
 
+/* Blocks the user from interacting with other elements while a node is being edited
+ *
+ */
+function toggleListenersForLabelInput( isInputtingLabel ){
+  console.log("Toggling listeners for label input to: ", isInputtingLabel);
+  toggleNonDrawingHammers( !isInputtingLabel )
+  canvas.hammer.get( 'labelinputtap' ).set({ 'enable' : isInputtingLabel })
+}
+
 function handleClickDuringLabelInput(){
   console.log("Handling click during label input");
+  
+  if (!temp_label_div.nErrors) temp_label_div.nErrors = 0;
+
+  var errorMessages = [
+    "Enter Name",
+    "Name me please",
+    "I need a label",
+    "Seriously, name me",
+    "Listen asshole",
+    "neither of us is going anywhere until I have a name",
+    "Mary Boyle is very disappointed in you",
+    "...",
+    "I don't get paid enough for this",
+    "Just press enter..."
+  ];
+
   var label = d3.select(temp_label_div);
-  // TODO need to find out a way to get the old label
   var inputText = label.text();
   var placeholderText = label.attr("placeholder-text");
   var node = d3.select('#' + label.attr("node-id"));
 
-  if(inputText === placeholderText || inputText.length === 0){
+  if(inputText === placeholderText || inputText.length === 0 || inputText === errorMessages[temp_label_div.nErrors] ){
+    temp_label_div.nErrors = Math.min( temp_label_div.nErrors + 1, errorMessages.length - 1 );
+
+    label.text( errorMessages[ Math.min( temp_label_div.nErrors, errorMessages.length - 1  )] );
+    scaleNode( label.node(), node.node() );
+    selectText( label.node() );
+    label.node().focus();
+
     console.log("Label needs input");
     var nodeRep = node.select(".node-rep");
     label.classed("shaking", false);
     nodeRep.classed("shaking", false);
     setTimeout(function(){ 
       label.classed("shaking", true);
-      nodeRep.classed("shaking", true)
+      nodeRep.classed("shaking", true);
     }, 1);
+
     resetState();
   } else{
     var nodeId = label.attr("node-id");
@@ -230,20 +270,33 @@ function handleClickDuringLabelInput(){
   return;
 }
 
-function selectText(element) {
-    var doc = document
-        , text = element
-        , range, selection
-    ;    
-    if (doc.body.createTextRange) {
-        range = document.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-    } else if (window.getSelection) {
-        selection = window.getSelection();        
-        range = document.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
+function selectText (elem) {
+  var range, selection;
+  // A jQuery selector should pass through too
+  elem = (elem.jquery && elem.length) ? elem[0] : elem;
+  if ( !elem ) {
+    return;
+  } else if ( elem.nodeName.match(/^(INPUT|TEXTAREA)$/i) ) {
+    elem.focus();
+    elem.select();
+  } else if ( typeof document.body.createTextRange === "function" ) {
+    // IE or Opera <10.5
+    range = document.body.createTextRange();
+    range.moveToElementText(elem);
+    range.select();
+  } else if ( typeof window.getSelection === "function" ) {
+    selection = window.getSelection();
+    if ( typeof selection.setBaseAndExtent === "function" ) {
+      // Safari
+      selection.setBaseAndExtent(elem, 0, elem, 1);
+    } else if ( typeof selection.addRange === "function"
+      && typeof selection.removeAllRanges === "function"
+      && typeof document.createRange === "function" ) {
+      // Mozilla or Opera 10.5+
+      range = document.createRange();
+      range.selectNodeContents(elem);
+      selection.removeAllRanges();
+      selection.addRange(range);  
     }
+  }
 }

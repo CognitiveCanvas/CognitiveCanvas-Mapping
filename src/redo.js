@@ -71,6 +71,10 @@ function redoStyle(data){
 			break;
 		case "label_font_color":
 			data.elements.style("fill", ""+data.new_color)
+			break;
+		case "change_edge_thickness":
+			data.elements.style("stroke-width", ""+data.new_size);
+			break;
 	}
 }
 
