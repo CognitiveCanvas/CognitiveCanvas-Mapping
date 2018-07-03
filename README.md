@@ -12,11 +12,11 @@ In order to publish the ConceptMapping on Webstrate server, you will need to ins
 
 ### Installing
 
-Download the repository to your local system. The raw html code are in index.html and the referenced javascript files are in src/ and stylesheets are in styles/. You do not need extra installation to access the codes.
+Download the repository to your local system. The raw html code are in index.html, the referenced javascript files are in src/, and stylesheets are in styles/. You do not need extra installation to access the codes.
 
 ### Testing
 
-In order to test the webstrate, you will need your own [Webstrate](https://webstrates.github.io/) server running on internet or your localhost. Refer to [Webstrate-File-System](https://github.com/Webstrates/file-system) documentation to link resources and assets in external files to the html page  and publish the html page to your webstrate server. 
+In order to test the webstrate, you will need your own [Webstrate](https://webstrates.github.io/) server running on internet or your localhost. Refer to [Webstrate-File-System](https://github.com/Webstrates/file-system) documentation about how to link resources and assets in external files to the html page and how to publish the html page to your webstrate server. 
 
 ## Restarting Webstrate Server
 
