@@ -112,7 +112,14 @@
                     <button id="label_text_bold" style="font-weight: bold; vertical-align: top;">B</button>
                     <button id="label_text_italics" style="font-weight: italic; vertical-align: top;">I</button>
                 </span>
-                <br>
+              
+              <div id="minimap-wrapper">
+                <div id="minimap" style="position: absolute; transform-origin: 0px 0px 0px; transform: none; touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                    <iframe id="minimap-bg" src="." style="transform: scale(0.0621528, 0.0561728); height: 1780.22%; width: 1608.94%;"></iframe>
+                    <div id="minimap-barrier"></div>
+                    <div id="minimap-placer" style="top: 31%; left: 35%; height: 30%; width: 33%;"></div>
+                    </div>
+              </div>
             </div>
             <div onclick="showDraw()"><h1>
                 <svg id="drawIcon" width="4vw" height="4vw" min-height="50px" min-width="50px" viewBox="0 0 51 47" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -143,6 +150,7 @@
             </button>
 
         </div>
+      </div>
     
 
     <div id="contextMenu" role="menu">
@@ -165,9 +173,9 @@
             <button class="contextMenuOption yellowBorder"></button>
         </div>
     </div>
-      
-  </div>
+
   
+  </div>
 </body>
   
 
@@ -175,17 +183,17 @@
 
     @font-face {
       font-family: "Miso Bold";
-      src: url("src/miso-bold-webfont.woff");
+      src: "styles/fonts/miso-bold-webfont.woff";
     }
 
     @font-face {
       font-family: "Miso Light";
-      src: url("src/miso-light-webfont.woff");
+      src: "styles/fonts/miso-light-webfont.woff";
     }
 
     @font-face {
       font-family: "Miso Regular";
-      src: url("src/miso-regular-webfont.woff");
+      src: "styles/fonts/miso-regular-webfont.woff";
     }
 
     h1, h2, button, div {
