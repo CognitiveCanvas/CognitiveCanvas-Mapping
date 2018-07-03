@@ -4,13 +4,17 @@
 *	@param element: the element to toggle; if null, acts on all hammerizable elements
 */
 function toggleNonDrawingHammers( enable, elements=null ){
-	console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
+	//console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
 	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
 	elements = (elements instanceof Element) ? [elements] : elements; 
 	elements.forEach((element)=>{
 		if(element.hammer){ 
 			element.hammer.recognizers.forEach( (recognizer) =>{
-				recognizer.set({'enable': enable});
+				if( recognizer.options.event === 'tappan' ){
+					recognizer.set({ 'enable' : false });
+				} else{
+					recognizer.set({'enable': enable});
+				}
 			});
 		}
 	});
@@ -33,19 +37,21 @@ function autoHammerize( element ){
 }
 
 function hammerizeCanvas(){
-	Transformer.hammerize(canvas, {pan: false, callback: canvasTransformerCallback}).then(function(transformer){
+	Transformer.hammerize(canvas, {pan: true, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
-		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2}) );
+		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
-		hammer.add( new Hammer.Pan({ event: 'pan'}) )
+		hammer.add( new Hammer.Pan({ event: 'singlefingerpan', pointers: 1}) )
 		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
+		
+		hammer.get('pan').set({pointers: 2}); //Sets normal canvas pan to need two fingers on touch devices
 
 		hammer.get('doubletap').recognizeWith('singletap');
 		hammer.get('singletap').requireFailure('doubletap');
 
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
-		hammer.on("pan panend", canvasPanListener);
+		hammer.on("singlefingerpan singlefingerpanend", canvasPanListener);
 
 		hammer.on("pinch rotate", updateMinimapPosition);
 
@@ -104,7 +110,7 @@ function canvasDoubleTapListener(event){
 function canvasPanListener(event){
 	var canvasMousePoint = eventToCanvasPoint(event);
 	drawSelectionArea(canvasMousePoint);
-	if( event.type === 'panend'){
+	if( event.type === 'singlefingerpanend'){
 		createGroup();
 	}
 }
@@ -186,6 +192,7 @@ function nodeSingleTapListener(event){
 		addLabel(null, node);
 	}else{
 		selectNode( node );
+    sendSearchMsgToContainer();
 	}
 }
 
@@ -224,7 +231,7 @@ function nodeTapPanListener(event){
 
 
 function nodeDoubleTapListener(event){
-	console.log("Double Tap on node");
+	//console.log("Double Tap on node");
 	var node = getParentMapElement(event.target);
 	selectNode( node );
 	addLabel(null, node);
@@ -250,7 +257,7 @@ function hammerizeLink(link){
 
 //Selects the link or edits its label if already selected
 function linkSingleTapListener(event){
-	console.log("LINK SINGLE TAP");
+	//console.log("LINK SINGLE TAP");
 	var link = getParentMapElement(event.target);
 
 	if( $(link).hasClass("selected") ){
@@ -263,7 +270,7 @@ function linkSingleTapListener(event){
 
 //Edits the link's label
 function linkDoubleTapListener(event){
-	console.log("LINK DOUBLE TAP");
+	//console.log("LINK DOUBLE TAP");
 	var link = getParentMapElement(event.target);
 	selectNode(link);
 	addLabel(null, link);
@@ -366,7 +373,7 @@ function minimapPanListener( event ){
 	 	top:  (deltaPoint.y - placer.prevPoint.y + placerBBox.top - minimapBBox.top) / minimapBBox.height * 100 
 	}
 
-	console.log("NEWPOS:", newPos, ", PREVPOINT:", placer.prevPoint, ", DELTAPOINT:", deltaPoint, ", CENTER:", new Point(event.center.x,event.center.y), ", MINIMAP:", minimapBBox, ", PLACER:", placerBBox);
+	//console.log("NEWPOS:", newPos, ", PREVPOINT:", placer.prevPoint, ", DELTAPOINT:", deltaPoint, ", CENTER:", new Point(event.center.x,event.center.y), ", MINIMAP:", minimapBBox, ", PLACER:", placerBBox);
 
 	placer.style.left = newPos.left + "%";
 	placer.style.top = newPos.top + "%";

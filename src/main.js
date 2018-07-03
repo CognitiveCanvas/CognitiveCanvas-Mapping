@@ -149,7 +149,7 @@ function keyPressListener(e) {
 function keyDownListener(e){
   var key = e.key;
   var selectedNode = document.querySelector(".node.selected");
-  console.log("keyDown: " + key);
+  //console.log("keyDown: " + key);
   if ((e.ctrlKey || e.metaKey) && e.key == "z") {
     e.preventDefault();
     undo()
@@ -266,7 +266,7 @@ function addNode(x, y) {
                content: false };
   n = nodes.push(node);
   //redraw(); TODO: Fix bug where nodes are replaced on redraw
-  console.log(nodes);
+  //console.log(nodes);
   return node;
 }
 
@@ -357,7 +357,7 @@ function drawLink(link) {
 }
 
 function removeNode(node) {
-  console.log(node);
+  //console.log(node);
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
@@ -437,7 +437,7 @@ function resetState() {
 }
 
 function selectDraggedObject(e) {
-  console.log("selecting dragged object", e.target);
+  //console.log("selecting dragged object", e.target);
   var obj = getParentMapElement(e.target);
   if (obj) {
     dragged_object = obj;
@@ -447,7 +447,7 @@ function selectDraggedObject(e) {
     var dragged_group = d3.select(dragged_object);
     drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
   }
-  console.log("draggedObject: ", dragged_object);
+  //console.log("draggedObject: ", dragged_object);
   translateSavePrevPosition(dragged_object);
 }
 
@@ -467,7 +467,7 @@ function selectLineDest(node) {
     let data = { 
         "edge"  : addedLink
       };
-    console.log("adding edge data edge", data.edge)
+    //console.log("adding edge data edge", data.edge)
     action_done("addEdge", data);
     var link = drawLink(addedLink);
     source_node = null;
@@ -522,16 +522,16 @@ function drawDragNode(e) {
     let selected_id = node.attr("id");
     let group = $(".group[children_ids~=" + selected_id + "]");
     if(group.length){
-      console.log("this node is in a group")
+      //console.log("this node is in a group")
       var nodeBB = node.node().getBoundingClientRect();
       var newBB = { top : e.pageY - nodeBB.height/2,
           bottom : e.pageY + nodeBB.height/2,
           left : e.pageX - nodeBB.width/2,
           right : e.pageX + nodeBB.width/2
       }
-      console.log(newBB)
+      //console.log(newBB)
       if( !BBIsInGroup(newBB, group.get(0))){
-        console.log("this pos is outside the group");
+        //console.log("this pos is outside the group");
         return;
       }
     }
@@ -676,11 +676,11 @@ function quickAdd(key){
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
     if(key == "Enter"){
-      console.log("quick adding with enter");
+      //console.log("quick adding with enter");
       quickAddX = nodeDims.left + nodeDims.width / 2.0;
       quickAddY = nodeDims.bottom + quickAddDist;
     } else{
-      console.log("quick adding with tab");
+      //console.log("quick adding with tab");
       quickAddX = nodeDims.right + quickAddDist;
       quickAddY = nodeDims.top + nodeDims.height / 2.0;
     }
@@ -689,24 +689,24 @@ function quickAdd(key){
     quickAddY = Math.floor(window.innerHeight/2.0)
   }
   var quickAddPoint = canvas.transformer.fromGlobalToLocal(new Point(quickAddX, quickAddY));
-  console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
+  //console.log("quickAddX: " + quickAddX + ", quickAddY: " + quickAddY + ", quickAddDist: " + quickAddDist);
 
   for(var i = 0; i < 10; i++){
-    console.log("checking for collisions");
+    //console.log("checking for collisions");
     if( checkIntersectionWithNodes(quickAddPoint) ){
-      console.log("translating quickadded node away from collision");
+      //console.log("translating quickadded node away from collision");
       var translation = new Point(key == "Tab" ? quickAddDist : 0, key == "Enter" ? quickAddDist : 0);
       quickAddPoint.x += translation.x;
       quickAddPoint.y += translation.y;
     } else{
-      console.log("found a collision-free zone");
+      //console.log("found a collision-free zone");
       break;
     }
   }
   let addedNode = addNode();
   var node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
   hammerizeNode(node).then( (transformer)=>{
-    console.log("NODE", node);
+    //console.log("NODE", node);
     selectNode(node);
     addLabel("Node Name", node);
     logCreation(key,node);
@@ -808,7 +808,6 @@ function previewContent(ele) {
 
 
 function toggleDrawFunc() {
-  console.log("eqafsCwq")
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
   let toolPalette = document.getElementById("tool-palette");
