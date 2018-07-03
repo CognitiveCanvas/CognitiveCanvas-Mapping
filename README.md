@@ -18,6 +18,34 @@ Download the repository to your local system. The raw html code are in index.htm
 
 In order to test the webstrate, you will need your own [Webstrate](https://webstrates.github.io/) server running on internet or your localhost. Refer to [Webstrate-File-System](https://github.com/Webstrates/file-system) documentation to link resources and assets in external files to the html page  and publish the html page to your webstrate server. 
 
+## Restarting Webstrate Server
+
+Sometimes you may encounter a situation where your [Webstrate](https://webstrates.github.io/) server is down and the page keeps showing "Loading Webstrates". This is not because of bugs in your code. It is often because the webstrate server crushes for different reasons.
+
+### To Fix the Server Crush
+
+Login to webstrates.ucsd.edu (or your published server) with an account with sudoer permission.
+
+Navigate to the root of Webstrate:
+
+```
+cd /opt/Webstrate
+```
+
+Locate the code that crushes the server. Fix it! 
+
+Then navigate back to the root of Webstrate(/opt/Webstrates) and run:
+
+```
+sudo npm run build
+```
+
+Restart the server by running:
+
+```
+sudo systemctl restart webstrates
+```
+
 
 ## Authors
 
