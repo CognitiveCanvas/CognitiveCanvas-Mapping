@@ -104,10 +104,16 @@
                 <h2>Font</h2>
                 <span id="label_edit_container">
                     <button id="label_text_increase">
-                        <svg id="fontSizeIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 17 21.25" x="0px" y="0px"><path d="M16.354 11.896l-0.707 0.707-7.147-7.146-7.146 7.146-0.707-0.707 7.853-7.853 7.854 7.853z" fill="#000000"/></svg>
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="3 0 27 27">
+                          <title>font-size-increase</title>
+                          <path d="M2 16h12v4h-4v12h-4v-12h-4zM30 8h-7.867v24h-4.266v-24h-7.867v-4h20z"></path>
+                        </svg>
                     </button>
                     <button id="label_text_decrease">
-                        <svg id="fontSizeIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 17 21.25" x="0px" y="0px"><path d="M16.354 5.075l-7.855 7.854-7.853-7.854 0.707-0.707 7.145 7.146 7.148-7.147 0.708 0.708z" fill="#000000"/></svg>
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="-29 0 27 27">
+                          <title>font-size-decrease</title>
+                          <path d="M2 16h12v4h-4v12h-4v-12h-4zM30 8h-7.867v24h-4.266v-24h-7.867v-4h20z" transform="scale(-1,1)"></path>
+                        </svg>
                     </button>
                     <button id="label_text_bold" style="font-weight: bold; vertical-align: top;">B</button>
                     <button id="label_text_italics" style="font-weight: italic; vertical-align: top;">I</button>
@@ -207,6 +213,7 @@
     #toolSection {
         text-align: center;
         background-color: #5D5D5D;
+        overflow: hidden;
     }
 
     #uploadImageBtn {
