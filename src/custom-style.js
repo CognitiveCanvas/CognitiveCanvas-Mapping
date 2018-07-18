@@ -1,8 +1,13 @@
 $(document).ready(function() {
-    $("#green_node").click(()=>setColor("green"));
-    $("#red_node").click(()=>setColor("red"));
-    $("#blue_node").click(()=>setColor("blue"));
-    $("#black_node").click(()=>setColor("black"));
+    $("#green_node").click(()=>setNodeColor("green"));
+    $("#red_node").click(()=>setNodeColor("red"));
+    $("#blue_node").click(()=>setNodeColor("blue"));
+    $("#black_node").click(()=>setNodeColor("black"));
+
+    $("#green_link").click(()=>setLinkColor("green"));
+    $("#red_link").click(()=>setLinkColor("red"));
+    $("#blue_link").click(()=>setLinkColor("blue"));
+    $("#black_link").click(()=>setLinkColor("black"));
 
     $("#green_border").click(()=>setBorderColor("green"));
     $("#red_border").click(()=>setBorderColor("red"));

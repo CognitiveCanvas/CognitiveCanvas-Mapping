@@ -129,12 +129,12 @@ function initDrawing() {
       const clearCanvas = document.createElement("div");
       clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
       clearCanvas.addEventListener("touchstart", event => {
-        Array.from(document.querySelectorAll("path")).forEach(svg => {
+        Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
           svg.remove();
         });
       });
       clearCanvas.addEventListener("click", event => {
-        Array.from(document.querySelectorAll("path")).forEach(svg => {
+        Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
           svg.remove();
         });
       });

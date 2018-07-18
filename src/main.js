@@ -847,3 +847,27 @@ function removeFromTransient(element){
   document.getElementById("canvas").appendChild(inner_node);
 
 }
+
+function showEdit() {
+
+  var editSection = document.getElementById("edit");
+
+  if (editSection.style.display === "none") {
+      editSection.style.display = "block";
+  } else {
+      editSection.style.display = "none";
+  }
+
+}
+
+function showDraw() {
+
+  var drawSection = document.getElementById("draw");
+
+  if (drawSection.style.display === "none") {
+      drawSection.style.display = "block";
+  } else {
+      drawSection.style.display = "none";
+  }
+
+}
