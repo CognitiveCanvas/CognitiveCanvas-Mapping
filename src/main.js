@@ -128,9 +128,6 @@ function keyPressListener(e) {
   if (e.ctrlKey || e.metaKey)
     return;
   switch(key) {
-    case "1": // #1
-      if (hoveredEle && !addWindowOpen) addEleContent(e);
-      break;
     default:
       //Edit a node's label if one node is selected and an alphanumeric key is pressed
       if(!temp_label_div){
@@ -713,6 +710,9 @@ function quickAdd(key){
   });
 }
 
+/*
+* DEPRECATED
+*/
 function addEleContent(e) {
   let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
   let wrapper = document.createElement('div');
@@ -730,6 +730,9 @@ function addEleContent(e) {
   addWindowOpen = true;
 }
 
+/*
+* DEPRECATED
+*/
 function closeContentWindow() {
   let wrapper = document.getElementById("addContentWrapper");
   let windowFrame = document.getElementById("addWindow");
@@ -744,12 +747,18 @@ function closeContentWindow() {
   addWindowOpen = false;
 }
 
+/*
+* DEPRECATED
+*/
 function appendNote() {
   let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 100px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';  
   let addWindow = document.getElementById("addWindow");
   addWindow.contentWindow.document.body.innerHTML += appendElement;
 }
 
+/*
+* DEPRECATED
+*/
 function appendPic() {  
   let appendElement = document.createElement('img');
   appendElement.setAttribute("width", "235");
