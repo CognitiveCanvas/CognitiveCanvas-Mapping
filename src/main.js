@@ -214,7 +214,8 @@ function sendSearchMsgToContainer() {
       let nodeID = selected.attr("id");
       let labelText = labelFinder(nodeID);
       let package = {
-        id: nodeID,
+        id: "selected_element",
+        uid: nodeID,
         label: labelText
       };
       window.parent.postMessage(package, "*");
@@ -225,8 +226,8 @@ function sendSearchMsgToContainer() {
 // Related Node/Edge Passing to the Container.
 function sendRelatedEleToContainer(label) {
   let relatedEle = {
-    id: "related_element"
-    label: label,
+    id: "related_element",
+    query: label,
     nodes: [],
     edges: []
   }
