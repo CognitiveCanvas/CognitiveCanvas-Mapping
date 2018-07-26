@@ -227,7 +227,7 @@ function logImage(width, height, src, id) {
  */
 function logDrawing(interaction, path) {
   let event_type = 10;
-  path.setAttribute("id", this.getID());
+  path.setAttribute("id", this.generateNewNodeID());
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),
     "path": path.getAttribute("d"),

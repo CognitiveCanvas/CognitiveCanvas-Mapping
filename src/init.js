@@ -12,6 +12,7 @@ function onLoaded(webstrateId, clientId, user) {
   initDrawing();
   initLog();
   initTransformer();
+  initSnap();
   initAddedNodeHandling();
   initMinimap();
 }

@@ -84,9 +84,11 @@ function canvasSingleTapListener(event){
 *	Adds a node at the clicked location, selects it, and makes the user enter a label for it
 **/
 function canvasDoubleTapListener(event){
-  //console.log("CANVAS DOUBLE TAP");
   var canvasPoint = eventToCanvasPoint(event);
+  node = createNode({position: canvasPoint})
+  logCreation("double tap", node);
 
+  /*
   var addedNode = addNode();
   var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
   hammerizeNode(node).then(
@@ -102,6 +104,7 @@ function canvasDoubleTapListener(event){
     }, function(failure){
       console.log(failure);
     });
+    */
 }
 
 /**
