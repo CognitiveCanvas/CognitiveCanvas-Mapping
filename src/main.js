@@ -222,6 +222,24 @@ function sendSearchMsgToContainer() {
   }
 }
 
+// Related Node/Edge Passing to the Container.
+function sendRelatedEleToContainer(label) {
+  let relatedEle = {
+    id: "related_element"
+    label: label,
+    nodes: [],
+    edges: []
+  }
+  // TODO: Parse/Filter the data JSON with label as keyword, 
+  //       and Add into the related element package
+  
+  
+  
+  if (window.parent) {
+    window.parent.postMessage(relatedEle, "*")
+  }
+}
+
 // Use The id of the Element to find the label of the element!
 function labelFinder(nodeID) {
   let labelElement = document.getElementById(nodeID+"_text");
