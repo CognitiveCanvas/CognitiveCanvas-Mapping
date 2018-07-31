@@ -88,11 +88,13 @@ function createNode(nodeInfo={}){
     function(success){
       selectNode(node);
       addLabel(nodeInfo.label, node);
+
       let data = { 
           "node"  : node,
           "groups": getNodeGroups(node)
         };
       action_done("insertNode", data);
+
     }, function(failure){
       console.log(failure);
     });
@@ -114,12 +116,12 @@ function drawNode(nodeInfo){
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
 
   var shapeInfo = SHAPE_FUNCTIONS[nodeInfo.shape];
-  console.log(shapeInfo)
+
   var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
     class: "node-rep",
     "z-index": 1,
     "xmlns": "http://www.w3.org/2000/svg"
-  }).attr(nodeInfo.style);
+  });
   node.add(nodeRep)
 
   return node.node
@@ -135,7 +137,13 @@ function generateNewNodeID() {
   return clientId + "_" + Date.now();
 }
 
-function nodeToJSON(node){
+/**
+ * Creates a JSON description of a node
+ * @param  {SVGELEMENT} node the node to create JSON from
+ * @return {Object} a standard object representation of the information contained in a node.  See createNode() for structure
+ * @todo Add note
+ */
+function nodeToObject(node){
   let nodeRep = node.getElementsByClassName("node-rep")[0]
   return {
     'id': node.id,
@@ -146,8 +154,8 @@ function nodeToJSON(node){
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
     'style': {
-      'fill': nodeRep.getAttribute("fill"),
-      'stroke': nodeRep.getAttribute("stroke")
+      'fill': nodeRep.getAttribute("fill") || null,
+      'stroke': nodeRep.getAttribute("stroke") || null
     }
   }
 }

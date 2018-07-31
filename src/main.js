@@ -333,7 +333,7 @@ function checkIntersectionWithNodes(nodePoint, radius=null){
 }
 
 function quickAdd(key){
-  var selectedNode = $(".selected.node").last().get(0);
+  let selectedNode = document.querySelector(".selected.node");
   var quickAddX, quixkAddY;
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
@@ -365,14 +365,9 @@ function quickAdd(key){
       break;
     }
   }
-  let addedNode = addNode();
-  var node = drawNode(addedNode, quickAddPoint.x, quickAddPoint.y);
-  hammerizeNode(node).then( (transformer)=>{
-    //console.log("NODE", node);
-    selectNode(node);
-    addLabel("Node Name", node);
-    logCreation(key,node);
-  });
+  
+  let node = createNode({'position': quickAddPoint});
+  logCreation(key,node);
 }
 
 /*
