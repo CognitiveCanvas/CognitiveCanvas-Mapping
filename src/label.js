@@ -27,6 +27,15 @@ function checkLabelExisted(node) {
 }
 
 /**
+ * gets the label (including multiline labels) of a node
+ * @param  {SVGELEMENT} node the node to get the label of
+ * @return {String}     The label as a string.  Multiline labels are combined
+ */
+function getNodeLabel(node){
+  return node.getElementsByTagName("text")[0].textContent;
+}
+
+/**
  * Scale n
  * @param  {[type]} label [description]
  * @param  {[type]} node  [description]
