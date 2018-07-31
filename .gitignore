@@ -1,4 +1,5 @@
 .DS_Store
+.eslintrc.json
 
 CognitiveCanvas.sublime-project
 CognitiveCanvas.sublime-workspace

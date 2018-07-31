@@ -325,8 +325,9 @@ function groupDoubleTapListener(event){
   	'groupId': group.id, 
   	'type': group.classList.contains('map-image') ? "pin" : "node"
   };
-
   let node = createNode(nodeInfo);
+  addNodeToGroup(node, group);
+
   return node;
 }
 
