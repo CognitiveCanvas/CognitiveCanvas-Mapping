@@ -332,6 +332,11 @@ function checkIntersectionWithNodes(nodePoint, radius=null){
   return false
 }
 
+/**
+ * Creates a new node using either the tab or enter key and places it relative to the selected node or the viewport
+ * @param  {String} key "Tab" or "Enter" - Tab places the new node to the right of the currently selected, enter places below
+ * @return {[SVGELEMENT]} node - The created node
+ */
 function quickAdd(key){
   let selectedNode = document.querySelector(".selected.node");
   var quickAddX, quixkAddY;
@@ -368,6 +373,7 @@ function quickAdd(key){
   
   let node = createNode({'position': quickAddPoint});
   logCreation(key,node);
+  return node;
 }
 
 /*

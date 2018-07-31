@@ -320,18 +320,14 @@ function groupPanListener(event){
 function groupDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
   var group = getParentMapElement(event.target);
+  var nodeInfo = {
+  	'position': canvasPoint, 
+  	'groupId': group.id, 
+  	'type': group.classList.contains('map-image') ? "pin" : "node"
+  };
 
-  var addedNode = addNode();
-  var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
-  hammerizeNode(node).then(
-    function(success){
-      if($(group).hasClass('map-image')) $(node).addClass("pin");
-      addNodeToGroup(node, group)
-      selectNode(node, false);
-      addLabel("Node Name", node);
-    }, function(failure){
-      console.log(failure);
-    });	
+  let node = createNode(nodeInfo);
+  return node;
 }
 
 function hammerizeMinimap(){

@@ -11,6 +11,7 @@
  *   'shape': {string} rectangle/circle,
  *   'position': [{float}, {float}] [centrx,centery],
  *   'scale': [{float}, {float}] [x,y],
+ *   'groupId': {string} the id of the group this node belongs to
  *   'style':
  *   {
  *     'fill': {string} css color,
@@ -22,11 +23,13 @@ var snap;
 var SHAPE_FUNCTIONS;
 
 var NODE_DEFAULTS = {
+  'type': "Node",
   'label': "Node Name",
   'note': null,
   'shape': "rectangle",
   'position': {x: 50, y: 50},
   'scale': {x:1, y: 1},
+  'groupId': null,
   'style': {
     'fill': 'rgba(46, 127, 195, 0.1)',
     'stroke': "blue"
@@ -56,12 +59,13 @@ function initSnap(){
  * @param  {object} nodeInfo - describes the node to be created, all properties have defaults
  * {
  *   'id': {string} the node's ID
- *   'type': {string} node/link/image/etc,
+ *   'type': {string} node/pin/link/image/etc,
  *   'label': {string} label,
  *   'note': {string} ID of any notes attached to this node,
  *   'shape': {string} rectangle/circle,
  *   'position': [{float}, {float}] [centrx,centery],
  *   'scale': [{float}, {float}] [x,y],
+ *   'groupId': {string} the id of the group this node belongs to,
  *   'style':
  *   {
  *     'fill': {string} css color,
@@ -78,7 +82,6 @@ function createNode(nodeInfo={}){
     nodeInfo,
     {
       id: generateNewNodeID(),
-      type: "node"
     }
   );
 
@@ -111,9 +114,11 @@ function drawNode(nodeInfo){
   var node = snap.g().attr(
     {
       id: nodeInfo.id,
-      class: "node",
-      shape: nodeInfo.shape
+      class: "node" + (nodeInfo.type !== "node" ? " " + nodeInfo.type : ""),
+      shape: nodeInfo.shape,
+
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
+  if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
 
   var shapeInfo = SHAPE_FUNCTIONS[nodeInfo.shape];
 
