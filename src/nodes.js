@@ -120,16 +120,46 @@ function drawNode(nodeInfo){
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
   if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
 
-  var shapeInfo = SHAPE_FUNCTIONS[nodeInfo.shape];
+  drawNodeRep(node, nodeInfo.shape){
+
+  }
+
+  return node.node
+}
+
+/**
+ * Creates the SVG Shape nested inside the <g> tag that represents the node
+ * @param  {SVGELEMENT || Snap.Paper} The <g> tag to add the node representation to.  
+ * Can be a reference to an SVG <g> tag, or one selected by Snap()
+ * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
+ * @return none
+ */
+function drawNodeRep(node, shape="rect"){
+  node = node instanceof SVGElement ? Snap(node): node;
+  var shapeInfo = SHAPE_FUNCTIONS[shape];
 
   var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
     class: "node-rep",
     "z-index": 1,
     "xmlns": "http://www.w3.org/2000/svg"
   });
-  node.add(nodeRep)
+  node.attr({'shape': shape})
 
-  return node.node
+  node.add(nodeRep)
+}
+
+/**
+ * Changes the shape of a node that already has a node-rep
+ * @param {string} shape ["rect" | "circle" | "triangle"] the new shape of the node
+ * @param {nodeList} nodes the nodes to change the shape of.  Default - change the shape of
+ * selected nodes
+ */
+function setNodeShape(shape, nodes=null){
+  if (!nodes) nodes = document.querySelectorAll(".node.selected");
+  nodes.forEach( (node)=>{
+    node.querySelector(".node-rep").remove();
+    drawNodeRep(node, shape);
+  });
 }
 
  /**
@@ -158,6 +188,7 @@ function nodeToObject(node){
     'shape': node.getAttribute("shape"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
+    'groupId': node.getAttribute("groupId") || null
     'style': {
       'fill': nodeRep.getAttribute("fill") || null,
       'stroke': nodeRep.getAttribute("stroke") || null
@@ -313,7 +344,6 @@ function removeNode(node) {
       group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     });
 
-  closePreviewIframe("node");
   node_d3.classed("deleted", true);
   let temp_transient = document.createElement("transient");
   temp_transient.appendChild(node_d3.node());
@@ -323,7 +353,6 @@ function removeNode(node) {
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
-  closePreviewIframe("edge");
   link.classed("deleted", true);
   let temp_transient = document.createElement("transient");
   temp_transient.appendChild(link.node());
