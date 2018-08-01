@@ -47,8 +47,8 @@ function initSnap(){
 
   SHAPE_FUNCTIONS = {
     'rectangle': { 'function': snap.rect, 'args': [-50,-25,100,50] },
-    'circle': { 'function': snap.circle, 'args': [50,50,50]},
-    'triangle': { 'function': snap.polyline, 'args': [50,0, 100,100, 0,100]},
+    'circle': { 'function': snap.circle, 'args': [0,0,50]},
+    'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
   }
   NODE_DEFAULTS.position = new Point(50, 50);
   NODE_DEFAULTS.scale = new Point(1, 1);
@@ -120,9 +120,7 @@ function drawNode(nodeInfo){
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
   if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
 
-  drawNodeRep(node, nodeInfo.shape){
-
-  }
+  drawNodeRep(node, nodeInfo.shape)
 
   return node.node
 }
@@ -145,7 +143,7 @@ function drawNodeRep(node, shape="rect"){
   });
   node.attr({'shape': shape})
 
-  node.add(nodeRep)
+  node.prepend(nodeRep)
 }
 
 /**
@@ -180,18 +178,27 @@ function generateNewNodeID() {
  */
 function nodeToObject(node){
   let nodeRep = node.getElementsByClassName("node-rep")[0]
+  let label = node.getElementsByClassName("label")[0];
   return {
     'id': node.id,
-    'type': "node",
+    'type': "node" + node.classList.contains("pin") ? " pin": "",
     'label': getNodeLabel(node),
     'note': null,
     'shape': node.getAttribute("shape"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
-    'groupId': node.getAttribute("groupId") || null
+    'groupId': node.getAttribute("groupId") || null,
     'style': {
-      'fill': nodeRep.getAttribute("fill") || null,
-      'stroke': nodeRep.getAttribute("stroke") || null
+      'node-rep':{
+        'fill': nodeRep.style.fill || "default",
+        'stroke': nodeRep.style.stroke || "default"
+      },
+      'label':{
+        'font-size': label.style.fontSize,
+        'font-color': label.style.stroke,
+        'italic': label.style.fontStyle === "italic",
+        'bold' : label.style.fontWeight === FONT_BOLD
+      }
     }
   }
 }

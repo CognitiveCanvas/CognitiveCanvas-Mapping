@@ -79,9 +79,11 @@
 
                 <h2>Node</h2>
                 <span id="node_shape_container">
-                    <button class="node_shape_button" id="rect_btn" onclick="setNodeShape('rect')"></button>
-                    <button class="node_shape_button" id="circle_btn" onclick="setNodeShape('circle')"></button>
-                    <button class="node_shape_button" id="triangle_btn" onclick="setNodeShape('triangle')"></button>
+                    <button class="node_shape_button" id="rectangle_btn"></button>
+                    <button class="node_shape_button" id="circle_btn"></button>
+                    <svg class="node_shape_button" id="triangle_btn">
+                        <polygon points="20,2 38,38, 2,38"></polygon>
+                    </svg>
                 </span>
                 <span id="node_color_container">
                     <button class="node_color_button" id="green_node"></button>

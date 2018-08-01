@@ -29,20 +29,29 @@
  * The buttons on the sidebar that change the shape of a node
  */
 #node_shape_container{
-
 }
 .node_shape_button{
   width: 40px;
   height: 40px;
+  border-color: blue;
+  border-width: 4px;
+  background-color: rgba(46, 127, 195, 0.5);
 }
-#rect_btn{
+#rectangle_btn{
 
 }
 #circle_btn{
-
+  border-radius: 50%;
 }
 #triangle_btn{
-
+  vertical-align: bottom;
+  margin: 2px;
+  background-color: transparent;
+}
+#triangle_btn polygon{
+  stroke: blue;
+  stroke-width: 4px;
+  fill: rgba(46, 127, 195, 0.5);
 }
 
 #label_edit_container{

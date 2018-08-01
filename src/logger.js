@@ -41,7 +41,7 @@ function logCreation(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
-    if (element.getAttribute("class").split(" ").length === 3) {
+    if (element.classList.contains("pin")) {
       levelName += " pin";
     }
     content = {
