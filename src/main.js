@@ -222,13 +222,12 @@ function sendSearchMsgToContainer() {
 
 // Related Node/Edge Passing to the Container.
 function sendRelatedEleToContainer(label) {
-  // TODO: Parse/Filter the data JSON with label as keyword, 
-  //       and Add into the related element package
-  let nodeList = nodes.filter(function(node) {
-    return node.indexOf(label) > -1;
+  let nodeList = getAllNodeObjects().filter(function(node) {
+    return node.label.indexOf(label) > -1;
   });
-  let edgeList = links.filter(function(link) {
-    return link.indexOf(label) > -1;
+  // TODO: change below to getAllEdgeObjects
+  let edgeList = getAllNodeObjects().filter(function(link) {
+    return link.label.indexOf(label) > -1;
   });
   
   let status;
@@ -240,6 +239,7 @@ function sendRelatedEleToContainer(label) {
   
   let relatedEle = {
     id: "related_element",
+    response_status: status,
     query: label,
     nodes: nodeList,
     edges: edgeList
