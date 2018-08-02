@@ -325,7 +325,6 @@ function groupPanListener(event){
 }
 
 function groupDoubleTapListener(event){
-  console.log("double tap on group")
   var canvasPoint = eventToCanvasPoint(event);
   var group = getParentMapElement(event.target);
   var nodeInfo = {
