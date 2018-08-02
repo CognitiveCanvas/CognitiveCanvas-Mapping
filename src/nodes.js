@@ -378,21 +378,6 @@ function removeLink(link) {
   document.getElementById("canvas").appendChild(temp_transient);
 }
 
-function selectDraggedObject(e) {
-  //console.log("selecting dragged object", e.target);
-  var obj = getParentMapElement(e.target);
-  if (obj) {
-    dragged_object = obj;
-    //selectNode(parentNode);
-  } else if( $(e.target).hasClass("group") ){
-    dragged_object = e.target;
-    var dragged_group = d3.select(dragged_object);
-    drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
-  }
-  //console.log("draggedObject: ", dragged_object);
-  translateSavePrevPosition(dragged_object);
-}
-
 function selectLineDest(node) {
   hideDragLine();
   if (dragged_object) {
