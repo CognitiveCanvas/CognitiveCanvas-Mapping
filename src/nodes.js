@@ -3,36 +3,60 @@
  *Defines the behavior of "nodes" on the concept map, along with how they are created, deleted, and acted upon
  *
  * Node data Structure:
- * {
- *   'id': {string} the node's ID
- *   'type': {string} node/link/image/etc,
- *   'label': {string} label,
- *   'note': {string} ID of any notes attached to this node,
- *   'shape': {string} rectangle/circle,
- *   'position': [{float}, {float}] [centrx,centery],
- *   'scale': [{float}, {float}] [x,y],
- *   'groupId': {string} the id of the group this node belongs to
- *   'style':
- *   {
- *     'fill': {string} css color,
- *     'stroke': {string} css color
- *   }
+{
+  'id': String,
+  'label': String,
+  'note': String - the id of the sticky note,
+  'position': Point - contains x,y coordinates of node,
+  'scale': [x,y] the amount of transformation on the object,
+  'size': [x,y] the calculated size of the node,
+  'groupId': String - the Id of the group this node belongs to,
+  'reps':{
+    'mapping':{
+      'type': String - "node" | "link" | "pin" | "goup" | "image,
+      'shape': String - "rectangle | circle | triangle,
+      'style': {
+        'node-rep':{
+          'fill': nodeRep.style.fill || "default",
+          'stroke': nodeRep.style.stroke || "default"
+        },
+        'label':{
+          'font-size': label.style.fontSize || "default",
+          'font-color': label.style.stroke || "default",
+          'font-family': label.style.fontFamily || "default",
+          'italic': label.style.fontStyle === "italic",
+          'bold' : label.style.fontWeight === String(FONT_BOLD)
+        }
+      }
+    }
+  }
+}
  * }
  */
 var snap;
 var SHAPE_FUNCTIONS;
 
 var NODE_DEFAULTS = {
-  'type': "node",
   'label': "Node Name",
   'note': null,
-  'shape': "rectangle",
   'position': {x: 50, y: 50},
   'scale': {x:1, y: 1},
   'groupId': null,
-  'style': {
-    'fill': 'rgba(46, 127, 195, 0.1)',
-    'stroke': "blue"
+  'reps': {
+    'mapping':{
+      'type': "node",
+      'shape': "rectangle",
+      'style': {
+        'node-rep':{
+          'fill': 'rgba(46, 127, 195, 0.1)',
+          'stroke': "blue"
+        },
+        'label': {
+
+        }
+
+      }
+    }
   }
 }
 
@@ -73,7 +97,8 @@ function initSnap(){
  *   }
  * }
  *                           
- * @return {SVGELEMENT} the created svg node, a <g> tag
+ * @return {Promise} Returns a promise that will resolve to the created node once it has been 
+ * rendered, inserted to the DOM, and has the apporpriate listeners attached.
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
@@ -90,6 +115,7 @@ function createNode(nodeInfo={}){
 
     hammerizeNode(node).then(
       function(success){
+
         selectNode(node);
         addLabel(nodeInfo.label, node);
 
@@ -117,13 +143,13 @@ function drawNode(nodeInfo){
   var node = snap.g().attr(
     {
       id: nodeInfo.id,
-      class: "node" + (nodeInfo.type !== "node" ? " " + nodeInfo.type : ""),
+      class: "node" + (nodeInfo.reps.mapping.type !== "node" ? " " + nodeInfo.type : ""),
       shape: nodeInfo.shape,
-
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
+  
   if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
 
-  drawNodeRep(node, nodeInfo.shape)
+  var nodeRep = drawNodeRep(node, nodeInfo);
 
   return node.node
 }
@@ -135,8 +161,9 @@ function drawNode(nodeInfo){
  * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
  * @return none
  */
-function drawNodeRep(node, shape="rect"){
+function drawNodeRep(node, nodeInfo=NODE_DEFAULTS){
   node = node instanceof SVGElement ? Snap(node): node;
+  var shape = nodeInfo.reps.mapping.shape;
   var shapeInfo = SHAPE_FUNCTIONS[shape];
 
   var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
@@ -146,7 +173,12 @@ function drawNodeRep(node, shape="rect"){
   });
   node.attr({'shape': shape})
 
+  Object.keys(nodeInfo.reps.mapping.style['node-rep']).forEach( (attr)=>{
+    nodeRep.node.style[attr] = nodeInfo.reps.mapping.style['node-rep'][attr]
+  })
+
   node.prepend(nodeRep)
+  return nodeRep;
 }
 
 /**
@@ -158,8 +190,10 @@ function drawNodeRep(node, shape="rect"){
 function setNodeShape(shape, nodes=null){
   if (!nodes) nodes = document.querySelectorAll(".node.selected");
   nodes.forEach( (node)=>{
+    var nodeInfo = nodeToObject(node);
+    nodeInfo.reps.mapping.shape = shape;
     node.querySelector(".node-rep").remove();
-    drawNodeRep(node, shape);
+    drawNodeRep(node, nodeInfo);
   });
 }
 
@@ -184,29 +218,35 @@ function nodeToObject(node){
   let label = node.getElementsByClassName("label")[0];
   return {
     'id': node.id,
-    'type': "node" + (node.classList.contains("pin") ? " pin": ""),
     'label': getNodeLabel(node),
     'note': null,
-    'shape': node.getAttribute("shape"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
     'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
     'groupId': node.getAttribute("groupId") || null,
-    'style': {
-      'node-rep':{
-        'fill': nodeRep.style.fill || "default",
-        'stroke': nodeRep.style.stroke || "default"
-      },
-      'label':{
-        'font-size': label.style.fontSize || "default",
-        'font-color': label.style.stroke || "default",
-        'font-family': label.style.fontFamily || "default",
-        'italic': label.style.fontStyle === "italic",
-        'bold' : label.style.fontWeight === String(FONT_BOLD)
+    'reps':{
+      'mapping':{
+        'type': "node" + (node.classList.contains("pin") ? " pin": ""),
+        'shape': node.getAttribute("shape"),
+        'style': {
+          'node-rep':{
+            'fill': nodeRep.style.fill || null,
+            'stroke': nodeRep.style.stroke || null
+          },
+          'label':{
+            'font-size': label.style.fontSize || "default",
+            'font-color': label.style.stroke || "default",
+            'font-family': label.style.fontFamily || "default",
+            'italic': label.style.fontStyle === "italic",
+            'bold' : label.style.fontWeight === String(FONT_BOLD)
+          }
+        }
       }
     }
   }
 }
+
+
 
 /**
  * [getAllNodeObjects description]
@@ -278,51 +318,6 @@ function deleteEntity(entities, id) {
   }
 }
 
-/**
-function drawNode(node, cx, cy, shape=defaultShape, radius=defaultRadius, color=defaultColor) {
-  let x = parseInt(cx)
-  let y = parseInt(cy)
-
-  if (shape === "circle") {
-    var nodeG = d3.select(canvas)
-      .append("g")
-      .attr("class", "node")
-      .attr("id", node.id)
-      .attr("content", "false")
-      .attr("transform", "matrix(1,0,0,1,"+x+","+y+")");
-    nodeG
-      .append(shape)
-      .attr("class", "node-rep")
-      .style("fill", color)
-      .style("z-index", 1)
-      .attr("r", radius)
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("xmlns", "http://www.w3.org/2000/svg");
-  }
-
-  if (shape === "rect") {
-    var nodeG = d3.select(canvas)
-      .append("g")
-      .attr("class", "node")
-      .attr("id", node.id)
-      .attr("content", "false")
-      .attr("transform", "translate("+x+","+y+")");
-    nodeG
-      .append(shape)
-      .attr("class", "node-rep")
-      .style("fill", color)
-      .style("z-index", 1)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("xmlns", "http://www.w3.org/2000/svg");
-  }
-  return nodeG.node();
-}
-*/
-
 function drawLink(link) {
   let linkSrcNode = document.getElementById(link.sourceId);
   let linkDestNode = document.getElementById(link.destId);
@@ -381,21 +376,6 @@ function removeLink(link) {
   let temp_transient = document.createElement("transient");
   temp_transient.appendChild(link.node());
   document.getElementById("canvas").appendChild(temp_transient);
-}
-
-function selectDraggedObject(e) {
-  //console.log("selecting dragged object", e.target);
-  var obj = getParentMapElement(e.target);
-  if (obj) {
-    dragged_object = obj;
-    //selectNode(parentNode);
-  } else if( $(e.target).hasClass("group") ){
-    dragged_object = e.target;
-    var dragged_group = d3.select(dragged_object);
-    drag_offset = [dragged_group.attr("x") - e.pageX, dragged_group.attr("y") - e.pageY]
-  }
-  //console.log("draggedObject: ", dragged_object);
-  translateSavePrevPosition(dragged_object);
 }
 
 function selectLineDest(node) {
@@ -457,33 +437,6 @@ function drawDragLine(endPoint) {
           .attr("y1", srcPos.y)
           .attr("x2", endPoint.x)
           .attr("y2", endPoint.y)
-}
-
-function drawDragNode(e) {
-  //console.log("drawing drag node");
-  if (dragged_object != null) {
-    let node = d3.select(dragged_object);
-    if(!node.classed("selected") ){
-      selectNode(node, !e.shiftKey);
-    }
-    let selected_id = node.attr("id");
-    let group = $(".group[children_ids~=" + selected_id + "]");
-    if(group.length){
-      //console.log("this node is in a group")
-      var nodeBB = node.node().getBoundingClientRect();
-      var newBB = { top : e.pageY - nodeBB.height/2,
-          bottom : e.pageY + nodeBB.height/2,
-          left : e.pageX - nodeBB.width/2,
-          right : e.pageX + nodeBB.width/2
-      }
-      //console.log(newBB)
-      if( !BBIsInGroup(newBB, group.get(0))){
-        //console.log("this pos is outside the group");
-        return;
-      }
-    }
-    translateNode(dragged_object, e.pageX, e.pageY);
-  }
 }
 
 //Helper Function to move a node group

@@ -413,112 +413,6 @@ function quickAdd(key){
   });
 }
 
-/*
-* DEPRECATED
-*/
-function addEleContent(e) {
-  let newNodeAddress = WEBSTRATES_URL_PREFIX + hoveredEle;
-  let wrapper = document.createElement('div');
-  wrapper.setAttribute("id", "addContentWrapper");
-  
-  let toFrame = '<iframe id="addWindow" src="'+ newNodeAddress + '"><p>ERROR: Your browser does not support iframes.</p></iframe>';
-  let addNoteButton = '<button type="button" id="addNoteBtn" onclick="appendNote()">Add Sticky Note</button> ';
-  let addPicButton = '<input type="file" id="addPicBtn" onchange="appendPic()"> ';
-  let closeButton = '<button type="button" id="closeWindowBtn" onclick="closeContentWindow()">Close Content Window</button> ';
-  
-  wrapper.innerHTML = toFrame + addNoteButton + addPicButton + closeButton;
-  
-  document.getElementById("content_container").appendChild(wrapper);
-  addEleToList(e);    
-  addWindowOpen = true;
-}
-
-/*
-* DEPRECATED
-*/
-function closeContentWindow() {
-  let wrapper = document.getElementById("addContentWrapper");
-  let windowFrame = document.getElementById("addWindow");
-  let noteBtn = document.getElementById("addNoteBtn");
-  let picBtn = document.getElementById("addPicBtn");
-  let closeBtn = document.getElementById("closeWindowBtn");
-  windowFrame.parentNode.removeChild(windowFrame);
-  noteBtn.parentNode.removeChild(noteBtn);
-  picBtn.parentNode.removeChild(picBtn);
-  closeBtn.parentNode.removeChild(closeBtn);
-  wrapper.parentNode.removeChild(wrapper);
-  addWindowOpen = false;
-}
-
-/*
-* DEPRECATED
-*/
-function appendNote() {
-  let appendElement = '<div class="note" contenteditable="true" style="left: 8px;top: 8px;width: 235px;min-height: 100px;padding: 16px;box-shadow: 5px 5px 10px gray;background-color: rgb(255, 255, 150);font-size: 12pt;word-wrap: break-word;"></div><br>';  
-  let addWindow = document.getElementById("addWindow");
-  addWindow.contentWindow.document.body.innerHTML += appendElement;
-}
-
-/*
-* DEPRECATED
-*/
-function appendPic() {  
-  let appendElement = document.createElement('img');
-  appendElement.setAttribute("width", "235");
-  appendElement.setAttribute("alt", "Loading Image...");
-  let addWindow = document.getElementById("addWindow");
-  addWindow.contentWindow.document.body.appendChild(appendElement);
-    
-  let imgList = addWindow.contentWindow.document.querySelectorAll('img'); //selects the query named img
-  let preview = imgList[imgList.length-1];
-  let file    = document.querySelector('input[type=file]').files[0];
-  let reader  = new FileReader();
-    
-  reader.onloadend = function () {
-    preview.src = reader.result;
-  }
-
-  if (file) reader.readAsDataURL(file); //reads the data as a URL
-  else preview.src = "";
-}
-
-function addEleToList(e) {
-  if (nodes.find(x => x.id === hoveredEle)) {
-    nodes.find(x => x.id === hoveredEle).content = "true";
-    if (document.getElementById(hoveredEle)) { //Prevent finding null to error out the entire page;
-      document.getElementById(hoveredEle).setAttribute("content","true");
-    }
-  }
-  else if (links.find(x => x.id === hoveredEle)) {
-    links.find(x => x.id === hoveredEle).content = "true";
-    if (document.getElementById(hoveredEle)) { 
-      document.getElementById(hoveredEle).setAttribute("content","true");
-    }
-  }
-  else {
-      console.warn("Node/Link NOT FOUND");
-  }
-}
-
-function previewContent(ele) {
-    let addressToFrame = WEBSTRATES_URL_PREFIX + ele;
-    
-    let wrapper = document.createElement('div');
-    wrapper.setAttribute("id", "previewing");
-    
-    let toFrame = document.createElement('iframe');
-    toFrame.setAttribute("id", "previewIframe");
-    toFrame.setAttribute("src", addressToFrame);
-    
-    let warningTxt = document.createElement('p');
-    warningTxt.innerHTML = "ERROR: Your browser does not support iframes.";
-    
-    toFrame.appendChild(warningTxt);
-    wrapper.appendChild(toFrame);
-    document.body.appendChild(wrapper);
-}
-
-
 function toggleDrawFunc() {
   let pad = document.getElementById("d3_container");
   let toggltBtn = document.getElementById("toggle_touch_drawing");
@@ -581,5 +475,19 @@ function showDraw() {
   } else {
       drawSection.style.display = "none";
   }
+}
 
+/**
+ * Moves the viewport so that the input dom element is in the center of it
+ * @param  {DOMELEMENT} element - the dom element to center the view on
+ */
+function centerViewOnElement(element){
+  viewport = document.getElementById("CogCanvas");
+  var viewDims = [viewport.clientWidth - document.getElementById("content_container").clientWidth, viewport.clientHeight]
+  var viewCenter = [viewDims[0]/2, viewDims[1]/2]
+  var eleDims = element.getBoundingClientRect();
+  var eleCenter = [eleDims.left + eleDims.width/2, eleDims.top + eleDims.height/2];
+  var distance = [eleCenter[0] - viewCenter[0], eleCenter[1] - viewCenter[1]];
+
+  translateCanvas( new Point(distance[0] * -1, distance[1] * -1) );
 }
