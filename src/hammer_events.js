@@ -85,8 +85,9 @@ function canvasSingleTapListener(event){
 **/
 function canvasDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
-  node = createNode({position: canvasPoint})
-  logCreation("double tap", node);
+  node = createNode({position: canvasPoint}).then( (node)=>{
+  	logCreation("double tap", node);
+  })
 
   /*
   var addedNode = addNode();
@@ -294,22 +295,28 @@ function hammerizeGroup(group){
 	});
 }
 
+/**
+ * Handles the pan hammer event for groups.
+ * @param  {event} event a hammer PAN type event triggered by a group element
+ */
 function groupPanListener(event){
 	var group = getParentMapElement(event.target);
 
 	if(event.type === 'panstart'){
 		group.nodes = getGroupedNodes(group);
-		group.prevPoint = new Point(0, 0);
+		group.prevDeltaPoint = new Point(0, 0);
 		translateSavePrevPosition(group);
 	}
 
-	var deltaPoint = group.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
-	var deltaDeltaPoint = new Point(deltaPoint.x - group.prevPoint.x, deltaPoint.y - group.prevPoint.y)
+	var deltaPoint = new Point(event.deltaX, event.deltaY);
+	var deltaDeltaPoint = new Point(deltaPoint.x - group.prevDeltaPoint.x, deltaPoint.y - group.prevDeltaPoint.y)
 
+	//IMPORTANT NOTE: this handler sends a vector in global space to moveGroup so it can translate it
+	//into local coordinates for the group and any nodes it contains
 	moveGroup(group, deltaDeltaPoint);
 
-	group.prevPoint.x = deltaPoint.x;
-	group.prevPoint.y = deltaPoint.y;
+	group.prevDeltaPoint.x = deltaPoint.x;
+	group.prevDeltaPoint.y = deltaPoint.y;
 
 	if(event.type === 'panend'){
 		group.nodes = null;
@@ -318,6 +325,7 @@ function groupPanListener(event){
 }
 
 function groupDoubleTapListener(event){
+  console.log("double tap on group")
   var canvasPoint = eventToCanvasPoint(event);
   var group = getParentMapElement(event.target);
   var nodeInfo = {
@@ -325,8 +333,9 @@ function groupDoubleTapListener(event){
   	'groupId': group.id, 
   	'type': group.classList.contains('map-image') ? "pin" : "node"
   };
-  let node = createNode(nodeInfo);
-  addNodeToGroup(node, group);
+  let node = createNode(nodeInfo).then( (node)=>{
+  	addNodeToGroup(node, group)
+  });
 
   return node;
 }

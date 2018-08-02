@@ -23,7 +23,7 @@ var snap;
 var SHAPE_FUNCTIONS;
 
 var NODE_DEFAULTS = {
-  'type': "Node",
+  'type': "node",
   'label': "Node Name",
   'note': null,
   'shape': "rectangle",
@@ -77,31 +77,34 @@ function initSnap(){
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
-  nodeInfo = Object.assign( {},
-    NODE_DEFAULTS, 
-    nodeInfo,
-    {
-      id: generateNewNodeID(),
-    }
-  );
+  return new Promise((resolve, reject)=>{
+    nodeInfo = Object.assign( {},
+      NODE_DEFAULTS, 
+      nodeInfo,
+      {
+        id: generateNewNodeID(),
+      }
+    );
 
-  var node = drawNode(nodeInfo)
+    var node = drawNode(nodeInfo)
 
-  hammerizeNode(node).then(
-    function(success){
-      selectNode(node);
-      addLabel(nodeInfo.label, node);
+    hammerizeNode(node).then(
+      function(success){
+        selectNode(node);
+        addLabel(nodeInfo.label, node);
 
-      let data = { 
-          "node"  : node,
-          "groups": getNodeGroups(node)
-        };
-      action_done("insertNode", data);
+        let data = { 
+            "node"  : node,
+            "groups": getNodeGroups(node)
+          };
+        action_done("insertNode", data);
+        resolve(node);
 
-    }, function(failure){
-      console.log(failure);
-    });
-  return node;
+      }, function(failure){
+        console.log(failure);
+        reject(null);
+      });
+  });
 }
 
 /**
@@ -181,12 +184,13 @@ function nodeToObject(node){
   let label = node.getElementsByClassName("label")[0];
   return {
     'id': node.id,
-    'type': "node" + node.classList.contains("pin") ? " pin": "",
+    'type': "node" + (node.classList.contains("pin") ? " pin": ""),
     'label': getNodeLabel(node),
     'note': null,
     'shape': node.getAttribute("shape"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
+    'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
     'groupId': node.getAttribute("groupId") || null,
     'style': {
       'node-rep':{
@@ -194,13 +198,26 @@ function nodeToObject(node){
         'stroke': nodeRep.style.stroke || "default"
       },
       'label':{
-        'font-size': label.style.fontSize,
-        'font-color': label.style.stroke,
+        'font-size': label.style.fontSize || "default",
+        'font-color': label.style.stroke || "default",
+        'font-family': label.style.fontFamily || "default",
         'italic': label.style.fontStyle === "italic",
-        'bold' : label.style.fontWeight === FONT_BOLD
+        'bold' : label.style.fontWeight === String(FONT_BOLD)
       }
     }
   }
+}
+
+/**
+ * [getAllNodeObjects description]
+ * @return {[type]} [description]
+ */
+function getAllNodeObjects(){
+  var allNodes = []
+  document.querySelectorAll(".node").forEach( (node)=>{
+    allNodes.push(nodeToObject(node));
+  })
+  return allNodes;
 }
 
 /**
@@ -471,9 +488,10 @@ function drawDragNode(e) {
 
 //Helper Function to move a node group
 /**
-node: the node to move along with its links
-x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
-y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
+* node: the node to move along with its links
+* IMPORTANT: Takes coordinates in local (canvas)
+* x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
+* y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
 **/
 function translateNode(node, vector, relative=false, links=null){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
