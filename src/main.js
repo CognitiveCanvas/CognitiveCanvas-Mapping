@@ -222,16 +222,28 @@ function sendSearchMsgToContainer() {
 
 // Related Node/Edge Passing to the Container.
 function sendRelatedEleToContainer(label) {
+  // TODO: Parse/Filter the data JSON with label as keyword, 
+  //       and Add into the related element package
+  let nodeList = nodes.filter(function(node) {
+    return node.indexOf(label) > -1;
+  });
+  let edgeList = links.filter(function(link) {
+    return link.indexOf(label) > -1;
+  });
+  
+  let status;
+  if (nodeList.length == 0 && edgeList.length == 0) {
+    status = 204
+  } else {
+    status = 200
+  }
+  
   let relatedEle = {
     id: "related_element",
     query: label,
-    nodes: [],
-    edges: []
+    nodes: nodeList,
+    edges: edgeList
   }
-  // TODO: Parse/Filter the data JSON with label as keyword, 
-  //       and Add into the related element package
-  
-  
   
   if (window.parent) {
     window.parent.postMessage(relatedEle, "*")
@@ -258,37 +270,41 @@ function labelFinder(nodeID) {
   }
 }
 
-function closePreviewIframe(target) {
-  if (hoveredEle) {
-    
-    switch (target) {
-      case "node":
-        if (nodes.find(x => x.id === hoveredEle)) {
-          if (nodes.find(x => x.id === hoveredEle).content){
-            var elem = document.getElementById("previewing");
-            if (elem) {
-              elem.parentNode.removeChild(elem);
-            }
-          }
-        }
-        break;
-      case "edge":
-        if (links.find(x => x.id === hoveredEle)) {
-          if (links.find(x => x.id === hoveredEle).content){
-            var elem = document.getElementById("previewing");
-            if (elem) {
-              elem.parentNode.removeChild(elem);
-            }
-          }
-        }
-        break;
-      default:
-        console.warn("Invalid Function Call on closePreviewIframe(target)");
-        break;
-    }
-    
-  }
-}
+
+/*
+ * Deprecared
+ */
+//function closePreviewIframe(target) {
+//  if (hoveredEle) {
+//    
+//    switch (target) {
+//      case "node":
+//        if (nodes.find(x => x.id === hoveredEle)) {
+//          if (nodes.find(x => x.id === hoveredEle).content){
+//            var elem = document.getElementById("previewing");
+//            if (elem) {
+//              elem.parentNode.removeChild(elem);
+//            }
+//          }
+//        }
+//        break;
+//      case "edge":
+//        if (links.find(x => x.id === hoveredEle)) {
+//          if (links.find(x => x.id === hoveredEle).content){
+//            var elem = document.getElementById("previewing");
+//            if (elem) {
+//              elem.parentNode.removeChild(elem);
+//            }
+//          }
+//        }
+//        break;
+//      default:
+//        console.warn("Invalid Function Call on closePreviewIframe(target)");
+//        break;
+//    }
+//    
+//  }
+//}
 
 function resetState() {
   //console.log("state was reset");
