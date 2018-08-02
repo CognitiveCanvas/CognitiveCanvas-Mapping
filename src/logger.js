@@ -41,14 +41,14 @@ function logCreation(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
-    if (element.getAttribute("class").split(" ").length === 3) {
+    if (element.classList.contains("pin")) {
       levelName += " pin";
     }
     content = {
       "id": element.getAttribute("id"),
       "color": element.children[0].style.cssText,
       "shape": element.children[0].tagName,
-      "size": element.children[0].r.animVal.value,
+      "size": [element.transformer.localScale.x * DEFAULT_NODE_SIZE[0], element.transformer.localScale.y * DEFAULT_NODE_SIZE[1]],
       "label_text": "Node Name",
       "label_size": "15px",
       "label_color": "green",

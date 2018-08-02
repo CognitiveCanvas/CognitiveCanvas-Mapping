@@ -406,9 +406,11 @@ function quickAdd(key){
     }
   }
   
-  let node = createNode({'position': quickAddPoint});
-  logCreation(key,node);
-  return node;
+  let node = createNode({'position': quickAddPoint}).then( (node)=>
+  { 
+    logCreation(key,node);
+    return node;
+  });
 }
 
 /*

@@ -23,7 +23,7 @@ var snap;
 var SHAPE_FUNCTIONS;
 
 var NODE_DEFAULTS = {
-  'type': "Node",
+  'type': "node",
   'label': "Node Name",
   'note': null,
   'shape': "rectangle",
@@ -47,8 +47,8 @@ function initSnap(){
 
   SHAPE_FUNCTIONS = {
     'rectangle': { 'function': snap.rect, 'args': [-50,-25,100,50] },
-    'circle': { 'function': snap.circle, 'args': [50,50,50]},
-    'triangle': { 'function': snap.polyline, 'args': [50,0, 100,100, 0,100]},
+    'circle': { 'function': snap.circle, 'args': [0,0,50]},
+    'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
   }
   NODE_DEFAULTS.position = new Point(50, 50);
   NODE_DEFAULTS.scale = new Point(1, 1);
@@ -77,31 +77,34 @@ function initSnap(){
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
-  nodeInfo = Object.assign( {},
-    NODE_DEFAULTS, 
-    nodeInfo,
-    {
-      id: generateNewNodeID(),
-    }
-  );
+  return new Promise((resolve, reject)=>{
+    nodeInfo = Object.assign( {},
+      NODE_DEFAULTS, 
+      nodeInfo,
+      {
+        id: generateNewNodeID(),
+      }
+    );
 
-  var node = drawNode(nodeInfo)
+    var node = drawNode(nodeInfo)
 
-  hammerizeNode(node).then(
-    function(success){
-      selectNode(node);
-      addLabel(nodeInfo.label, node);
+    hammerizeNode(node).then(
+      function(success){
+        selectNode(node);
+        addLabel(nodeInfo.label, node);
 
-      let data = { 
-          "node"  : node,
-          "groups": getNodeGroups(node)
-        };
-      action_done("insertNode", data);
+        let data = { 
+            "node"  : node,
+            "groups": getNodeGroups(node)
+          };
+        action_done("insertNode", data);
+        resolve(node);
 
-    }, function(failure){
-      console.log(failure);
-    });
-  return node;
+      }, function(failure){
+        console.log(failure);
+        reject(null);
+      });
+  });
 }
 
 /**
@@ -120,16 +123,44 @@ function drawNode(nodeInfo){
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
   if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
 
-  var shapeInfo = SHAPE_FUNCTIONS[nodeInfo.shape];
+  drawNodeRep(node, nodeInfo.shape)
+
+  return node.node
+}
+
+/**
+ * Creates the SVG Shape nested inside the <g> tag that represents the node
+ * @param  {SVGELEMENT || Snap.Paper} The <g> tag to add the node representation to.  
+ * Can be a reference to an SVG <g> tag, or one selected by Snap()
+ * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
+ * @return none
+ */
+function drawNodeRep(node, shape="rect"){
+  node = node instanceof SVGElement ? Snap(node): node;
+  var shapeInfo = SHAPE_FUNCTIONS[shape];
 
   var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
     class: "node-rep",
     "z-index": 1,
     "xmlns": "http://www.w3.org/2000/svg"
   });
-  node.add(nodeRep)
+  node.attr({'shape': shape})
 
-  return node.node
+  node.prepend(nodeRep)
+}
+
+/**
+ * Changes the shape of a node that already has a node-rep
+ * @param {string} shape ["rect" | "circle" | "triangle"] the new shape of the node
+ * @param {nodeList} nodes the nodes to change the shape of.  Default - change the shape of
+ * selected nodes
+ */
+function setNodeShape(shape, nodes=null){
+  if (!nodes) nodes = document.querySelectorAll(".node.selected");
+  nodes.forEach( (node)=>{
+    node.querySelector(".node-rep").remove();
+    drawNodeRep(node, shape);
+  });
 }
 
  /**
@@ -150,19 +181,43 @@ function generateNewNodeID() {
  */
 function nodeToObject(node){
   let nodeRep = node.getElementsByClassName("node-rep")[0]
+  let label = node.getElementsByClassName("label")[0];
   return {
     'id': node.id,
-    'type': "node",
+    'type': "node" + (node.classList.contains("pin") ? " pin": ""),
     'label': getNodeLabel(node),
     'note': null,
     'shape': node.getAttribute("shape"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
+    'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
+    'groupId': node.getAttribute("groupId") || null,
     'style': {
-      'fill': nodeRep.getAttribute("fill") || null,
-      'stroke': nodeRep.getAttribute("stroke") || null
+      'node-rep':{
+        'fill': nodeRep.style.fill || "default",
+        'stroke': nodeRep.style.stroke || "default"
+      },
+      'label':{
+        'font-size': label.style.fontSize || "default",
+        'font-color': label.style.stroke || "default",
+        'font-family': label.style.fontFamily || "default",
+        'italic': label.style.fontStyle === "italic",
+        'bold' : label.style.fontWeight === String(FONT_BOLD)
+      }
     }
   }
+}
+
+/**
+ * [getAllNodeObjects description]
+ * @return {[type]} [description]
+ */
+function getAllNodeObjects(){
+  var allNodes = []
+  document.querySelectorAll(".node").forEach( (node)=>{
+    allNodes.push(nodeToObject(node));
+  })
+  return allNodes;
 }
 
 /**
@@ -313,7 +368,6 @@ function removeNode(node) {
       group.attr("children_ids", group.attr("children_ids").split(' ').filter(id => id !== node_id).join(' ') );
     });
 
-  closePreviewIframe("node");
   node_d3.classed("deleted", true);
   let temp_transient = document.createElement("transient");
   temp_transient.appendChild(node_d3.node());
@@ -323,7 +377,6 @@ function removeNode(node) {
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
-  closePreviewIframe("edge");
   link.classed("deleted", true);
   let temp_transient = document.createElement("transient");
   temp_transient.appendChild(link.node());
@@ -435,9 +488,10 @@ function drawDragNode(e) {
 
 //Helper Function to move a node group
 /**
-node: the node to move along with its links
-x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
-y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
+* node: the node to move along with its links
+* IMPORTANT: Takes coordinates in local (canvas)
+* x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
+* y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
 **/
 function translateNode(node, vector, relative=false, links=null){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);

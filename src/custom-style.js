@@ -1,4 +1,9 @@
 $(document).ready(function() {
+
+    $("#rectangle_btn").click(()=>setNodeShape("rectangle"));
+    $("#circle_btn").click(()=>setNodeShape("circle"));
+    $("#triangle_btn").click(()=>setNodeShape("triangle"));
+
     $("#green_node").click(()=>setNodeColor("green"));
     $("#red_node").click(()=>setNodeColor("red"));
     $("#blue_node").click(()=>setNodeColor("blue"));
