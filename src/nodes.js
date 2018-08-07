@@ -36,7 +36,7 @@
 var snap;
 var SHAPE_FUNCTIONS;
 
-var NODE_DEFAULTS = {
+var NODE_TEMPLATE = {
   'label': "Node Name",
   'note': null,
   'position': {x: 50, y: 50},
@@ -60,6 +60,24 @@ var NODE_DEFAULTS = {
   }
 }
 
+var LINK_TEMPLATE = {
+  'label': "Link Name",
+  'note': null,
+  'reps': {
+    'mapping':{
+      'type': "link",
+      'style':{
+        'link-rep':{
+          'stroke': "gray"
+        },
+        'label':{
+
+        }
+      }
+    }
+  }
+}
+
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
 var DEFAULT_NODE_SIZE = [100, 100]
 
@@ -74,8 +92,8 @@ function initSnap(){
     'circle': { 'function': snap.circle, 'args': [0,0,50]},
     'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
   }
-  NODE_DEFAULTS.position = new Point(50, 50);
-  NODE_DEFAULTS.scale = new Point(1, 1);
+  NODE_TEMPLATE.position = new Point(50, 50);
+  NODE_TEMPLATE.scale = new Point(1, 1);
 }
 
 /**
@@ -104,7 +122,7 @@ function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
   return new Promise((resolve, reject)=>{
     nodeInfo = Object.assign( {},
-      NODE_DEFAULTS, 
+      NODE_TEMPLATE, 
       nodeInfo,
       {
         id: generateNewNodeID(),
@@ -161,7 +179,7 @@ function drawNode(nodeInfo){
  * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
  * @return none
  */
-function drawNodeRep(node, nodeInfo=NODE_DEFAULTS){
+function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
   node = node instanceof SVGElement ? Snap(node): node;
   var shape = nodeInfo.reps.mapping.shape;
   var shapeInfo = SHAPE_FUNCTIONS[shape];
@@ -244,6 +262,10 @@ function nodeToObject(node){
       }
     }
   }
+}
+
+function linkToObject(link){
+  
 }
 
 
