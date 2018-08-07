@@ -1,8 +1,12 @@
-<html><head>
+<!DOCTYPE html>
+<html>
+<head>
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1"/>
     <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/hammerjs@2.0.8"></script>
+
+    <script type="text/javascript" src="external/snap.svg-min.js"></script>
 
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -17,6 +21,7 @@
     <script id="constant.js" type="text/javascript" src="src/entity/constant.js"></script>
     <script id="init.js" type="text/javascript" src="src/init.js"></script>
     <script id="main.js" type="text/javascript" src="src/main.js"></script>
+    <script id="nodes.js" type="text/javascript" src="src/nodes.js"></script>
     <script id="draw.js" type="text/javascript" src="src/draw.js"></script>
     <script id="data.js" type="text/javascript" src="src/data.js"></script>
     <script id="default-style.js" type="text/javascript" src="src/default-style.js"></script>
@@ -36,6 +41,8 @@
     <script id="transformer.js" type="text/javascript" src="external/transformer.demangled.min.js"></script>
 
     <link id="main.css" rel="stylesheet" type="text/css" href="styles/main.css"/>
+    <link id="sidebar.css" rel="stylesheet" type="text/css" href="styles/sidebar.css"/>
+    <link id="drawing.css" rel="stylesheet" type="text/css" href="styles/drawing.css"/>
     <link id="context-menu.css" rel="stylesheet" type="text/css" href="styles/context-menu.css"/>
     <link id="minimap.css" rel="stylesheet" type="text/css" href="styles/minimap.css"/>
 </head>
@@ -71,6 +78,13 @@
                 -->
 
                 <h2>Node</h2>
+                <span id="node_shape_container">
+                    <button class="node_shape_button" id="rectangle_btn"></button>
+                    <button class="node_shape_button" id="circle_btn"></button>
+                    <svg class="node_shape_button" id="triangle_btn">
+                        <polygon points="20,2 38,38, 2,38"></polygon>
+                    </svg>
+                </span>
                 <span id="node_color_container">
                     <button class="node_color_button" id="green_node"></button>
                     <button class="node_color_button" id="red_node"></button>
@@ -173,65 +187,4 @@
   
   </div>
 </body>
-  
-
-<style>
-
-    @font-face {
-      font-family: "Miso Bold";
-      src: "styles/fonts/miso-bold-webfont.woff";
-    }
-
-    @font-face {
-      font-family: "Miso Light";
-      src: "styles/fonts/miso-light-webfont.woff";
-    }
-
-    @font-face {
-      font-family: "Miso Regular";
-      src: "styles/fonts/miso-regular-webfont.woff";
-    }
-
-    h1, h2, button, div {
-        font-family: 'Miso Regular';
-    }
-
-    h2 {
-        color: #FCE946;
-    }
-
-    #toolSection {
-        text-align: center;
-        background-color: #5D5D5D;
-        overflow: hidden;
-    }
-
-    #uploadImageBtn {
-        background-color: #E55060;
-        border: 0;
-        height: 30px;
-        color: white;
-    }
-
-    h1 {
-        background-color: #FCE946;
-        padding-top: 5px;
-    }
-
-    #drawIcon {
-        vertical-align: top;
-        margin-top: 7px;
-    }
-
-    #editIcon {
-        vertical-align: top;
-        margin-top: 5px;
-    }
-
-    #fontSizeIcon {
-        margin-top: 5px;
-    }
-
-</style>
-
 </html>

@@ -84,9 +84,12 @@ function canvasSingleTapListener(event){
 *	Adds a node at the clicked location, selects it, and makes the user enter a label for it
 **/
 function canvasDoubleTapListener(event){
-  //console.log("CANVAS DOUBLE TAP");
   var canvasPoint = eventToCanvasPoint(event);
+  node = createNode({position: canvasPoint}).then( (node)=>{
+  	logCreation("double tap", node);
+  })
 
+  /*
   var addedNode = addNode();
   var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
   hammerizeNode(node).then(
@@ -102,6 +105,7 @@ function canvasDoubleTapListener(event){
     }, function(failure){
       console.log(failure);
     });
+    */
 }
 
 /**
@@ -291,22 +295,28 @@ function hammerizeGroup(group){
 	});
 }
 
+/**
+ * Handles the pan hammer event for groups.
+ * @param  {event} event a hammer PAN type event triggered by a group element
+ */
 function groupPanListener(event){
 	var group = getParentMapElement(event.target);
 
 	if(event.type === 'panstart'){
 		group.nodes = getGroupedNodes(group);
-		group.prevPoint = new Point(0, 0);
+		group.prevDeltaPoint = new Point(0, 0);
 		translateSavePrevPosition(group);
 	}
 
-	var deltaPoint = group.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
-	var deltaDeltaPoint = new Point(deltaPoint.x - group.prevPoint.x, deltaPoint.y - group.prevPoint.y)
+	var deltaPoint = new Point(event.deltaX, event.deltaY);
+	var deltaDeltaPoint = new Point(deltaPoint.x - group.prevDeltaPoint.x, deltaPoint.y - group.prevDeltaPoint.y)
 
+	//IMPORTANT NOTE: this handler sends a vector in global space to moveGroup so it can translate it
+	//into local coordinates for the group and any nodes it contains
 	moveGroup(group, deltaDeltaPoint);
 
-	group.prevPoint.x = deltaPoint.x;
-	group.prevPoint.y = deltaPoint.y;
+	group.prevDeltaPoint.x = deltaPoint.x;
+	group.prevDeltaPoint.y = deltaPoint.y;
 
 	if(event.type === 'panend'){
 		group.nodes = null;
@@ -317,18 +327,16 @@ function groupPanListener(event){
 function groupDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
   var group = getParentMapElement(event.target);
+  var nodeInfo = {
+  	'position': canvasPoint, 
+  	'groupId': group.id, 
+  	'type': group.classList.contains('map-image') ? "pin" : "node"
+  };
+  let node = createNode(nodeInfo).then( (node)=>{
+  	addNodeToGroup(node, group)
+  });
 
-  var addedNode = addNode();
-  var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
-  hammerizeNode(node).then(
-    function(success){
-      if($(group).hasClass('map-image')) $(node).addClass("pin");
-      addNodeToGroup(node, group)
-      selectNode(node, false);
-      addLabel("Node Name", node);
-    }, function(failure){
-      console.log(failure);
-    });	
+  return node;
 }
 
 function hammerizeMinimap(){

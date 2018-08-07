@@ -158,8 +158,14 @@ function createGroup(){
   //console.log('creating the group')
 }
 
+/**
+ * Moves a group and all nodes it contains.  
+ * IMPORTANT: this function takes a vector in global (screen) coordinates so it can
+ * translate it to the local space of each node in the group
+ * @param  {SVGELEMENT} group  The element representing the group
+ * @param  {Point} vector - a vector in global space representing the movement to be done
+ */
 function moveGroup(group, vector){
-  var group_d3 = d3.select(group);
 
   var nodes = group.nodes;
 
@@ -168,15 +174,17 @@ function moveGroup(group, vector){
     nodes = group.nodes;
   }
 
-  var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y);
+  localVector = group.transformer.fromGlobalToLocalDelta(vector);
 
-  var xMove = oldGroupTranslate.x + vector.x;
-  var yMove = oldGroupTranslate.y + vector.y;
+  var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y);
+  var xMove = oldGroupTranslate.x + localVector.x;
+  var yMove = oldGroupTranslate.y + localVector.y;
 
   group.translateTransform.set(xMove, yMove);
   group.transformer.reapplyTransforms()
+
   nodes.forEach( (node)=>{ 
-    translateNode(node, vector, true) 
+    translateNode(node, node.transformer.fromGlobalToLocalDelta(vector), true) 
   });
 }
 

@@ -36,7 +36,7 @@ var handleImageUpload = function(asset){
  *
  */
 function insertImage(width, height, imgSrc){
-	let imgId = getID();
+	let imgId = generateNewNodeID();
 	console.log("Inserting Image: " + imgSrc);
 
 	var center = new Point( $(window).width() /2,

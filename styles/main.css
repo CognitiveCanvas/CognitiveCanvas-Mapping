@@ -44,6 +44,34 @@ body {
     margin: 0;
 }
 
+@font-face {
+  font-family: "Miso Bold";
+  src: "styles/fonts/miso-bold-webfont.woff";
+}
+
+@font-face {
+  font-family: "Miso Light";
+  src: "styles/fonts/miso-light-webfont.woff";
+}
+
+@font-face {
+  font-family: "Miso Regular";
+  src: "styles/fonts/miso-regular-webfont.woff";
+}
+
+h1, h2, button, div {
+    font-family: 'Miso Regular';
+}
+
+h1 {
+    background-color: #FCE946;
+    padding-top: 5px;
+}
+
+h2 {
+    color: #FCE946;
+}
+
 #canvas {
     overflow: hidden;
     fill: beige;
@@ -61,171 +89,6 @@ body {
 #CogCanvas{
     height: 100%;
     width: 100%;
-}
-
-#tool-palette {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 9999;
-    transition: opacity 250ms;
-}
-
-#tool-palette>div {
-    float: left;
-}
-
-#tool-palette .instrument-tool {
-    position: relative;
-    box-sizing: border-box;
-    width: 40px;
-    height: 40px;
-    border: 2px solid transparent;
-    border-radius: 5px;
-    margin-right: 5px;
-    font-size: 1.6em;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 1);
-}
-
-.drawing-instrument-tools .clear-drawing-canvas {
-    background: darkred;
-    float: right;
-    overflow: hidden;
-}
-
-.drawing-instrument-tools .clear-drawing-canvas:after {
-    color: white;
-    content: "delete_forever";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate3d(-50%, -50%, 0);
-    font-family: 'Material Icons';
-    font-size: 1em;
-    font-weight: normal;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}
-
-.drawing-instrument-tools .erase-drawing-canvas {
-    background: darkgray;
-    float: right;
-    overflow: hidden;
-}
-
-.drawing-instrument-tools .erase-drawing-canvas:after {
-    color: white;
-    content: "format_clear";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate3d(-50%, -50%, 0);
-    font-family: 'Material Icons';
-    font-size: 1em;
-    font-weight: normal;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}
-
-.drawing-instrument-tools .thicknesses {
-    list-style: none;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    float: right;
-}
-
-.drawing-instrument-tools .thicknesses .thickness {
-    position: relative;
-    display: inline-block;
-    border-radius: 50% !important;
-}
-
-.drawing-instrument-tools .thicknesses .thickness:after {
-    color: white;
-    content: "border_color";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate3d(-50%, -50%, 0);
-    font-family: 'Material Icons';
-    font-size: 1em;
-    font-weight: normal;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}
-
-.drawing-instrument-tools .thicknesses .thickness[active="true"] {
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, .7);
-    border: 2px solid transparent;
-}
-
-.drawing-instrument-tools .thicknesses .thickness[active="true"]:after {
-    color: black;
-}
-
-
-
-.drawing-instrument-tools .colors {
-    list-style: none;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    float: right;
-}
-
-.drawing-instrument-tools .colors .color {
-    position: relative;
-    display: inline-block;
-    border-radius: 50% !important;
-}
-
-.drawing-instrument-tools .colors .color:after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: gray;
-    border-radius: 50%;
-    opacity: .5;
-}
-
-.drawing-instrument-tools .colors .color[active="true"] {
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, .7);
-    border: 2px solid transparent;
-}
-
-.drawing-instrument-tools .colors .color[active="true"]:after {
-    opacity: 0.0;
-}
-
-#toggle_touch_drawing {
-    width:  70px;
-    height: 70px;
-    font-size: 10;
-    border-radius: 50%;
-    float: left;
 }
 
 .pin .node-rep{
@@ -328,239 +191,4 @@ body {
     80% { transform: translate(-1px, -1px) rotate(1deg); }
     90% { transform: translate(1px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-#label_edit_container{
-    display: inline-block;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 10px;
-}
-
-#label_text_increase{
-    font-size: 20px;
-    width: 30px;
-    height: 30px;
-    border-radius: 100%;
-}
-
-#label_text_decrease{
-    font-size: 10px;
-    width: 30px;
-    height: 30px;
-    border-radius: 100%;
-}
-
-#label_text_bold{
-    font-size: 15px;
-    width: 30px;
-    height: 30px;
-}
-
-#label_text_italics{
-    font-size: 15px;
-    width: 30px;
-    height: 30px;
-}
-
-#text_color_containner {
-    display: inline-block;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 40px;
-}
-.text_color_button {
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    color: white;
-}
-#green_text{
-    background-color: green;
-}
-#red_text{
-    background-color: red;
-}
-#blue_text{
-    background-color: blue;
-}
-#black_text{
-    background-color: black;
-}
-
-
-
-#node_color_container {
-    display: inline-block;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 20px;
-}
-
-.node_color_button{
-    border-radius: 100%;
-    width: 40px;
-    height: 40px;
-    margin: 10px;
-
-}
-
-#green_node{
-    background-color: green;
-}
-
-#red_node{
-    background-color: red;
-}
-
-#blue_node{
-    background-color: blue;
-}
-
-#black_node{
-    background-color: black;
-}
-
-#node_border_container{
-    display: inline-block;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 20px;
-}
-
-#green_border{
-    border-width: 1;
-    border-color: green;
-}
-
-#red_border{
-    border-width: 1;
-    border-color: red;
-}
-
-#blue_border{
-    border-width: 1;
-    border-color: blue;
-}
-
-#black_border{
-    border-width: 1;
-    border-color: black;
-}
-
-#link_color_container {
-    display: inline-block;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 20px;
-}
-
-.link_color_button {
-    width: 80px;
-    height: 1px;
-}
-
-#green_link{
-    border-color: green;
-}
-
-#red_link{
-    border-color: red;
-}
-
-#blue_link{
-    border-color: blue;
-}
-
-#black_link{
-    border-color: black;
-}
-
-
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(https://fonts.gstatic.com/s/materialicons/v36/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
-}
-
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-}
-
-.deleted {
-    display: none
-}
-
-/* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-  float: right;
-  margin-right: 10px;
-}
-
-/* Hide default HTML checkbox */
-.switch input {display:none;}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: url(paintbrush.png);
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
 }
