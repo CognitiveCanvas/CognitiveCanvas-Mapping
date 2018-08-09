@@ -101,6 +101,7 @@ function initSnap(){
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
+  console.log(nodeInfo)
   return new Promise((resolve, reject)=>{
     nodeInfo = Object.assign( {},
       NODE_TEMPLATE, 

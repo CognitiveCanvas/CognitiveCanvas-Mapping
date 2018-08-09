@@ -30,18 +30,14 @@ function objFromTemplate(repType, eleType, eleInfo={}){
 	let template = REP_TEMPLATES[repType][eleType];
 	let object = {}
 
-	if(eleInfo.hasOwnProperty("reps")){
-		deepMerge()
-	}
-
 	let iterate = function(currObj, currTemp){
 		Object.keys(currTemp).forEach((currProp)=>{
-			if (currTemp[currProp] && typeof currTemp[currProp] === "object"){
+			if (eleInfo.hasOwnProperty(currProp)) {
+				currObj[currProp]=eleInfo[currProp];
+			}
+			else if (currTemp[currProp] && typeof currTemp[currProp] === "object"){
 				currObj[currProp] = {};
 				iterate(currObj[currProp], currTemp[currProp]);
-			}
-			else if (eleInfo.hasOwnProperty(currProp)) {
-				currObj[currProp]=eleInfo[currProp];
 			}
 			else{
 				currObj[currProp]= currTemp[currProp];

@@ -85,7 +85,7 @@ function canvasSingleTapListener(event){
 **/
 function canvasDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
-  node = createNode({position: canvasPoint}).then( (node)=>{
+  node = createNode( objFromTemplate("mapping", "node", {position: canvasPoint}) ).then( (node)=>{
   	logCreation("double tap", node);
   })
 
