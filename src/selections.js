@@ -26,6 +26,7 @@ var GROUP_TEMPLATE = {
 
 function groupToObject(group){
   return {
+    'id': group.id,
     'label': null,
     'position': getNodePosition(group),
     'scale': group.transformer.localScale,

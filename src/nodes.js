@@ -237,13 +237,23 @@ function nodeToObject(node){
 
 /**
  * [getAllNodeObjects description]
- * @return {[type]} [description]
+ * @param [String] - an array of strings containing the map elements to collect
+ *                   Example: ["node", "link", "group"]
+ * @return [Object] Objects representing all the selected map elements
  */
-function getAllNodeObjects(){
+function getAllObjects(types=["node", "link", "group"]){
   var allNodes = []
-  document.querySelectorAll(".node").forEach( (node)=>{
-    allNodes.push(nodeToObject(node));
-  })
+  document.querySelectorAll("."+types.join(",.") ).forEach( (node)=>{
+    if (node.classList.contains("node")){
+      allNodes.push(nodeToObject(node));
+    }
+    else if (node.classList.contains("link")){
+      allNodes.push(linkToObject(node));
+    }
+    else if (node.classList.contains("group")){
+      allNodes.push(groupToObject(node));
+    }
+  });
   return allNodes;
 }
 
