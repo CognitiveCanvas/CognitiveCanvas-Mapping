@@ -6,7 +6,7 @@ var LINK_TEMPLATE = {
       'elements': {
         'link': {
           'sourceId': null,
-          'destId': null,
+          'targetId': null,
           'style':{
             'link-rep':{
               'stroke': "gray"
@@ -26,35 +26,69 @@ var LINK_TEMPLATE = {
  * values to overwrite the template with.  See LINK_TEMPLATE for attribute names
  * @return {DOMELEMENT} link - the G element representing the link
  */
-function createLink(eleInfo){
-	let linkObj = objFromTemplate("mapping", "link", eleInfo);
-	let linkInfo = eleInfo.reps.mapping.elements.link;
+function createLink(linkObj){
+  return new Promise( (resolve, reject) =>{
+  	let linkInfo = linkObj.reps.mapping.elements.link;
+  	let srcNode = document.getElementById(linkInfo.sourceId);
+  	let srcPos = getNodePosition(srcNode);
+  	let targetNode = document.getElementById(linkInfo.targetId);
+  	let destPos = getNodePosition(targetNode);
 
-	let srcNode = document.getElementById(linkInfo.sourceId);
-	let srcPos = getNodePosition(srcNode);
-	let destNode = document.getElementById(linkInfo.destId);
-	let destPos = getNodePosition(destNode);
+  	let link = Snap(0,0).g().attr({
+  		'id': generateObjectId(),
+  		'class':'link',
+  		sourceId : srcNode.id,
+  		targetId : targetNode.id
+  	}).prependTo(snap);
+  	link.line(srcPos.x, srcPos.y, destPos.x, destPos.y).attr({
+  		'class': 'link-rep',
+  		"xmlns": "http://www.w3.org/2000/svg"
+  	});
+    link = link.node;
+  	
+    hammerizeLink(link).then(()=>{
+      addLabel("Link Name", link);
+      selectNode(link)
+      styleFromInfo(link, linkObj, "mapping", "link");
 
-	let link = snap.g().attr({
-		'id': generateObjectId(),
-		'class':'link',
-		'sourceId': srcNode.id,
-		'destId': destNode.id
-	}).line(srcPos.x, srcPos.y, destPos.x, destPos.y).attr({
-		'class': 'link-rep',
-		"xmlns": "http://www.w3.org/2000/svg"
-	});
+      resolve(link);
+    });
+  })
+}
 
-	styleFromInfo(link.node, eleInfo, "mapping", "link");
-
-	hammerizeLink(link.node);
-
-	return link.node;
+/**
+ * Creates an object from a link that is translatable back into a link
+ * @param  {DOMELEMENT} link - A reference to the link <g class="link"> to make into na object
+ * @return {object} A JSON object representing the link
+ */
+function linkToObject(link){
+  var linkRep = link.getElementsByClassName("link-rep")[0];
+  return {
+    'id': link.id,
+    'label': getNodeLabel(link),
+    'note': null,
+    'reps': {
+      'mapping':{
+        'elements': {
+          'link': {
+            'sourceId': link.getAttribute("sourceId"),
+            'targetId': link.getAttribute("targetId"),
+            'style':{
+              'link-rep':{
+                'stroke': linkRep.style.stroke
+              },
+              'label':{
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
  * @deprecated
- * @todo REMOVE
  * @param  {	} link [description]
  * @return {[type]}      [description]
  */
@@ -86,10 +120,6 @@ function drawLink(link) {
     return linkG.node();
 }
 
-function linkToObject(link){
-
-}
-
 function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
@@ -99,6 +129,11 @@ function removeLink(link) {
   document.getElementById("canvas").appendChild(temp_transient);
 }
 
+/**
+ * @deprecated
+ * @param  {[type]} node [description]
+ * @return {[type]}      [description]
+ */
 function selectLineDest(node) {
   hideDragLine();
   if (dragged_object) {

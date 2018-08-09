@@ -49,7 +49,7 @@ var NODE_TEMPLATE = {
           'shape': "rectangle",
           'style': {
             'node-rep':{
-              'fill': "purple",//'rgba(46, 127, 195, 0.1)',
+              'fill': 'rgba(46, 127, 195, 0.1)',
               'stroke': "blue"
             },
             'label': {
@@ -68,7 +68,7 @@ var DEFAULT_NODE_SIZE = [100, 100]
  * Initializes data structures needed to create nodes
  */
 function initSnap(){
-  snap = Snap(canvas)
+  snap = Snap(canvas);
 
   SHAPE_FUNCTIONS = {
     'rectangle': { 'function': snap.rect, 'args': [-50,-25,100,50] },

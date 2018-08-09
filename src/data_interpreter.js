@@ -9,15 +9,6 @@ MASTER_TEMPLATE = {
 
 };
 
-//TODO
-function generateAttributeMap(){
-	Object.keys(REP_TEMPLATES).forEach((repType)=>{
-		Object.keys(repType).forEach((eleType)=>{
-
-		})
-	})
-}
-
 /**
  * Creates a new data object representing an element based on a template of a 
  * certain type of element within a certain type of representation (e.g. a 
@@ -39,6 +30,10 @@ function objFromTemplate(repType, eleType, eleInfo={}){
 	let template = REP_TEMPLATES[repType][eleType];
 	let object = {}
 
+	if(eleInfo.hasOwnProperty("reps")){
+		deepMerge()
+	}
+
 	let iterate = function(currObj, currTemp){
 		Object.keys(currTemp).forEach((currProp)=>{
 			if (currTemp[currProp] && typeof currTemp[currProp] === "object"){
@@ -54,6 +49,7 @@ function objFromTemplate(repType, eleType, eleInfo={}){
 		});
 	}
 	iterate(object, template);
+	
 	return object;
 }
 
@@ -65,6 +61,10 @@ function objFromTemplate(repType, eleType, eleInfo={}){
   */
 function generateObjectId() {
   return clientId + "_" + Date.now();
+}
+
+function getElementInfoFromObj(object, repType, eleType){
+	return object.reps[repType].elements[eleType];
 }
 
 function addRepType(eleObject, repType, eleType, eleInfo={}){
