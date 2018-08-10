@@ -85,7 +85,7 @@ function canvasSingleTapListener(event){
 **/
 function canvasDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
-  node = createNode({position: canvasPoint}).then( (node)=>{
+  node = createNode( objFromTemplate("mapping", "node", {position: canvasPoint}) ).then( (node)=>{
   	logCreation("double tap", node);
   })
 
@@ -218,6 +218,15 @@ function nodeTapPanListener(event){
 		var linkDest = document.elementFromPoint(event.center.x, event.center.y);
 		linkDest = getParentMapElement(linkDest);
 		if( $(linkDest).hasClass("node") && $(node).attr('id') != $(linkDest).attr('id') ){
+			
+			var linkObj = objFromTemplate("mapping", "link", {"sourceId": source_node.id, "targetId": linkDest.id})
+			createLink(linkObj).then( (link)=>{
+				action_done("addEdge", {"edge":link});
+				hideDragLine();
+				resetState();
+			});
+
+			/**
 			var link = selectLineDest(linkDest);
 			addLabel("Link Name", link);
 			selectNode(link);
@@ -226,6 +235,8 @@ function nodeTapPanListener(event){
         		"edge"  : link
       		};
     		action_done("addEdge", data);
+    		resetState();
+    		**/
 		} else{
 			hideDragLine();
 			resetState();

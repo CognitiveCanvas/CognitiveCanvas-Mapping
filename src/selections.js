@@ -1,6 +1,55 @@
 var drag_offset = [0, 0];
 var selection_area = null;
 
+var GROUP_TEMPLATE = {
+  'label': null,
+  'position': {x: 50, y: 50},
+  'scale': {x:1, y: 1},
+  'childrenIds': null,
+  'reps': {
+    'mapping':{
+      'elements': {
+        'group' : {
+          'size': [500, 500],
+          'imageURL': null,
+          'style': {
+            'group':{
+            },
+            'map-image': {
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function groupToObject(group){
+  return {
+    'id': group.id,
+    'label': null,
+    'position': getNodePosition(group),
+    'scale': group.transformer.localScale,
+    'childrenIds': group.getAttribute("children_ids").split(" ").filter( x=>x ),
+    'reps': {
+      'mapping':{
+        'elements': {
+          'group' : {
+            'size': [group.getAttribute("width"), group.getAttribute("height")],
+            'imageURL': group.getAttribute("href"),
+            'style': {
+              'group':{
+              },
+              'map-image': {
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 /**
 nodes: The node or selection of multiple nodes to be give the selected class
 deselectCurrentSelection: if true, will remove the selected class from all currently sected nodes before selecting the new one
