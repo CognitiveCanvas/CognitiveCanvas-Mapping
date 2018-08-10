@@ -60,8 +60,8 @@ function logCreation(interaction, element) {
       "id": element.getAttribute("id"),
       "label_text": "Link Name",
       "color": "lightgrey",
-      "source_id": element.getAttribute("source_id"),
-      "target_id": element.getAttribute("target_id")
+      "sourceId": element.getAttribute("sourceId"),
+      "targetId": element.getAttribute("targetId")
     };
   }
   let event_type = 0;
@@ -202,8 +202,8 @@ function logColorChanges(type, color){
       // "label": labelFinder(selectedEdges[j].getAttribute("id")),
       [prev_color]: selectedEdges[i].children[0].style.cssText,
       [curr_color]: color
-      // "source_id": selectedEdges[j].getAttribute("source_id"),
-      // "target_id": selectedEdges[j].getAttribute("target_id")
+      // "sourceId": selectedEdges[j].getAttribute("sourceId"),
+      // "targetId": selectedEdges[j].getAttribute("targetId")
     })
   }
 }
@@ -227,7 +227,7 @@ function logImage(width, height, src, id) {
  */
 function logDrawing(interaction, path) {
   let event_type = 10;
-  path.setAttribute("id", this.generateNewNodeID());
+  path.setAttribute("id", this.generateObjectId());
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),
     "path": path.getAttribute("d"),

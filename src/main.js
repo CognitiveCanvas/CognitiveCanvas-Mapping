@@ -1,6 +1,4 @@
 /* main.js */
-var nodes = [];
-var links = [];
 
 var clientId, webstrateId, clicked_object, dragged_object = null;
 

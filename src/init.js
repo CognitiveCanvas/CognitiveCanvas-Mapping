@@ -7,7 +7,7 @@ function onLoaded(webstrateId, clientId, user) {
   initIDs(webstrateId, clientId);
   initDragLine();
   initDataElement();
-  reloadElement();
+  //reloadElement();
   initToolPalette();
   initDrawing();
   initLog();
@@ -31,6 +31,8 @@ function initIDs(webstrateId, clientId) {
   this.editId = "edit_" + clientId;
 }
 
+//DEPRECATED
+/*
 function reloadElement() {
   let NodeEleCollection = document.getElementsByClassName("node");
   let EdgeEleCollection = document.getElementsByClassName("link"); 
@@ -43,10 +45,10 @@ function reloadElement() {
     
   for (j = 0; j < EdgeEleCollection.length; j++) {
     let currEdgeEle = EdgeEleCollection[j];
-    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("source_id"), destId: currEdgeEle.getAttribute("target_id"), content: currEdgeEle.getAttribute("content") };
+    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("sourceId"), destId: currEdgeEle.getAttribute("targetId"), content: currEdgeEle.getAttribute("content") };
     l = links.push(link);
   }
-}
+}*/
 
 function initDragLine() {
   drag_line = document.getElementById("drag_line");

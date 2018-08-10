@@ -114,10 +114,10 @@ function undoInsertNode(data){
   	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
 
-  	d3.selectAll(`[source_id=${node_id}]`)
+  	d3.selectAll(`[sourceId=${node_id}]`)
     	.classed("deleted", true);
 
-  	d3.selectAll(`[target_id=${node_id}]`)
+  	d3.selectAll(`[targetId=${node_id}]`)
     	.classed("deleted", true);
 
   	removeNodeFromGroup(node);
@@ -132,10 +132,10 @@ function undoDeleteNode(data){
 	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
 
-  	d3.selectAll(`[source_id=${node_id}]`)
+  	d3.selectAll(`[sourceId=${node_id}]`)
     	.classed("deleted", false);
 
-  	d3.selectAll(`[target_id=${node_id}]`)
+  	d3.selectAll(`[targetId=${node_id}]`)
     	.classed("deleted", false);
 
     insertNodeToGroup(node, groups);
