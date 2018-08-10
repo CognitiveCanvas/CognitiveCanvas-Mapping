@@ -48,11 +48,11 @@ function sendSearchMsgToContainer() {
 
 // Related Node/Edge Passing to the Container.
 function sendRelatedEleToContainer(label) {
-  let nodeList = getAllNodeObjects().filter(function(node) {
+  let nodeList = getAllObjects(["node"]).filter(function(node) {
     return node.label.indexOf(label) > -1;
   });
   // TODO: change below to getAllEdgeObjects
-  let edgeList = getAllNodeObjects().filter(function(link) {
+  let edgeList = getAllObjects(["link"]).filter(function(link) {
     return link.label.indexOf(label) > -1;
   });
   
