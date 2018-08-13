@@ -17,9 +17,13 @@ window.onmessage = function(e) {
     else
     {
       console.log("204: Cannot find the element to trace")
-    }
-      
+    }   
   } 
+  else if (e.data.id == "edited") {
+    console.log("Message Type: Edited");
+    let editee = document.getElementById(e.data.query)
+    console.log(editee)
+  }
   else {
     // 400: Message does not have id in Header
     //console.log("400: Message type is not recognized")
