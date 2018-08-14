@@ -85,7 +85,7 @@ function traceElementForContainer(id) {
 
 function markElementAsNoteEdited(id) {
   let editee = document.getElementById(id)
-  console.log("Prepare to Set: ", editee)
+  editee.setAttribute("note_edited", true)
 }
 
 
