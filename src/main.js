@@ -200,74 +200,8 @@ function keyDownListener(e){
   }
 }
 
-// Message Passing to the Container Code. Package include the id & label
-function sendSearchMsgToContainer() {
-  if (window.parent) {
-    //console.log(window.parent);
-    let selected = d3.select(".selected");
-    if (!selected.empty()) {
-      let nodeID = selected.attr("id");
-      let labelText = labelFinder(nodeID);
-      let package = {
-        id: nodeID,
-        label: labelText
-      };
-      window.parent.postMessage(package, "*");
-    }
-  }
-}
 
-// Use The id of the Element to find the label of the element!
-function labelFinder(nodeID) {
-  let labelElement = document.getElementById(nodeID+"_text");
-  let labelText;
-  if (labelElement) {
-    if (labelElement.getElementsByTagName("tspan")[0]) {
-      labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-      //console.log("In View Mode, get label: " + labelText);
-    } else {
-      labelText = labelElement.innerHTML;
-      //console.log("In Edit Mode, get label: " + labelText);
-    }
-    return labelText;
-  }
-  else {
-    console.log("label NOT FOUND")
-    return "";
-  }
-}
 
-function closePreviewIframe(target) {
-  if (hoveredEle) {
-    
-    switch (target) {
-      case "node":
-        if (nodes.find(x => x.id === hoveredEle)) {
-          if (nodes.find(x => x.id === hoveredEle).content){
-            var elem = document.getElementById("previewing");
-            if (elem) {
-              elem.parentNode.removeChild(elem);
-            }
-          }
-        }
-        break;
-      case "edge":
-        if (links.find(x => x.id === hoveredEle)) {
-          if (links.find(x => x.id === hoveredEle).content){
-            var elem = document.getElementById("previewing");
-            if (elem) {
-              elem.parentNode.removeChild(elem);
-            }
-          }
-        }
-        break;
-      default:
-        console.warn("Invalid Function Call on closePreviewIframe(target)");
-        break;
-    }
-    
-  }
-}
 
 function resetState() {
   //console.log("state was reset");
