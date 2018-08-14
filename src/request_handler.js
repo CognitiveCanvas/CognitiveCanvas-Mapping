@@ -1,7 +1,7 @@
 /* Handling Messages that have been post on the Webstrate */
 window.onmessage = function(e) {
   
-  //console.log("Handling Message");
+//  console.log("Handling Message");
   
   if (e.data.id == "search") {
     console.log("Message Type: Search");
@@ -14,6 +14,10 @@ window.onmessage = function(e) {
   else if (e.data.id == "edited") {
     console.log("Message Type: Edited");
     markElementAsNoteEdited(e.data.query)
+  }
+  else if (e.data.id == "reload_note_list") {
+    console.log("Message Type: Reload Note List!");
+    getElementsWithEditedNote()
   }
   else {
     // 400: Message does not have id in Header
@@ -71,6 +75,7 @@ function sendRelatedEleToContainer(label) {
   }
 }
 
+// Trace the related elements based on label received from container
 function traceElementForContainer(id) {
   let tracee = document.getElementById(id)
   if (tracee) {
@@ -83,9 +88,27 @@ function traceElementForContainer(id) {
   }   
 }
 
+// Mark elements' note as edited based on label received from container
 function markElementAsNoteEdited(id) {
   let editee = document.getElementById(id)
   editee.setAttribute("note_edited", true)
+}
+
+// Send all the elements that has notes that are edited to container to load
+function getElementsWithEditedNote() {
+  let elementList = getAllObjects(["node", "link"]);
+  let editedElementList = elementList.filter(function(element) {
+    return element.note == true;
+  });
+  
+  let package = {
+    id: "edited_elements",
+    elements: editedElementList
+  } 
+  
+  if (window.parent) {
+    window.parent.postMessage(package, "*")
+  }
 }
 
 
