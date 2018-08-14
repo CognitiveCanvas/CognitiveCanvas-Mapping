@@ -9,20 +9,11 @@ window.onmessage = function(e) {
   } 
   else if (e.data.id == "trace") {
     console.log("Message Type: Trace");
-    let tracee = document.getElementById(e.data.query)
-    if (tracee) {
-      centerViewOnElement(tracee);
-      selectNode(tracee, true);
-    } 
-    else
-    {
-      console.log("204: Cannot find the element to trace")
-    }   
+    traceElementForContainer(e.data.query)   
   } 
   else if (e.data.id == "edited") {
     console.log("Message Type: Edited");
-    let editee = document.getElementById(e.data.query)
-    console.log("Prepare to Set: ", editee)
+    markElementAsNoteEdited(e.data.query)
   }
   else {
     // 400: Message does not have id in Header
@@ -80,7 +71,28 @@ function sendRelatedEleToContainer(label) {
   }
 }
 
-// Use The id of the Element to find the label of the element!
+function traceElementForContainer(id) {
+  let tracee = document.getElementById(id)
+  if (tracee) {
+    centerViewOnElement(tracee);
+    selectNode(tracee, true);
+  } 
+  else
+  {
+    console.log("204: Cannot find the element to trace")
+  }   
+}
+
+function markElementAsNoteEdited(id) {
+  let editee = document.getElementById(id)
+  console.log("Prepare to Set: ", editee)
+}
+
+
+// Helper Function to use The id of the Element to find its label
+/**
+* Applied to both node labels and node inputs
+**/
 function labelFinder(nodeID) {
   let labelElement = document.getElementById(nodeID+"_text");
   let labelText;
