@@ -1,6 +1,6 @@
 var LINK_TEMPLATE = {
   'label': "Link Name",
-  'note': null,
+  'note': false,
   'reps': {
     'mapping':{
       'elements': {
@@ -38,7 +38,8 @@ function createLink(linkObj){
   		'id': generateObjectId(),
   		'class':'link',
   		sourceId : srcNode.id,
-  		targetId : targetNode.id
+  		targetId : targetNode.id,
+      note_edited: false
   	}).prependTo(snap);
   	link.line(srcPos.x, srcPos.y, destPos.x, destPos.y).attr({
   		'class': 'link-rep',
@@ -66,7 +67,7 @@ function linkToObject(link){
   return {
     'id': link.id,
     'label': getNodeLabel(link),
-    'note': null,
+    'note': link.getAttribute("note_edited"),
     'reps': {
       'mapping':{
         'elements': {
