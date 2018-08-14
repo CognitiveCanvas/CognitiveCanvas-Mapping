@@ -22,7 +22,7 @@ window.onmessage = function(e) {
   else if (e.data.id == "edited") {
     console.log("Message Type: Edited");
     let editee = document.getElementById(e.data.query)
-    console.log(editee)
+    console.log("Prepare to Set: ", editee)
   }
   else {
     // 400: Message does not have id in Header
