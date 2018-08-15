@@ -172,6 +172,9 @@ h2 {
     z-index: 1;
     position: absolute;
     text-align:center;
+    background: transparent;
+    line-height: 20px;
+    transform-origin: left top;
 }
 
 .shaking{

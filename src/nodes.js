@@ -63,6 +63,11 @@ var NODE_TEMPLATE = {
 
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
 var DEFAULT_NODE_SIZE = [100, 100]
+var DEFAULT_SHAPE_SIZES = {
+  'rectangle': [100, 50],
+  'circle': [100,100],
+  'diamond':[100,100]
+}
 
 /**
  * Initializes data structures needed to create nodes
@@ -76,6 +81,38 @@ function initSnap(){
     'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
   }
 }
+
+function createShape(shape, width=null, height=null){
+  let s = Snap(0,0);
+  let ele;
+
+  if(!width) width=DEFAULT_SHAPE_SIZES[shape][0];
+  if(!height) height=DEFAULT_SHAPE_SIZES[shape][1];
+
+  switch(shape){
+    case "rectangle":
+      ele = s.rect(width/-2, height/-2, width, height);
+      break;
+    case "circle":
+      ele = s.circle(0, 0, width/2);
+      break;
+    case 'diamond':
+      ele = s.polygon( width/-2,0, 0,height/-2, width/2,0, 0,height/2);
+  }
+  return ele.node;
+}
+
+function changeShapeSize(node, width, height){
+  var shapeType = node.getAttribute("shape");
+  var nodeRep = node.getElementsByClassName("node-rep")[0];
+
+  var shapeAttrs = createShape(shapeType, width, height).attributes;
+
+  for( var i = 0; i < shapeAttrs.length; i++){
+    nodeRep.setAttribute( shapeAttrs[i].name, shapeAttrs[i].value);
+  }
+}
+
 
 /**
  * Creates a node from a JSON object, logs it, and adds a label

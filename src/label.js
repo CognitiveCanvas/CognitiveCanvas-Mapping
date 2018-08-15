@@ -1,6 +1,7 @@
 var temp_label_div = null;
 
 const LABEL_LINE_SPACING = 20;
+const MIN_INPUT_COLS = 5;
 
 /**
  * gets the label (including multiline labels) of a node
@@ -38,16 +39,19 @@ function addLabel(text, node, placeholderText=true){
 }
 
 function addLabelInputDiv(node, placeholderText){
+  let label = document.getElementsByClassName("label")[0];
+
   let labelInput = document.createElement("textarea");
   labelInput.classList.add("label-input")
   labelInput.setAttribute("id", node.getAttribute('id')+"_text");
   labelInput.setAttribute("node-id", node.getAttribute('id'));
   labelInput.setAttribute("size", placeholderText.length || 1);
   labelInput.setAttribute("placeholder", placeholderText);
+  labelInput.style.fontSize = window.getComputedStyle(label).getPropertyValue("font-size");
+  labelInput.style.transform = "scale("+ (1/node.transformer.globalScale.x) +","+(1/node.transformer.globalScale.y)+")";
   
   temp_label_div = labelInput;
 
-  let label = node.querySelector("text");
   label.textContent = "";
   let screenPos = label.getBoundingClientRect()
 
@@ -72,7 +76,7 @@ function addLabelInputDiv(node, placeholderText){
       default:
     }
     labelInput.oninput = (e) => {
-      scaleNode(labelInput, node);
+      scaleNodeToLabelInput(labelInput, node);
     }
   }
 
@@ -82,7 +86,7 @@ function addLabelInputDiv(node, placeholderText){
 
   toggleListenersForLabelInput(true); //Disable interactions during edit
 
-  scaleNode(labelInput, node, screenPos.x, screenPos.y);
+  scaleNodeToLabelInput(labelInput, node);
 
   labelInput.focus();
 }
@@ -118,13 +122,15 @@ function changeLabelText(node, labelLines){
   label.innerHTML = " ";
 
   if (typeof labelLines === "string") labelLines = [labelLines]; //else it is an array
+  let totalHeight = (labelLines.length - 1) * LABEL_LINE_SPACING;
+
   labelLines.forEach( (text, index)=>{
     let lineEle = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
     lineEle.classList.add("label-line");
     lineEle.appendChild( document.createTextNode(text) );
 
-    let totalHeight = (labelLines.length - 1) * LABEL_LINE_SPACING
-    lineEle.setAttribute("y", totalHeight * (index) / (labelLines.length-1) - (totalHeight/2) );
+    let lineY = labelLines.length > 1 ? totalHeight * index / (labelLines.length-1) - (totalHeight/2) : 0;
+    lineEle.setAttribute("y", lineY);
     lineEle.setAttribute("x", 0)
     label.appendChild(lineEle);
   })
@@ -133,33 +139,6 @@ function changeLabelText(node, labelLines){
 function createLabelFromInput(node, labelInput){
   let labelLines = labelInput.value.split('\n').filter((val)=>val);
   changeLabelText(node, labelLines);
-  
-  /*
-  var textSVG = node.append("text")
-    .attr("text-anchor", "middle")
-    .attr("x", cx+"px")
-    .attr("y", cy+"px")
-    .attr("font-family", "Helvetica")
-    .classed("label", true)
-    .attr("id", node.attr("id")+"_text")
-
-  var textLines = txt.split('\n').filter((val)=>val);
-  for (let t in textLines ) {
-    //console.log(textLines[t]);
-    let tspan = textSVG
-                  .append("tspan")
-                  .text(textLines[t])
-                  .classed("label-line", true);
-
-    if (name === "node") {
-      tspan.attr("x", 0);
-    }
-    
-    if (t > 0) {
-      tspan.attr("dy", 15);
-    }
-  }
-  **/
 
   // Remove the outside editable div
   labelInput.remove();
@@ -210,7 +189,7 @@ function handleClickDuringLabelInput(){
     label.setAttribute("placeholder", errorMessage);
     label.setAttribute("size", errorMessage.length);
 
-    scaleNode( label, node );
+    scaleNodeToLabelInput( label, node );
 
     var labelSel = $(label);
 
@@ -238,27 +217,35 @@ function handleClickDuringLabelInput(){
  * @param  {[type]} cy    [description]
  * @return {[type]}       [description]
  */
-function scaleNode(label, node) {
-  label = $(label);
-  node = $(node);
-  let nodeRep = node.find(".node-rep");
+function scaleNodeToLabelInput(label, node) {
+  let nodeRep = node.getElementsByClassName(".node-rep")[0];
 
-  let newLabelWidth = (label.val().length || label.attr("placeholder").length) + LABEL_INPUT_PADDING;
-  label.attr("size", newLabelWidth);
+  let labelLines = label.value.split("\n");
+  let labelRows = labelLines.length;
+  let labelCols = Math.max.apply(null, labelLines.map( l=>l.length ));
 
-  let labelBB = label[0].getBoundingClientRect(); 
-  let nodeBB = node[0].getBoundingClientRect();
+  label.setAttribute("rows", labelRows);
+  label.setAttribute("cols", labelCols || label.getAttribute("placeholder").length );
+
+  let labelBB = label.getBoundingClientRect(); 
+  let nodeBB = node.getBoundingClientRect();
   nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
                     y: nodeBB.top + nodeBB.height/2 };
 
   let labelLeft = nodeBB.center.x - labelBB.width / 2;
   let labelTop = nodeBB.center.y - labelBB.height / 2;
-  label.css("left", labelLeft + "px");
-  label.css("top", labelTop + "px");
+  label.style.left = labelLeft + "px";
+  label.style.top = labelTop + "px";
 
-  if(node.hasClass("node")){
-    let newRadius = Math.min(labelBB.width/2 + 6 , MAX_RADIUS);
-    //console.log("New Radius: ", newRadius);
-    nodeRep.attr("r", newRadius);
+  if(node.classList.contains("node") ){
+    var shapeType = node.getAttribute("shape"); 
+    var defaultSize = DEFAULT_SHAPE_SIZES[shapeType]
+    var unscaledSize = [labelBB.width*node.transformer.globalScale.x, 
+                        labelBB.height*node.transformer.globalScale.y];
+    console.log(unscaledSize + ", default: " + defaultSize);
+    if( unscaledSize[0] > defaultSize[0] || unscaledSize[1] > defaultSize[1]){
+      changeShapeSize(node, Math.max(unscaledSize[0], defaultSize[0]), 
+                            Math.max(unscaledSize[1], defaultSize[1]) );
+    }
   }
 }
