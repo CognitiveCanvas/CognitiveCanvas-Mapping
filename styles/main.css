@@ -137,8 +137,8 @@ h2 {
     z-index: 0;
 }
 
-.link_selected {
-    stroke: #ff7f0e;
+.link.selected .link-rep{
+    stroke: #ff7f0e !important; 
 }
 
 .node:hover {

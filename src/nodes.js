@@ -117,7 +117,7 @@ function createNode(nodeInfo={}){
       function(success){
 
         selectNode(node);
-        addLabel(nodeInfo.label, node);
+        addLabel(nodeInfo.label, node, (nodeInfo.label === NODE_TEMPLATE.label ? true: false) ); //If the label is different from the template, create it without requiring user input
 
         let data = { 
             "node"  : node,
@@ -190,7 +190,8 @@ function setNodeShape(shape, nodes=null){
   if (!nodes) nodes = document.querySelectorAll(".node.selected");
   nodes.forEach( (node)=>{
     var nodeInfo = nodeToObject(node);
-    nodeInfo.reps.mapping.shape = shape;
+    console.log(nodeInfo);
+    nodeInfo.reps.mapping.elements.node.shape = shape;
     node.querySelector(".node-rep").remove();
     drawNodeRep(node, nodeInfo);
   });
@@ -213,21 +214,25 @@ function nodeToObject(node){
     'scale': node.transformer.localScale,
     'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
     'groupId': node.getAttribute("groupId") || null,
+    'type': "node" + (node.classList.contains("pin") ? " pin": ""),
     'reps':{
       'mapping':{
-        'type': "node" + (node.classList.contains("pin") ? " pin": ""),
-        'shape': node.getAttribute("shape"),
-        'style': {
-          'node-rep':{
-            'fill': nodeRep.style.fill || null,
-            'stroke': nodeRep.style.stroke || null
-          },
-          'label':{
-            'font-size': label.style.fontSize || "default",
-            'font-color': label.style.stroke || "default",
-            'font-family': label.style.fontFamily || "default",
-            'italic': label.style.fontStyle === "italic",
-            'bold' : label.style.fontWeight === String(FONT_BOLD)
+        'elements':{
+          'node':{
+            'shape': node.getAttribute("shape"),
+            'style': {
+              'node-rep':{
+                'fill': nodeRep.style.fill || null,
+                'stroke': nodeRep.style.stroke || null
+              },
+              'label':{
+                'font-size': label.style.fontSize || "default",
+                'font-color': label.style.stroke || "default",
+                'font-family': label.style.fontFamily || "default",
+                'italic': label.style.fontStyle === "italic",
+                'bold' : label.style.fontWeight === String(FONT_BOLD)
+              }
+            }
           }
         }
       }
