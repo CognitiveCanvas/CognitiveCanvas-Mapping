@@ -27,6 +27,17 @@ window.onmessage = function(e) {
   
 }
 
+// Dummy promise for sending 
+var promise1 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 10000, 'foo');
+});
+
+promise1.then(function(value) {
+  console.log("Sending edited elements to container!");
+  getElementsWithEditedNote()
+});
+
+
 // Message Passing to the Container Code. Package include the id & label
 function sendSearchMsgToContainer() {
   if (window.parent) {
@@ -97,15 +108,17 @@ function markElementAsNoteEdited(id) {
 // Send all the elements that has notes that are edited to container to load
 function getElementsWithEditedNote() {
   let elementList = getAllObjects(["node", "link"]);
+  //console.log(elementList)
   let editedElementList = elementList.filter(function(element) {
-    return element.note == true;
+    return element.note == "true";
   });
+  //console.log(editedElementList)
   
   let package = {
     id: "edited_elements",
     elements: editedElementList
   } 
-  
+
   if (window.parent) {
     window.parent.postMessage(package, "*")
   }
