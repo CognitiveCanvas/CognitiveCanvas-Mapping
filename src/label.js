@@ -7,13 +7,18 @@ const MIN_INPUT_COLS = 5;
  * Adds a label to a node either by user input (if placeholderText=true) or by
  * the text parameter
  * 
- * @param {String | Array} text - If placeholderText is true, this is the 
+ * @param {String | Array} text-If placeholderText is true, this is the 
  * placeholder that appears in the background of the input div
- * @param {DOMELEMENT}  node - The Node to add the label to
- * @param {Boolean} placeholderText - If true, user inputs label, if false,
- * a label is created from the text parameter
+ * @param {DOMELEMENT}  node-The Node to add the label to
+ * @param {Boolean} requireInput If true, user inputs label, if false,
+ *                               inserts the text as a fully created label
+ * @param {Boolean} insertText-If true and placeholderText is true, inserts
+ *                             text into a newly created input div and places
+ *                             the cursor at the end.
+ * @param {Boolean} selectText-If true along with requireInput and insertText,
+ *                             selects the inserted text so it will be replaced
  */
-function addLabel(text, node, placeholderText=true){
+function addLabel(text, node, requireInput=true, insertText=false, selectText=false){
   
   let labelText = getNodeLabel(node);
   setPrevLabel(labelText); //For Logging
@@ -22,9 +27,9 @@ function addLabel(text, node, placeholderText=true){
 
   if( !node.querySelector("text") ) drawLabel(node, "");
 
-  if(placeholderText){
+  if(requireInput){
     // Adding an editable div outside
-    addLabelInputDiv(node, text);
+    addLabelInputDiv(node, text, insertText, selectText);
   } else{
     changeLabelText(node, text);
   }
@@ -41,7 +46,7 @@ function getNodeLabel(node){
 }
 
 
-function addLabelInputDiv(node, placeholderText){
+function addLabelInputDiv(node, placeholderText, insertText=false, selectText=false){
   let label = node.getElementsByClassName("label")[0];
 
   let labelInput = document.createElement("textarea");
@@ -49,10 +54,19 @@ function addLabelInputDiv(node, placeholderText){
   labelInput.setAttribute("id", node.getAttribute('id')+"_text");
   labelInput.setAttribute("node-id", node.getAttribute('id'));
   labelInput.setAttribute("size", placeholderText.length || 1);
-  labelInput.setAttribute("placeholder", placeholderText);
   labelInput.style.fontSize = window.getComputedStyle(label).getPropertyValue("font-size");
   labelInput.style.transform = "scale("+ (1/node.transformer.globalScale.x) +","+(1/node.transformer.globalScale.y)+")";
-  
+
+  if(!insertText){
+    labelInput.setAttribute("placeholder", placeholderText);
+  } else{ //If the user presses a key while a node is selected
+    labelInput.value = placeholderText;
+    if(selectText){
+      labelInput.focus();
+      labelInput.select();
+    }
+  }
+ 
   temp_label_div = labelInput;
 
   label.textContent = "";
@@ -254,10 +268,15 @@ function scaleNodeToLabelInput(label, node) {
   if(node.classList.contains("node") ){
     var shapeType = node.getAttribute("shape"); 
     var defaultSize = DEFAULT_SHAPE_SIZES[shapeType]
+
+    //The size of the label without transformations
     var unscaledSize = [labelBB.width*node.transformer.globalScale.x, 
                         labelBB.height*node.transformer.globalScale.y];
+    var unscaledNodeSize = [nodeBB.width*node.transformer.globalScale.x,
+                            nodeBB.height*node.transformer.globalScale.y];
 
-    if( unscaledSize[0] > defaultSize[0] || unscaledSize[1] > defaultSize[1]){
+    if( unscaledSize[0] > defaultSize[0] || unscaledSize[1] > defaultSize[1] ||
+        (unscaledNodeSize[0] > defaultSize[0]  && unscaledSize[0] < defaultSize[0] ) ){
       changeShapeSize(node, Math.max(unscaledSize[0], defaultSize[0]), 
                             Math.max(unscaledSize[1], defaultSize[1]) );
     }

@@ -134,7 +134,7 @@ function keyPressListener(e) {
         var regExp = /^[A-Za-z0-9]+$/;
         var selectedNodes = d3.selectAll(".selected");
         if(key.match(regExp) && key.length === 1 && selectedNodes.size() === 1){
-          addLabel(e.key, selectedNodes.node(), false);
+          addLabel(e.key, selectedNodes.node(), true, true);
         }
       }
       break;
