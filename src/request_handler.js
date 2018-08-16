@@ -29,7 +29,7 @@ window.onmessage = function(e) {
 
 // Dummy promise for sending 
 var promise1 = new Promise(function(resolve, reject) {
-  setTimeout(resolve, 10000, 'foo');
+  setTimeout(resolve, 8000, 'foo');
 });
 
 promise1.then(function(value) {
@@ -103,6 +103,7 @@ function traceElementForContainer(id) {
 function markElementAsNoteEdited(id) {
   let editee = document.getElementById(id)
   editee.setAttribute("note_edited", true)
+  getElementsWithEditedNote()
 }
 
 // Send all the elements that has notes that are edited to container to load
