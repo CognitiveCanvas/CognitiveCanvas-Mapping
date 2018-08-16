@@ -5,6 +5,8 @@ var isInitialized = false;
 webstrate.on("loaded", (webstrateId, clientId, user) => {
   
   if(isInitialized ) return;
+
+  //If this is a minimap, don't run the initialization scripts
   if(window.frameElement && window.frameElement.id === "minimap-bg"){
     console.log("stopping minimap initialization");
     return;
