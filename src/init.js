@@ -1,21 +1,45 @@
 /* init.js */
+var initStatus = null;
+var isInitialized = false;
 
-webstrate.on("loaded", (webstrateId, clientId, user) => onLoaded(webstrateId, clientId, user));
+webstrate.on("loaded", (webstrateId, clientId, user) => {
+  
+  if(isInitialized ) return;
+  if(window.frameElement && window.frameElement.id === "minimap-bg"){
+    console.log("stopping minimap initialization");
+    return;
+  }
+
+  let startTime = new Date();
+
+  initStatus = onLoaded(webstrateId, clientId, user);
+
+  initStatus.then( (endTime)=>{
+    console.log("Initialization Completion Time: " + ((endTime-startTime)/1000) + " seconds");
+    isInitialized = true;
+  });
+});
 
 function onLoaded(webstrateId, clientId, user) {
-  getDefaultStyle();
-  initIDs(webstrateId, clientId);
-  initDragLine();
-  initDataElement();
-  //reloadElement();
-  initToolPalette();
-  initDrawing();
-  initLog();
-  initTransformer();
-  initSnap();
-  initAddedNodeHandling();
-  initMinimap();
+  return new Promise( (resolve, reject)=>{
+    getDefaultStyle();
+    initIDs(webstrateId, clientId);
+    initDragLine();
+    initDataElement();
+    //reloadElement();
+    initToolPalette();
+    initDrawing();
+    initLog();
+    initTransformer().then( ()=>{
+      initSnap();
+      initAddedNodeHandling();
+      initMinimap().then( ()=> {
+        resolve(new Date());
+      });
+    });
+  });
 }
+
 
 function initLog(){
   let logIntervalMinute = 3;
@@ -95,18 +119,29 @@ function initToolPalette() {
 } 
 
 function initTransformer() {
-  window.Matrix = Transformer.Matrix; //Give Global access to Matrix
-  window.Point = Transformer.Point;
+  return new Promise( (resolve, reject)=>{
+    window.Matrix = Transformer.Matrix; //Give Global access to Matrix
+    window.Point = Transformer.Point;
 
-  canvas.addEventListener("wheel", updateMinimapPosition) //So it fires before Hammerize's mouse scroll event stops propagation
+    canvas.addEventListener("wheel", updateMinimapPosition) //So it fires before Hammerize's mouse scroll event stops propagation
 
-  hammerizeCanvas();
+    hammerizeCanvas().then( ()=>{
 
-  var nodes = document.querySelectorAll(".node");
-  nodes.forEach( (node) => hammerizeNode(node) );
+      let promises = [];
 
-  document.querySelectorAll(".link").forEach( (link) => hammerizeLink(link));
-  document.querySelectorAll(".group").forEach( (group) => hammerizeGroup(group));
+      document.querySelectorAll(".link,.node,.group").forEach( (element) => {
+        promises.push( new Promise( resolveIter => {
+          let prom;
+          if( element.classList.contains("node")) prom = hammerizeNode(element);
+          else if ( element.classList.contains("link")) prom = hammerizeLink(element);
+          else if ( element.classList.contains("group")) prom = hammerizeGroup(element);
+          prom.then( ()=> resolveIter() );
+        }));
+      });
+
+      Promise.all(promises).then( ()=> resolve());
+    });
+  });
 }
 
 function initAddedNodeHandling(){
@@ -116,31 +151,36 @@ function initAddedNodeHandling(){
 }
 
 function initMinimap(){
-  hammerizeMinimap();
-  
-  var minimapIframe = document.getElementById("minimap-bg");
-  minimapIframe.webstrate.on("transcluded", (event)=>{
-    var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.body.setAttribute("transient-is-minimap", true);
+  return new Promise( (resolve, reject) => {
+    var minimapIframe = document.getElementById("minimap-bg");
+    minimapIframe.webstrate.on("transcluded", (event)=>{
+      var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
+      iframeDoc.body.setAttribute("transient-is-minimap", true);
+      console.log(iframeDoc);
 
-    var minimapCanvas = iframeDoc.getElementById("canvas");
-    var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
+      hammerizeMinimap();
 
-    var minimapHeight = parseInt( minimapCanvas.style.height, 10 );
-    var minimapWidth = parseInt( minimapCanvas.style.width, 10 );
+      var minimapCanvas = iframeDoc.getElementById("canvas");
+      var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
 
-    var scale = {
-      x: minimapBBox.width / minimapWidth,
-      y: minimapBBox.height / minimapHeight
-    }
+      var minimapHeight = parseInt( minimapCanvas.style.height, 10 );
+      var minimapWidth = parseInt( minimapCanvas.style.width, 10 );
 
-    var transform = "scale(" + scale.x + "," + scale.y + ")";
-    
-    minimapIframe.style.transform = transform;
+      var scale = {
+        x: minimapBBox.width / minimapWidth,
+        y: minimapBBox.height / minimapHeight
+      }
 
-    minimapIframe.style.height = (100 / scale.y) + "%";
-    minimapIframe.style.width = (100 / scale.x) + "%";
+      var transform = "scale(" + scale.x + "," + scale.y + ")";
+      
+      minimapIframe.style.transform = transform;
 
-    updateMinimapPosition();
-  })
+      minimapIframe.style.height = (100 / scale.y) + "%";
+      minimapIframe.style.width = (100 / scale.x) + "%";
+
+      updateMinimapPosition();
+
+      resolve();
+    });
+  });
 }
