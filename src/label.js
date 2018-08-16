@@ -4,16 +4,6 @@ const LABEL_LINE_SPACING = 20;
 const MIN_INPUT_COLS = 5;
 
 /**
- * gets the label (including multiline labels) of a node
- * @param  {SVGELEMENT} node the node to get the label of
- * @return {String}     The label as a string.  Multiline labels are combined
- */
-function getNodeLabel(node){
-  var label = node.getElementsByClassName("label")[0];
-  return label ? label.textContent : null;
-}
-
-/**
  * Adds a label to a node either by user input (if placeholderText=true) or by
  * the text parameter
  * 
@@ -35,11 +25,24 @@ function addLabel(text, node, placeholderText=true){
   if(placeholderText){
     // Adding an editable div outside
     addLabelInputDiv(node, text);
+  } else{
+    changeLabelText(node, text);
   }
 }
 
+/**
+ * gets the label (including multiline labels) of a node
+ * @param  {SVGELEMENT} node the node to get the label of
+ * @return {String}     The label as a string.  Multiline labels are combined
+ */
+function getNodeLabel(node){
+  var label = node.getElementsByClassName("label")[0];
+  return label ? label.textContent : null;
+}
+
+
 function addLabelInputDiv(node, placeholderText){
-  let label = document.getElementsByClassName("label")[0];
+  let label = node.getElementsByClassName("label")[0];
 
   let labelInput = document.createElement("textarea");
   labelInput.classList.add("label-input")
@@ -98,7 +101,7 @@ function drawLabel(node, labelText){
     center = new Point(0, 0)
   }
   else if (node.classList.contains("link")){
-    let line = node.getElementsByClassName(".link-rep")[0],
+    let line = node.getElementsByClassName("link-rep")[0],
       x1 = line.getAttribute("x1"),
       x2 = line.getAttribute("x2"),
       y1 = line.getAttribute("y1"),
@@ -111,6 +114,15 @@ function drawLabel(node, labelText){
   var textSVG = Snap(node).text(cx, cy, "")
     .addClass("label")
     .attr({"id" : node.id+"_text"});
+
+  if(node.classList.contains("link")){
+    textSVG.attr({
+      x: textSVG.attr("dx"),
+      y: textSVG.attr("dy"),
+      dx: null,
+      dy: null
+    });
+  };
 
   if (labelText){
     changeLabelText(node, labelText);
@@ -130,14 +142,16 @@ function changeLabelText(node, labelLines){
     lineEle.appendChild( document.createTextNode(text) );
 
     let lineY = labelLines.length > 1 ? totalHeight * index / (labelLines.length-1) - (totalHeight/2) : 0;
+  
     lineEle.setAttribute("y", lineY);
     lineEle.setAttribute("x", 0)
+
     label.appendChild(lineEle);
   })
 }
 
 function createLabelFromInput(node, labelInput){
-  let labelLines = labelInput.value.split('\n').filter((val)=>val);
+  let labelLines = labelInput.value.split('\n');//.filter((val)=>val);
   changeLabelText(node, labelLines);
 
   // Remove the outside editable div
@@ -242,7 +256,7 @@ function scaleNodeToLabelInput(label, node) {
     var defaultSize = DEFAULT_SHAPE_SIZES[shapeType]
     var unscaledSize = [labelBB.width*node.transformer.globalScale.x, 
                         labelBB.height*node.transformer.globalScale.y];
-    console.log(unscaledSize + ", default: " + defaultSize);
+
     if( unscaledSize[0] > defaultSize[0] || unscaledSize[1] > defaultSize[1]){
       changeShapeSize(node, Math.max(unscaledSize[0], defaultSize[0]), 
                             Math.max(unscaledSize[1], defaultSize[1]) );

@@ -175,6 +175,8 @@ h2 {
     background: transparent;
     line-height: 20px;
     transform-origin: left top;
+    overflow: hidden;
+    resize: none;
 }
 
 .shaking{
