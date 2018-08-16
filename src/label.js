@@ -109,10 +109,12 @@ function addLabelInputDiv(node, placeholderText, insertText=false, selectText=fa
 }
 
 function drawLabel(node, labelText){
-  let cx, cy
+  let cx, cy, textSVG;
 
   if (node.classList.contains("node")){
-    center = new Point(0, 0)
+    cx = 0;
+    cy = 0;
+    textSVG = Snap(node).text(cx, cy, "").node;
   }
   else if (node.classList.contains("link")){
     let line = node.getElementsByClassName("link-rep")[0],
@@ -122,21 +124,16 @@ function drawLabel(node, labelText){
       y2 = line.getAttribute("y2");
     cx = (parseFloat(x1) + parseFloat(x2)) / 2.0;
     cy = (parseFloat(y1) + parseFloat(y2)) / 2.0;
+
+    textSVG = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    textSVG.setAttribute("x", cx);
+    textSVG.setAttribute("y", cy);
+    node.appendChild(textSVG);
   }
-
   // Add the text inside svg with the new text
-  var textSVG = Snap(node).text(cx, cy, "")
-    .addClass("label")
-    .attr({"id" : node.id+"_text"});
-
-  if(node.classList.contains("link")){
-    textSVG.attr({
-      x: textSVG.attr("dx"),
-      y: textSVG.attr("dy"),
-      dx: null,
-      dy: null
-    });
-  };
+    
+  textSVG.classList.add("label");
+  textSVG.setAttribute("id", node.id+"_text");
 
   if (labelText){
     changeLabelText(node, labelText);
@@ -154,13 +151,20 @@ function changeLabelText(node, labelLines){
     let lineEle = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
     lineEle.classList.add("label-line");
     lineEle.appendChild( document.createTextNode(text) );
-
-    let lineY = labelLines.length > 1 ? totalHeight * index / (labelLines.length-1) - (totalHeight/2) : 0;
-  
-    lineEle.setAttribute("y", lineY);
-    lineEle.setAttribute("x", 0)
-
     label.appendChild(lineEle);
+
+    if(node.classList.contains("node")){
+      var lineY = labelLines.length > 1 ? totalHeight * index / (labelLines.length-1) - (totalHeight/2) : 0;
+      lineEle.setAttribute("y", lineY);
+      lineEle.setAttribute("x", 0)
+    } else{ //Links
+      let previousLine = index > 0 ? label.getElementsByClassName("label-line")[index - 1] : null;
+      console.log( (previousLine ? previousLine.getComputedTextLength(): "") + ", current: " + lineEle.getComputedTextLength());
+      var lineX = previousLine ? previousLine.getComputedTextLength() * -0.5 - lineEle.getComputedTextLength() * 0.5 : 0;
+      let lineY = previousLine ? LABEL_LINE_SPACING : totalHeight / -2;
+      lineEle.setAttribute("dy", lineY);
+      lineEle.setAttribute("dx", lineX)
+    }
   })
 }
 

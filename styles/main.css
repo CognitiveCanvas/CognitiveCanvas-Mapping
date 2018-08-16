@@ -168,6 +168,10 @@ h2 {
     text-anchor: middle;
 }
 
+.label-line{
+    text-anchor: middle;
+}
+
 .label-input{
     z-index: 1;
     position: absolute;
