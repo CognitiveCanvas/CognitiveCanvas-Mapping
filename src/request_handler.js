@@ -33,7 +33,6 @@ var promise1 = new Promise(function(resolve, reject) {
 });
 
 promise1.then(function(value) {
-  console.log("Sending edited elements to container!");
   getElementsWithEditedNote()
 });
 
@@ -109,11 +108,9 @@ function markElementAsNoteEdited(id) {
 // Send all the elements that has notes that are edited to container to load
 function getElementsWithEditedNote() {
   let elementList = getAllObjects(["node", "link"]);
-  //console.log(elementList)
   let editedElementList = elementList.filter(function(element) {
     return element.note == "true";
   });
-  //console.log(editedElementList)
   
   let package = {
     id: "edited_elements",
@@ -136,10 +133,8 @@ function labelFinder(nodeID) {
   if (labelElement) {
     if (labelElement.getElementsByTagName("tspan")[0]) {
       labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-      //console.log("In View Mode, get label: " + labelText);
     } else {
       labelText = labelElement.innerHTML;
-      //console.log("In Edit Mode, get label: " + labelText);
     }
     return labelText;
   }
