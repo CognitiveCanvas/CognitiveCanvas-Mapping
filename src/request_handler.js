@@ -27,15 +27,6 @@ window.onmessage = function(e) {
   
 }
 
-// Dummy promise for sending 
-var promise1 = new Promise(function(resolve, reject) {
-  setTimeout(resolve, 8000, 'foo');
-});
-
-promise1.then(function(value) {
-  getElementsWithEditedNote()
-});
-
 
 // Message Passing to the Container Code. Package include the id & label
 function sendSearchMsgToContainer() {
