@@ -1,29 +1,38 @@
 var temp_label_div = null;
 
-/**
- * Check whether label existed for the selected entity
- * Return its text if existed and remove current SVG text
- *
- * @arguments: node, entity to check
- * @return {String} [Text in existed label]
- */
-function checkLabelExisted(node) {
-  let text = null;
-  let num_labels = d3.select(node)
-                     .selectAll(".label")
-                     .size();
-  //console.log("num_labels", num_labels);
-  if (num_labels > 0){
-    text = d3.select(node)
-             .select(".label")
-             .text();
-    
-    d3.select(node)
-      .select(".label")
-      .remove();
-  }
+const LABEL_LINE_SPACING = 20;
+const MIN_INPUT_COLS = 5;
 
-  return text;
+/**
+ * Adds a label to a node either by user input (if placeholderText=true) or by
+ * the text parameter
+ * 
+ * @param {String | Array} text-If placeholderText is true, this is the 
+ * placeholder that appears in the background of the input div
+ * @param {DOMELEMENT}  node-The Node to add the label to
+ * @param {Boolean} requireInput If true, user inputs label, if false,
+ *                               inserts the text as a fully created label
+ * @param {Boolean} insertText-If true and placeholderText is true, inserts
+ *                             text into a newly created input div and places
+ *                             the cursor at the end.
+ * @param {Boolean} selectText-If true along with requireInput and insertText,
+ *                             selects the inserted text so it will be replaced
+ */
+function addLabel(text, node, requireInput=true, insertText=false, selectText=false){
+  
+  let labelText = getNodeLabel(node);
+  setPrevLabel(labelText); //For Logging
+
+  text = text ? text : labelText;
+
+  if( !node.querySelector("text") ) drawLabel(node, "");
+
+  if(requireInput){
+    // Adding an editable div outside
+    addLabelInputDiv(node, text, insertText, selectText);
+  } else{
+    changeLabelText(node, text);
+  }
 }
 
 /**
@@ -32,102 +41,41 @@ function checkLabelExisted(node) {
  * @return {String}     The label as a string.  Multiline labels are combined
  */
 function getNodeLabel(node){
-  return node.getElementsByTagName("text")[0].textContent;
+  var label = node.getElementsByClassName("label")[0];
+  return label ? label.textContent : null;
 }
 
-/**
- * Scale n
- * @param  {[type]} label [description]
- * @param  {[type]} node  [description]
- * @param  {[type]} cx    [description]
- * @param  {[type]} cy    [description]
- * @return {[type]}       [description]
- */
-function scaleNode(label, node) {
-  label = $(label);
-  node = $(node);
-  let nodeRep = node.find(".node-rep");
 
-  let newLabelWidth = (label.val().length || label.attr("placeholder").length) + LABEL_INPUT_PADDING;
-  label.attr("size", newLabelWidth);
+function addLabelInputDiv(node, placeholderText, insertText=false, selectText=false){
+  let label = node.getElementsByClassName("label")[0];
 
-  let labelBB = label[0].getBoundingClientRect(); 
-  let nodeBB = node[0].getBoundingClientRect();
-  nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
-                    y: nodeBB.top + nodeBB.height/2 };
+  let labelInput = document.createElement("textarea");
+  labelInput.classList.add("label-input")
+  labelInput.setAttribute("id", node.getAttribute('id')+"_text");
+  labelInput.setAttribute("node-id", node.getAttribute('id'));
+  labelInput.setAttribute("size", placeholderText.length || 1);
+  labelInput.style.fontSize = window.getComputedStyle(label).getPropertyValue("font-size");
+  labelInput.style.transform = "scale("+ (1/node.transformer.globalScale.x) +","+(1/node.transformer.globalScale.y)+")";
 
-  let labelLeft = nodeBB.center.x - labelBB.width / 2;
-  let labelTop = nodeBB.center.y - labelBB.height / 2;
-  label.css("left", labelLeft + "px");
-  label.css("top", labelTop + "px");
-
-  if(node.hasClass("node")){
-    let newRadius = Math.min(labelBB.width/2 + 6 , MAX_RADIUS);
-    //console.log("New Radius: ", newRadius);
-    nodeRep.attr("r", newRadius);
+  if(!insertText){
+    labelInput.setAttribute("placeholder", placeholderText);
+  } else{ //If the user presses a key while a node is selected
+    labelInput.value = placeholderText;
+    if(selectText){
+      labelInput.focus();
+      labelInput.select();
+    }
   }
-}
+ 
+  temp_label_div = labelInput;
 
-/*
-text: The text to place in the input field when it is opened.  If null, will be the current label of the node
-node: The node to add or change the label of
-placeholderText: if true, will select all text in the input field to be replaced by user's input.  If false, will put cursor at the end of text
-*/
-function addLabel(text, node, placeholderText=true){
-  //console.log("adding labels");
+  label.textContent = "";
+  let screenPos = label.getBoundingClientRect()
 
-  node = node instanceof d3.selection ? node.node() : node;
-  let container = document.getElementById("d3_container");
+  labelInput.style.left = screenPos.x + screenPos.width/2 + "px";
+  labelInput.style.top = screenPos.y + screenPos.height/2 + "px";
   
-  // If a label already exists
-  let labelText = checkLabelExisted(node);
-  labelText = text ? text : labelText;
-  setPrevLabel(labelText);
-  // Adding an editable div outside
-  let label = document.createElement("input");
-  d3.select(label).classed("label-input", true);
-  label.style.position = "absolute";
-  label.setAttribute("id", node.getAttribute('id')+"_text");
-  label.setAttribute("node-id", node.getAttribute('id'));
-  label.setAttribute("size", labelText.length || 1);
-
-  if(placeholderText){
-    text = text ? text : "Node Name";
-    label.setAttribute("placeholder", text);
-  } else{
-    label.value = labelText;
-  }
-  temp_label_div = label;
-
-  let cx = 0, cy = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-  let name = d3.select(node).attr("class").split(" ")[0];
-
-  switch(name){
-    case "node":
-      translation = getNodePosition(node);
-      cx = translation.x
-      cy = translation.y
-      break;
-    case "link":
-      let line = d3.select(node).select(".link-rep");
-      x1 = line.attr("x1");
-      x2 = line.attr("x2");
-      y1 = line.attr("y1");
-      y2 = line.attr("y2");
-      cx = parseFloat(parseFloat(parseFloat(x1) + parseFloat(x2)) / 2.0);
-      cy = parseFloat(parseFloat(parseFloat(y1) + parseFloat(y2)) / 2.0);
-      break;
-    default:
-      break;
-  }
-
-  var screenPos = canvas.transformer.fromLocalToGlobal(new Transformer.Point(cx,cy));
-
-  label.style.left = screenPos.x + "px";
-  label.style.top = screenPos.y + "px";
-  
-
-  label.onkeydown = (e) => {
+  labelInput.onkeydown = (e) => {
     //console.log(e.key)
     let labelInteraction = e.key;
     switch(e.key){
@@ -144,74 +92,88 @@ function addLabel(text, node, placeholderText=true){
         break;
       default:
     }
-    label.oninput = (e) => {
-      scaleNode(label, node);
+    labelInput.oninput = (e) => {
+      scaleNodeToLabelInput(labelInput, node);
     }
-
   }
 
   var transientEle = document.createElement("transient");
-  transientEle.appendChild(label);
-  container.appendChild(transientEle);
+  transientEle.appendChild(labelInput);
+  document.getElementById("d3_container").appendChild(transientEle);
 
   toggleListenersForLabelInput(true); //Disable interactions during edit
 
-  scaleNode(label, node, screenPos.x, screenPos.y);
+  scaleNodeToLabelInput(labelInput, node);
 
-  label.focus();
-
+  labelInput.focus();
 }
 
-function createLabelFromInput(node, label){
-  //console.log("creating label from input");
-  node = node instanceof d3.selection ? node : d3.select(node);
-  label = label instanceof d3.selection ? label : d3.select(label);
-  var txt = label.node().value;
-  cx = 0;
-  cy = 0;
-  switch(node.attr("class").split(" ")[0]){
-    case "node":
-      break; 
-    case "link":
-      let line = node.select(".link-rep");
-      x1 = line.attr("x1");
-      x2 = line.attr("x2");
-      y1 = line.attr("y1");
-      y2 = line.attr("y2");
-      cx = (parseFloat(x1) + parseFloat(x2)) / 2.0 ;
-      cy = (parseFloat(y1) + parseFloat(y2)) / 2.0 ;
-      break;
-    default:
-      break;
+function drawLabel(node, labelText){
+  let cx, cy, textSVG;
+
+  if (node.classList.contains("node")){
+    cx = 0;
+    cy = 0;
+    textSVG = Snap(node).text(cx, cy, "").node;
+  }
+  else if (node.classList.contains("link")){
+    let line = node.getElementsByClassName("link-rep")[0],
+      x1 = line.getAttribute("x1"),
+      x2 = line.getAttribute("x2"),
+      y1 = line.getAttribute("y1"),
+      y2 = line.getAttribute("y2");
+    cx = (parseFloat(x1) + parseFloat(x2)) / 2.0;
+    cy = (parseFloat(y1) + parseFloat(y2)) / 2.0;
+
+    textSVG = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    textSVG.setAttribute("x", cx);
+    textSVG.setAttribute("y", cy);
+    node.appendChild(textSVG);
   }
   // Add the text inside svg with the new text
-  var textSVG = node.append("text")
-    .attr("text-anchor", "middle")
-    .attr("x", cx+"px")
-    .attr("y", cy+"px")
-    .attr("font-family", "Helvetica")
-    .classed("label", true)
-    .attr("id", node.attr("id")+"_text")
-
-  var textLines = txt.split('\n').filter((val)=>val);
-  for (let t in textLines ) {
-    //console.log(textLines[t]);
-    let tspan = textSVG
-                  .append("tspan")
-                  .text(textLines[t])
-                  .classed("label-line", true);
-
-    if (name === "node") {
-      tspan.attr("x", 0);
-    }
     
-    if (t > 0) {
-      tspan.attr("dy", 15);
-    }
+  textSVG.classList.add("label");
+  textSVG.setAttribute("id", node.id+"_text");
+
+  if (labelText){
+    changeLabelText(node, labelText);
   }
+}
+
+function changeLabelText(node, labelLines){
+  let label = node.querySelector(".label");
+  label.innerHTML = " ";
+
+  if (typeof labelLines === "string") labelLines = [labelLines]; //else it is an array
+  let totalHeight = (labelLines.length - 1) * LABEL_LINE_SPACING;
+
+  labelLines.forEach( (text, index)=>{
+    let lineEle = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+    lineEle.classList.add("label-line");
+    lineEle.appendChild( document.createTextNode(text) );
+    label.appendChild(lineEle);
+
+    if(node.classList.contains("node")){
+      var lineY = labelLines.length > 1 ? totalHeight * index / (labelLines.length-1) - (totalHeight/2) : 0;
+      lineEle.setAttribute("y", lineY);
+      lineEle.setAttribute("x", 0)
+    } else{ //Links
+      let previousLine = index > 0 ? label.getElementsByClassName("label-line")[index - 1] : null;
+      console.log( (previousLine ? previousLine.getComputedTextLength(): "") + ", current: " + lineEle.getComputedTextLength());
+      var lineX = previousLine ? previousLine.getComputedTextLength() * -0.5 - lineEle.getComputedTextLength() * 0.5 : 0;
+      let lineY = previousLine ? LABEL_LINE_SPACING : totalHeight / -2;
+      lineEle.setAttribute("dy", lineY);
+      lineEle.setAttribute("dx", lineX)
+    }
+  })
+}
+
+function createLabelFromInput(node, labelInput){
+  let labelLines = labelInput.value.split('\n');//.filter((val)=>val);
+  changeLabelText(node, labelLines);
 
   // Remove the outside editable div
-  label.remove();
+  labelInput.remove();
   temp_label_div = null;
   toggleListenersForLabelInput(false);
   sendSearchMsgToContainer();
@@ -259,7 +221,7 @@ function handleClickDuringLabelInput(){
     label.setAttribute("placeholder", errorMessage);
     label.setAttribute("size", errorMessage.length);
 
-    scaleNode( label, node );
+    scaleNodeToLabelInput( label, node );
 
     var labelSel = $(label);
 
@@ -277,4 +239,50 @@ function handleClickDuringLabelInput(){
     createLabelFromInput(node, label);   
   }
   return;
+}
+
+/**
+ * Scale n
+ * @param  {[type]} label [description]
+ * @param  {[type]} node  [description]
+ * @param  {[type]} cx    [description]
+ * @param  {[type]} cy    [description]
+ * @return {[type]}       [description]
+ */
+function scaleNodeToLabelInput(label, node) {
+  let nodeRep = node.getElementsByClassName(".node-rep")[0];
+
+  let labelLines = label.value.split("\n");
+  let labelRows = labelLines.length;
+  let labelCols = Math.max.apply(null, labelLines.map( l=>l.length ));
+
+  label.setAttribute("rows", labelRows);
+  label.setAttribute("cols", labelCols || label.getAttribute("placeholder").length );
+
+  let labelBB = label.getBoundingClientRect(); 
+  let nodeBB = node.getBoundingClientRect();
+  nodeBB.center = { x: nodeBB.left + nodeBB.width/2,
+                    y: nodeBB.top + nodeBB.height/2 };
+
+  let labelLeft = nodeBB.center.x - labelBB.width / 2;
+  let labelTop = nodeBB.center.y - labelBB.height / 2;
+  label.style.left = labelLeft + "px";
+  label.style.top = labelTop + "px";
+
+  if(node.classList.contains("node") ){
+    var shapeType = node.getAttribute("shape"); 
+    var defaultSize = DEFAULT_SHAPE_SIZES[shapeType]
+
+    //The size of the label without transformations
+    var unscaledSize = [labelBB.width*node.transformer.globalScale.x, 
+                        labelBB.height*node.transformer.globalScale.y];
+    var unscaledNodeSize = [nodeBB.width*node.transformer.globalScale.x,
+                            nodeBB.height*node.transformer.globalScale.y];
+
+    if( unscaledSize[0] > defaultSize[0] || unscaledSize[1] > defaultSize[1] ||
+        (unscaledNodeSize[0] > defaultSize[0]  && unscaledSize[0] < defaultSize[0] ) ){
+      changeShapeSize(node, Math.max(unscaledSize[0], defaultSize[0]), 
+                            Math.max(unscaledSize[1], defaultSize[1]) );
+    }
+  }
 }

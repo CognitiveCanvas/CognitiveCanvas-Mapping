@@ -20,7 +20,7 @@ In order to test the webstrate, you will need your own [Webstrate](https://webst
 
 ## Restarting Webstrate Server
 
-Sometimes you may encounter a situation where your [Webstrate](https://webstrates.github.io/) server is down and the page keeps showing "Loading Webstrates". This is not because of bugs in your code. It is often because the webstrate server crushes for different reasons.
+You may encounter a situation where your [Webstrate](https://webstrates.github.io/) server is down and the page keeps showing "Loading Webstrates". This is not because of bugs in your code. It is often because the webstrate server crushes for different reasons.
 
 ### To Fix the Server Crush
 
@@ -46,6 +46,31 @@ Restart the server by running:
 sudo systemctl restart webstrates
 ```
 
+## Renewal of the Certificate
+
+You may encounter a situation where the browser gives you a "Your connection is not private" message and a "Net::ERR_CERT_DATE_INVALID" error code. This means the certificate on the server is outdated and needs renewal.
+
+### To Renewl the Certificate on the Server
+
+Stop all the nglinx connections to the ports
+
+```
+sudo service nginx stop
+```
+
+Renew the certificate using letsencrypt
+
+```
+sudo letsencrypt renew
+```
+
+Restart the nglinx
+
+```
+sudo service nginx start
+```
+
+Re-build & Deploy all the Servers (webstrate & container_server) & Apps (container_client)
 
 ## Authors
 
