@@ -37,7 +37,7 @@ function autoHammerize( element ){
 }
 
 function hammerizeCanvas(){
-	Transformer.hammerize(canvas, {pan: true, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
+	return Transformer.hammerize(canvas, {pan: true, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
 		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
@@ -192,11 +192,16 @@ function nodePanListener(event){
 function nodeSingleTapListener(event){
 	var node = getParentMapElement(event.target);
 
-	if( $(node).hasClass("selected") ){
-		addLabel(null, node);
+	if( node.classList.contains("selected") ){
+		let labelText = getNodeLabel(node); 
+		if( labelText ){ //Open a label edit div, insert the current name, and select it
+			addLabel(labelText, node, true, true, true);
+		} else{
+			addLabel("Node Name", node);
+		}
 	}else{
 		selectNode( node );
-    sendSearchMsgToContainer();
+    	sendSearchMsgToContainer();
 	}
 }
 

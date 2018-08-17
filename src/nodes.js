@@ -63,6 +63,11 @@ var NODE_TEMPLATE = {
 
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
 var DEFAULT_NODE_SIZE = [100, 100]
+var DEFAULT_SHAPE_SIZES = {
+  'rectangle': [100, 50],
+  'circle': [100,100],
+  'diamond':[100,100]
+}
 
 /**
  * Initializes data structures needed to create nodes
@@ -76,6 +81,38 @@ function initSnap(){
     'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
   }
 }
+
+function createShape(shape, width=null, height=null){
+  let s = Snap(0,0);
+  let ele;
+
+  if(!width) width=DEFAULT_SHAPE_SIZES[shape][0];
+  if(!height) height=DEFAULT_SHAPE_SIZES[shape][1];
+
+  switch(shape){
+    case "rectangle":
+      ele = s.rect(width/-2, height/-2, width, height);
+      break;
+    case "circle":
+      ele = s.circle(0, 0, width/2);
+      break;
+    case 'diamond':
+      ele = s.polygon( width/-2,0, 0,height/-2, width/2,0, 0,height/2);
+  }
+  return ele.node;
+}
+
+function changeShapeSize(node, width, height){
+  var shapeType = node.getAttribute("shape");
+  var nodeRep = node.getElementsByClassName("node-rep")[0];
+
+  var shapeAttrs = createShape(shapeType, width, height).attributes;
+
+  for( var i = 0; i < shapeAttrs.length; i++){
+    nodeRep.setAttribute( shapeAttrs[i].name, shapeAttrs[i].value);
+  }
+}
+
 
 /**
  * Creates a node from a JSON object, logs it, and adds a label
@@ -117,7 +154,7 @@ function createNode(nodeInfo={}){
       function(success){
 
         selectNode(node);
-        addLabel(nodeInfo.label, node);
+        addLabel(nodeInfo.label, node, (nodeInfo.label === NODE_TEMPLATE.label ? true: false) ); //If the label is different from the template, create it without requiring user input
 
         let data = { 
             "node"  : node,
@@ -190,7 +227,8 @@ function setNodeShape(shape, nodes=null){
   if (!nodes) nodes = document.querySelectorAll(".node.selected");
   nodes.forEach( (node)=>{
     var nodeInfo = nodeToObject(node);
-    nodeInfo.reps.mapping.shape = shape;
+    console.log(nodeInfo);
+    nodeInfo.reps.mapping.elements.node.shape = shape;
     node.querySelector(".node-rep").remove();
     drawNodeRep(node, nodeInfo);
   });
@@ -213,21 +251,25 @@ function nodeToObject(node){
     'scale': node.transformer.localScale,
     'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
     'groupId': node.getAttribute("groupId") || null,
+    'type': "node" + (node.classList.contains("pin") ? " pin": ""),
     'reps':{
       'mapping':{
-        'type': "node" + (node.classList.contains("pin") ? " pin": ""),
-        'shape': node.getAttribute("shape"),
-        'style': {
-          'node-rep':{
-            'fill': nodeRep.style.fill || null,
-            'stroke': nodeRep.style.stroke || null
-          },
-          'label':{
-            'font-size': label.style.fontSize || "default",
-            'font-color': label.style.stroke || "default",
-            'font-family': label.style.fontFamily || "default",
-            'italic': label.style.fontStyle === "italic",
-            'bold' : label.style.fontWeight === String(FONT_BOLD)
+        'elements':{
+          'node':{
+            'shape': node.getAttribute("shape"),
+            'style': {
+              'node-rep':{
+                'fill': nodeRep.style.fill || null,
+                'stroke': nodeRep.style.stroke || null
+              },
+              'label':{
+                'font-size': label.style.fontSize || "default",
+                'font-color': label.style.stroke || "default",
+                'font-family': label.style.fontFamily || "default",
+                'italic': label.style.fontStyle === "italic",
+                'bold' : label.style.fontWeight === String(FONT_BOLD)
+              }
+            }
           }
         }
       }

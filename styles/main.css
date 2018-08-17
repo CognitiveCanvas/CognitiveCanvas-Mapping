@@ -137,8 +137,8 @@ h2 {
     z-index: 0;
 }
 
-.link_selected {
-    stroke: #ff7f0e;
+.link.selected .link-rep{
+    stroke: #ff7f0e !important; 
 }
 
 .node:hover {
@@ -168,10 +168,19 @@ h2 {
     text-anchor: middle;
 }
 
+.label-line{
+    text-anchor: middle;
+}
+
 .label-input{
     z-index: 1;
     position: absolute;
     text-align:center;
+    background: transparent;
+    line-height: 20px;
+    transform-origin: left top;
+    overflow: hidden;
+    resize: none;
 }
 
 .shaking{
