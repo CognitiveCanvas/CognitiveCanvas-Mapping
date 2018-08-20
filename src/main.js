@@ -149,7 +149,6 @@ function keyDownListener(e){
     e.preventDefault();
     undo()
     
-    console.log("resent EditeNoteList after undo")
     getElementsWithEditedNote()
     
     return false;
@@ -158,7 +157,6 @@ function keyDownListener(e){
     e.preventDefault();
     redo();
     
-    console.log("resent EditeNoteList after redo")
     getElementsWithEditedNote()
     
     return false;
@@ -195,8 +193,6 @@ function keyDownListener(e){
         });
         d3.selectAll(".map-image.selected").remove();
         
-        
-        console.log("resent EditeNoteList after undo")
         getElementsWithEditedNote()
 
       }
