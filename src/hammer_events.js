@@ -183,6 +183,7 @@ function nodePanListener(event){
 		node.links = null;
 		node.prevPoint = null;
 		logTranslate("pan", node);
+    action_done("pan", node);
 	}
 }
 
