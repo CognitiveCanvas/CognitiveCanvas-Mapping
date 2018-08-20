@@ -19,7 +19,7 @@ var delay = 300;
 var mouseMoved = false;
 var singleClickTimer, doubleClickDragTimer = null;
 
-var hoveredEle = null;
+//var hoveredEle = null; //Deprecated Preview
 var addWindowOpen = false;
 var drawing_enabled = false;
 var eraser_enabled = false;
@@ -36,6 +36,8 @@ var quickAddDist = 10 + MAX_RADIUS;
 window.addEventListener("keypress", (e) => keyPressListener(e));
 window.addEventListener("keydown", (e) => keyDownListener(e));
 
+// Deprecated Preview of Notes
+/*
 function mouseOverListener(e) {
   if (drawing_enabled) return;
 
@@ -120,6 +122,7 @@ function mouseOutListener(e) {
   }
   hoveredEle = null;
 }
+*/
 
 function keyPressListener(e) {
   var key = e.key;
