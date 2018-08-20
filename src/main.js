@@ -148,11 +148,19 @@ function keyDownListener(e){
   if ((e.ctrlKey || e.metaKey) && e.key == "z") {
     e.preventDefault();
     undo()
+    
+    console.log("resent EditeNoteList after undo")
+    getElementsWithEditedNote()
+    
     return false;
   }
   if ((e.ctrlKey || e.metaKey) && e.key == "y") {
     e.preventDefault();
     redo();
+    
+    console.log("resent EditeNoteList after redo")
+    getElementsWithEditedNote()
+    
     return false;
   }
   switch(key) {
@@ -186,6 +194,11 @@ function keyDownListener(e){
           removeLink(this)
         });
         d3.selectAll(".map-image.selected").remove();
+        
+        
+        console.log("resent EditeNoteList after undo")
+        getElementsWithEditedNote()
+
       }
       break;
     case "ArrowRight":

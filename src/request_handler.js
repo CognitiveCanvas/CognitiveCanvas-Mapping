@@ -100,13 +100,15 @@ function markElementAsNoteEdited(id) {
 function getElementsWithEditedNote() {
   let elementList = getAllObjects(["node", "link"]);
   let editedElementList = elementList.filter(function(element) {
-    return element.note == "true";
+    return element.note == "true" && element.deleted == false;
   });
   
   let package = {
     id: "edited_elements",
     elements: editedElementList
   } 
+  
+  //console.log("edited_elements", package)
 
   if (window.parent) {
     window.parent.postMessage(package, "*")

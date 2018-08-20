@@ -67,6 +67,7 @@ function linkToObject(link){
   return {
     'id': link.id,
     'label': getNodeLabel(link),
+    'deleted': link.classList[link.classList.length-1] == "deleted",
     'note': link.getAttribute("note_edited"),
     'reps': {
       'mapping':{
