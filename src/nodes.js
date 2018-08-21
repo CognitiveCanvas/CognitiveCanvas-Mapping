@@ -138,7 +138,6 @@ function changeShapeSize(node, width, height){
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
-  console.log(nodeInfo)
   return new Promise((resolve, reject)=>{
     nodeInfo = Object.assign( {},
       NODE_TEMPLATE, 
@@ -201,9 +200,10 @@ function drawNode(nodeInfo){
 function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
   node = node instanceof SVGElement ? Snap(node): node;
   var shape = nodeInfo.reps.mapping.elements.node.shape;
-  var shapeInfo = SHAPE_FUNCTIONS[shape];
 
-  var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
+  let shapeEle = createShape(shape);
+
+  var nodeRep = Snap(shapeEle).attr({
     class: "node-rep",
     "z-index": 1,
     "xmlns": "http://www.w3.org/2000/svg"

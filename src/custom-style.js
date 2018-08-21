@@ -2,7 +2,7 @@ $(document).ready(function() {
 
     $("#rectangle_btn").click(()=>setNodeShape("rectangle"));
     $("#circle_btn").click(()=>setNodeShape("circle"));
-    $("#triangle_btn").click(()=>setNodeShape("triangle"));
+    $("#diamond_btn").click(()=>setNodeShape("diamond"));
 
     $("#green_node").click(()=>setNodeColor("green"));
     $("#red_node").click(()=>setNodeColor("red"));
