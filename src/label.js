@@ -42,7 +42,14 @@ function addLabel(text, node, requireInput=true, insertText=false, selectText=fa
  */
 function getNodeLabel(node){
   var label = node.getElementsByClassName("label")[0];
-  return label ? label.textContent : null;
+  if (!label) return null;
+
+  let labelText = "";
+  label.querySelectorAll(".label-line").forEach( (labelLine, index)=>{
+    labelText += (index > 0 ? "\n" : "") + labelLine.textContent;
+  });
+
+  return labelText;
 }
 
 

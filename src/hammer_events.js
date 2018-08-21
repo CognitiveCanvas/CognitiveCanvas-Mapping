@@ -281,7 +281,7 @@ function linkSingleTapListener(event){
 	var link = getParentMapElement(event.target);
 
 	if( $(link).hasClass("selected") ){
-		addLabel(null, link);
+		addLabel(null, link, true, true, true);
 	}else{
 		selectNode( link );
 		sendSearchMsgToContainer();
