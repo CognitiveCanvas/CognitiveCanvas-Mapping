@@ -54,7 +54,7 @@ var NODE_TEMPLATE = {
       'elements': {
         'node' : {
           'shape': "rectangle",
-          'repSize': DEFAULT_NODE_SIZE,
+          'repSize': DEFAULT_SHAPE_SIZES['rectangle'],
           'style': {
             'node-rep':{
               'fill': 'rgba(46, 127, 195, 0.1)',
