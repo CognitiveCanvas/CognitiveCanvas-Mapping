@@ -132,7 +132,7 @@ function initDrawing() {
         Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
           svg.remove();
         });
-      });
+      }, {passive: false});
       clearCanvas.addEventListener("click", event => {
         Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
           svg.remove();
@@ -180,7 +180,7 @@ function initDrawing() {
           activeThickness = thicknessElement;
 
           penThickness = thickness;
-        }, true);
+        }, {capture: true, passive: false});
         
         thicknessElement.addEventListener("click", event => {
           event.preventDefault();
@@ -241,7 +241,7 @@ function initDrawing() {
           activeColor = colorElement;
 
           penColor = color;
-        }, true);
+        }, {capture: true, passive: false});
         
         colorElement.addEventListener("click", event => {
           event.preventDefault();
@@ -552,7 +552,7 @@ function initDrawing() {
       }
       
       
-    }, true);
+    }, {capture: true, passive: false});
 
     /*
      * Touch events for touch surface.
@@ -596,7 +596,7 @@ function initDrawing() {
           // logErasure("touch", toRemove);
         }
       }
-    }, true);
+    }, {capture: true, passive: false});
 
     /*
      * Touch events for touch surface.
@@ -611,7 +611,7 @@ function initDrawing() {
         window.isManipulationEnabled = true;
       }, 250);
       // logDrawing("touch", path);
-    }, true);
+    }, {capture: true, passive: true});
 
 
 }
