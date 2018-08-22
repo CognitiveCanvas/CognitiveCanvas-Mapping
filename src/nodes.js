@@ -247,7 +247,7 @@ function nodeToObject(node){
   return {
     'id': node.id,
     'label': getNodeLabel(node),
-    'deleted': node.classList[node.classList.length-1] == "deleted",
+    'deleted': node.classList.contains("deleted"),
     'note': node.getAttribute("note_edited"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
