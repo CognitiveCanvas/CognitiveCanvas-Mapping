@@ -19,6 +19,9 @@ webstrate.on("loaded", (webstrateId, clientId, user) => {
   initStatus.then( (endTime)=>{
     console.log("Initialization Completion Time: " + ((endTime-startTime)/1000) + " seconds");
     isInitialized = true;
+    
+    // Waiting on Promise initStatus to send Edited Note List
+    getElementsWithEditedNote()
   });
 });
 

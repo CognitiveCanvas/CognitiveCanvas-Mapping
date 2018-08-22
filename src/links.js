@@ -1,6 +1,6 @@
 var LINK_TEMPLATE = {
   'label': "Link Name",
-  'note': null,
+  'note': false,
   'reps': {
     'mapping':{
       'elements': {
@@ -38,7 +38,8 @@ function createLink(linkObj){
   		'id': generateObjectId(),
   		'class':'link',
   		sourceId : srcNode.id,
-  		targetId : targetNode.id
+  		targetId : targetNode.id,
+      note_edited: false
   	});
     //Insert the link after any groups or images
     var groups = canvas.getElementsByClassName("group");
@@ -75,7 +76,8 @@ function linkToObject(link){
   return {
     'id': link.id,
     'label': getNodeLabel(link),
-    'note': null,
+    'deleted': link.classList.contains("deleted"),
+    'note': link.getAttribute("note_edited"),
     'reps': {
       'mapping':{
         'elements': {
