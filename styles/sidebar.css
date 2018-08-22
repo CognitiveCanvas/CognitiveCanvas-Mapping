@@ -43,12 +43,12 @@
 #circle_btn{
   border-radius: 50%;
 }
-#triangle_btn{
+#diamond_btn{
   vertical-align: bottom;
   margin: 2px;
   background-color: transparent;
 }
-#triangle_btn polygon{
+#diamond_btn polygon{
   stroke: blue;
   stroke-width: 4px;
   fill: rgba(46, 127, 195, 0.5);

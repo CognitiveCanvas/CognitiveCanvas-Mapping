@@ -40,7 +40,16 @@ function createLink(linkObj){
   		sourceId : srcNode.id,
   		targetId : targetNode.id,
       note_edited: false
-  	}).prependTo(snap);
+  	});
+    //Insert the link after any groups or images
+    var groups = canvas.getElementsByClassName("group");
+    if( groups.length > 0 ) {
+      link.insertAfter(groups[groups.length-1])
+    }
+    else{
+      link.prependTo(canvas);
+    }
+
   	link.line(srcPos.x, srcPos.y, destPos.x, destPos.y).attr({
   		'class': 'link-rep',
   		"xmlns": "http://www.w3.org/2000/svg"
