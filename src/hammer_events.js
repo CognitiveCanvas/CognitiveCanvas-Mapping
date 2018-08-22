@@ -174,6 +174,24 @@ function nodePanListener(event){
 	var deltaPoint = node.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
 	var deltaDeltaPoint = new Point(deltaPoint.x - node.prevPoint.x, deltaPoint.y - node.prevPoint.y)
 
+	//Make sure a node isn't being moved outside its group
+	if(node.hasAttribute("groupId")){
+		let groupBB = document.getElementById( node.getAttribute("groupId") ).getBoundingClientRect();
+		let nodeBB = node.getBoundingClientRect();
+		let newBB = {};
+		newBB.left = nodeBB.left + deltaDeltaPoint.x;
+		newBB.right = nodeBB.right + deltaDeltaPoint.x;
+		newBB.top = nodeBB.top + deltaDeltaPoint.y;
+		newBB.bottom = nodeBB.bottom + deltaDeltaPoint.y;
+
+		if (newBB.left < groupBB.left || newBB.right > groupBB.right){
+			deltaDeltaPoint.x = 0;
+		}
+		if (newBB.top < groupBB.top || newBB.bottom > groupBB.bottom){
+			deltaDeltaPoint.y = 0;
+		}
+	}
+
 	translateNode(node, deltaDeltaPoint, true, node.links);
 
 	node.prevPoint.x = deltaPoint.x;
