@@ -7,16 +7,17 @@ const MIN_INPUT_COLS = 5;
  * Adds a label to a node either by user input (if placeholderText=true) or by
  * the text parameter
  * 
- * @param {String | Array} text-If placeholderText is true, this is the 
- * placeholder that appears in the background of the input div
- * @param {DOMELEMENT}  node-The Node to add the label to
+ * @param {String | Array} text  If placeholderText is true, this is the 
+ *                               placeholder that appears in the background of 
+ *                               the input div.  Otherwise, it is the label
+ * @param {DOMELEMENT}     node  The Node to add the label to
  * @param {Boolean} requireInput If true, user inputs label, if false,
  *                               inserts the text as a fully created label
- * @param {Boolean} insertText-If true and placeholderText is true, inserts
- *                             text into a newly created input div and places
- *                             the cursor at the end.
- * @param {Boolean} selectText-If true along with requireInput and insertText,
- *                             selects the inserted text so it will be replaced
+ * @param {Boolean}  insertText  If true and placeholderText is true, inserts 
+ *                               text into a newly created input div and places
+ *                               the cursor at the end.
+ * @param {Boolean} selectText   If true along with requireInput and insertText,
+ *                               selects the inserted text so it will be replaced
  */
 function addLabel(text, node, requireInput=true, insertText=false, selectText=false){
   
@@ -42,10 +43,32 @@ function addLabel(text, node, requireInput=true, insertText=false, selectText=fa
  */
 function getNodeLabel(node){
   var label = node.getElementsByClassName("label")[0];
-  return label ? label.textContent : null;
+  if (!label) return null;
+
+  let labelText = "";
+  label.querySelectorAll(".label-line").forEach( (labelLine, index)=>{
+    labelText += (index > 0 ? "\n" : "") + labelLine.textContent;
+  });
+
+  return labelText;
 }
 
-
+/**
+ * Creates a temporary input element for the user to enter the label of a node.
+ * This is a transient element that only the current user can interact with.
+ * The label can be finalized by pressing Tab, Enter, or clicking outside the
+ * label.  Map-related event listeners are disabled during this time.
+ * 
+ * @param {SVGELEMENT}  node        The node to create a label for.
+ * @param {String}  placeholderText Text that will be preinserted.
+ * @param {Boolean} insertText      If false (default), laceholderText will be
+ *                                  inserted as transparent background text
+ *                                  that dissapears when the user types.  If
+ *                                  true, it is instead inserted as user input
+ * @param {Boolean} selectText      If this and insertText are true, the text
+ *                                  is selected so that the user can either
+ *                                  use the text as a label or replace it.
+ */
 function addLabelInputDiv(node, placeholderText, insertText=false, selectText=false){
   let label = node.getElementsByClassName("label")[0];
 
@@ -108,7 +131,12 @@ function addLabelInputDiv(node, placeholderText, insertText=false, selectText=fa
   labelInput.focus();
 }
 
-function drawLabel(node, labelText){
+/**
+ * Creates the label element on a node element
+ * @param  {SVGELEMENT}         node  The node to add the label to
+ * @param  {String | [String]}  labelText  The text to optionally put in the label
+ */
+function drawLabel(node, labelText=null){
   let cx, cy, textSVG;
 
   if (node.classList.contains("node")){
@@ -140,6 +168,12 @@ function drawLabel(node, labelText){
   }
 }
 
+/**
+ * Changes the label text of a node
+ * @param  {SVGELEMENT} node   The node classed element to change the text of
+ * @param  {String | [String]} - The text to insert to the label.  If an array
+ *                               of strings, each will have its own line
+ */
 function changeLabelText(node, labelLines){
   let label = node.querySelector(".label");
   label.innerHTML = " ";
@@ -168,8 +202,13 @@ function changeLabelText(node, labelLines){
   })
 }
 
+/**
+ * Deletes a temporary label-input element and inserts it's value into the appropriate node's label
+ * @param  {SVGELEMENT} node - The node to change the label of
+ * @param  {HTMLELEMENT} labelInput The label-input element to extract text from and delete
+ */
 function createLabelFromInput(node, labelInput){
-  let labelLines = labelInput.value.split('\n');//.filter((val)=>val);
+  let labelLines = labelInput.value.split('\n');
   changeLabelText(node, labelLines);
 
   // Remove the outside editable div
@@ -177,7 +216,6 @@ function createLabelFromInput(node, labelInput){
   temp_label_div = null;
   toggleListenersForLabelInput(false);
   sendSearchMsgToContainer();
-  return;
 }
 
 /* Blocks the user from interacting with other elements while a node is being edited
@@ -187,6 +225,14 @@ function toggleListenersForLabelInput( isInputtingLabel ){
   //console.log("Toggling listeners for label input to: ", isInputtingLabel);
   toggleNonDrawingHammers( !isInputtingLabel )
   canvas.hammer.get( 'labelinputtap' ).set({ 'enable' : isInputtingLabel })
+
+  if( isInputtingLabel){ //Don't allow the user to navigate to other nodes with arrows
+    window.removeEventListener("keypress", keyPressListener);
+    window.removeEventListener("keydown", keyDownListener);
+  } else{
+    window.addEventListener("keypress", keyPressListener);
+    window.addEventListener("keydown", keyDownListener);
+  }
 }
 
 function handleClickDuringLabelInput(){
@@ -242,12 +288,9 @@ function handleClickDuringLabelInput(){
 }
 
 /**
- * Scale n
- * @param  {[type]} label [description]
- * @param  {[type]} node  [description]
- * @param  {[type]} cx    [description]
- * @param  {[type]} cy    [description]
- * @return {[type]}       [description]
+ * Changes the size of a node's representation to fit a label as it is being input by the user
+ * @label  {HTMLEMENT} label the label-input classed input element
+ * @param  {SVGELEMENT} node  the node-classed element whose representation will be scalled
  */
 function scaleNodeToLabelInput(label, node) {
   let nodeRep = node.getElementsByClassName(".node-rep")[0];

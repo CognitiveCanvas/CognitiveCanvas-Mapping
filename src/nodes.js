@@ -15,6 +15,7 @@
     'mapping':{
       'type': String - "node" | "link" | "pin" | "goup" | "image,
       'shape': String - "rectangle | circle | triangle,
+      'rep-size': [width, height],
       'style': {
         'node-rep':{
           'fill': nodeRep.style.fill || "default",
@@ -34,7 +35,13 @@
  * }
  */
 var snap;
-var SHAPE_FUNCTIONS;
+
+var DEFAULT_NODE_SIZE = [100, 100]
+var DEFAULT_SHAPE_SIZES = {
+  'rectangle': [100, 50],
+  'circle': [100,100],
+  'diamond':[100,100]
+}
 
 var NODE_TEMPLATE = {
   'label': "Node Name",
@@ -47,6 +54,7 @@ var NODE_TEMPLATE = {
       'elements': {
         'node' : {
           'shape': "rectangle",
+          'repSize': DEFAULT_SHAPE_SIZES['rectangle'],
           'style': {
             'node-rep':{
               'fill': 'rgba(46, 127, 195, 0.1)',
@@ -62,43 +70,38 @@ var NODE_TEMPLATE = {
 }
 
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
-var DEFAULT_NODE_SIZE = [100, 100]
-var DEFAULT_SHAPE_SIZES = {
-  'rectangle': [100, 50],
-  'circle': [100,100],
-  'diamond':[100,100]
-}
 
 /**
  * Initializes data structures needed to create nodes
  */
 function initSnap(){
   snap = Snap(canvas);
-
-  SHAPE_FUNCTIONS = {
-    'rectangle': { 'function': snap.rect, 'args': [-50,-25,100,50] },
-    'circle': { 'function': snap.circle, 'args': [0,0,50]},
-    'triangle': { 'function': snap.polygon, 'args': [0,-60, 50,40, -50,40]},
-  }
 }
 
 function createShape(shape, width=null, height=null){
   let s = Snap(0,0);
   let ele;
+  let defaultSize = DEFAULT_SHAPE_SIZES[shape];
 
-  if(!width) width=DEFAULT_SHAPE_SIZES[shape][0];
-  if(!height) height=DEFAULT_SHAPE_SIZES[shape][1];
+  if(!width || width < defaultSize[0]) width=defaultSize[0];
+  if(!height || height < defaultSize[1]) height=defaultSize[1];
 
   switch(shape){
     case "rectangle":
       ele = s.rect(width/-2, height/-2, width, height);
       break;
     case "circle":
-      ele = s.circle(0, 0, width/2);
+      ele = s.circle(0, 0, Math.max(width, height) /2 );
       break;
     case 'diamond':
       ele = s.polygon( width/-2,0, 0,height/-2, width/2,0, 0,height/2);
   }
+
+  ele.attr({
+    'rep-width': width,
+    'rep-height': height
+  });
+
   return ele.node;
 }
 
@@ -138,7 +141,6 @@ function changeShapeSize(node, width, height){
  */
 function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
-  console.log(nodeInfo)
   return new Promise((resolve, reject)=>{
     nodeInfo = Object.assign( {},
       NODE_TEMPLATE, 
@@ -201,13 +203,18 @@ function drawNode(nodeInfo){
  */
 function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
   node = node instanceof SVGElement ? Snap(node): node;
+  
   var shape = nodeInfo.reps.mapping.elements.node.shape;
-  var shapeInfo = SHAPE_FUNCTIONS[shape];
 
-  var nodeRep = shapeInfo.function.call(node, ...shapeInfo.args).attr({
+  let repSize = [nodeInfo.reps.mapping.elements.node.repSize[0],
+                 nodeInfo.reps.mapping.elements.node.repSize[1] ];
+
+  let shapeEle = createShape(shape, repSize[0], repSize[1]);
+
+  var nodeRep = Snap(shapeEle).attr({
     class: "node-rep",
     "z-index": 1,
-    "xmlns": "http://www.w3.org/2000/svg"
+    "xmlns": "http://www.w3.org/2000/svg",
   });
   node.attr({'shape': shape})
 
@@ -228,7 +235,6 @@ function setNodeShape(shape, nodes=null){
   if (!nodes) nodes = document.querySelectorAll(".node.selected");
   nodes.forEach( (node)=>{
     var nodeInfo = nodeToObject(node);
-    console.log(nodeInfo);
     nodeInfo.reps.mapping.elements.node.shape = shape;
     node.querySelector(".node-rep").remove();
     drawNodeRep(node, nodeInfo);
@@ -259,6 +265,7 @@ function nodeToObject(node){
         'elements':{
           'node':{
             'shape': node.getAttribute("shape"),
+            'repSize' : [nodeRep.getAttribute("rep-width"), nodeRep.getAttribute("rep-height")],
             'style': {
               'node-rep':{
                 'fill': nodeRep.style.fill || null,
