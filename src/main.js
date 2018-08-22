@@ -33,8 +33,8 @@ var zoom = null;
 
 var quickAddDist = 10 + MAX_RADIUS;
 
-window.addEventListener("keypress", (e) => keyPressListener(e));
-window.addEventListener("keydown", (e) => keyDownListener(e));
+window.addEventListener("keypress", keyPressListener);
+window.addEventListener("keydown", keyDownListener);
 
 function mouseOverListener(e) {
   if (drawing_enabled) return;

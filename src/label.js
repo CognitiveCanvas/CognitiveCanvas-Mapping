@@ -225,6 +225,14 @@ function toggleListenersForLabelInput( isInputtingLabel ){
   //console.log("Toggling listeners for label input to: ", isInputtingLabel);
   toggleNonDrawingHammers( !isInputtingLabel )
   canvas.hammer.get( 'labelinputtap' ).set({ 'enable' : isInputtingLabel })
+
+  if( isInputtingLabel){ //Don't allow the user to navigate to other nodes with arrows
+    window.removeEventListener("keypress", keyPressListener);
+    window.removeEventListener("keydown", keyDownListener);
+  } else{
+    window.addEventListener("keypress", keyPressListener);
+    window.addEventListener("keydown", keyDownListener);
+  }
 }
 
 function handleClickDuringLabelInput(){
