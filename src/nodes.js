@@ -391,11 +391,17 @@ function removeNode(node) {
 
 //Helper Function to move a node group
 /**
-* node: the node to move along with its links
-* IMPORTANT: Takes coordinates in local (canvas)
-* x: the x coordinate to move the node to.  If relative is true, this will be an x offest instead
-* y: the y coordinate to move the node to.  If relative is true, this will be a y offest instead
-**/
+ * Moves a node along with any connected links
+ * @param  {HTMLELEMENT}  node  The node to move
+ * @param  {Point}      vector  A point in local (canvas) space desvribing
+ *                              the movement
+ * @param  {Boolean}  relative  If true, vector is a distance, if false, it is
+ *                              treated as an absolute position to move to 
+ * @param  {[HTMLELEMENT]}Links (Optional) an array of links to move.  Use this
+ *                              for repeated calls to reduce operations
+ * @return {Promise}            A promise which will resolve when the node and
+ *                              its links are moved
+ */
 function translateNode(node, vector, relative=false, links=null){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
   if (!links) {

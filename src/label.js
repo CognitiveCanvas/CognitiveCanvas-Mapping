@@ -99,7 +99,6 @@ function addLabelInputDiv(node, placeholderText, insertText=false, selectText=fa
   labelInput.style.top = screenPos.y + screenPos.height/2 + "px";
   
   labelInput.onkeydown = (e) => {
-    //console.log(e.key)
     let labelInteraction = e.key;
     switch(e.key){
       case "Enter":
@@ -193,7 +192,6 @@ function changeLabelText(node, labelLines){
       lineEle.setAttribute("x", 0)
     } else{ //Links
       let previousLine = index > 0 ? label.getElementsByClassName("label-line")[index - 1] : null;
-      console.log( (previousLine ? previousLine.getComputedTextLength(): "") + ", current: " + lineEle.getComputedTextLength());
       var lineX = previousLine ? previousLine.getComputedTextLength() * -0.5 - lineEle.getComputedTextLength() * 0.5 : 0;
       let lineY = previousLine ? LABEL_LINE_SPACING : totalHeight / -2;
       lineEle.setAttribute("dy", lineY);
@@ -250,7 +248,7 @@ function handleClickDuringLabelInput(){
     "Mary Boyle is very disappointed in you",
     "...",
     "I don't get paid enough for this",
-    "Just press enter..."
+    "Just type something..."
   ];
 
   var label = temp_label_div;
