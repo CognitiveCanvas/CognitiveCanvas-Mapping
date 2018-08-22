@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1"/>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1" />
     <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
-
     <script type="text/javascript" src="https://unpkg.com/hammerjs@2.0.8"></script>
-
     <script type="text/javascript" src="external/snap.svg-min.js"></script>
-
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-      crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anoxnymous"/>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anoxnymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-
     <script id="constant.js" type="text/javascript" src="src/entity/constant.js"></script>
     <script id="init.js" type="text/javascript" src="src/init.js"></script>
     <script id="main.js" type="text/javascript" src="src/main.js"></script>
@@ -40,24 +32,22 @@
     <script id="transformer_extensions.js" type="text/javascript" src="src/transformer_extensions.js"></script>
     <script id="hammer_events.js" type="text/javascript" src="src/hammer_events.js"></script>
     <script id="redo.js" type="text/javascript" src="src/redo.js"></script>
-
     <script id="transformer.js" type="text/javascript" src="external/transformer.demangled.min.js"></script>
-
-    <link id="main.css" rel="stylesheet" type="text/css" href="styles/main.css"/>
-    <link id="sidebar.css" rel="stylesheet" type="text/css" href="styles/sidebar.css"/>
-    <link id="drawing.css" rel="stylesheet" type="text/css" href="styles/drawing.css"/>
-    <link id="context-menu.css" rel="stylesheet" type="text/css" href="styles/context-menu.css"/>
-    <link id="minimap.css" rel="stylesheet" type="text/css" href="styles/minimap.css"/>
+    <link id="main.css" rel="stylesheet" type="text/css" href="styles/main.css" />
+    <link id="sidebar.css" rel="stylesheet" type="text/css" href="styles/sidebar.css" />
+    <link id="drawing.css" rel="stylesheet" type="text/css" href="styles/drawing.css" />
+    <link id="context-menu.css" rel="stylesheet" type="text/css" href="styles/context-menu.css" />
+    <link id="minimap.css" rel="stylesheet" type="text/css" href="styles/minimap.css" />
 </head>
+
 <body>
     <div id="CogCanvas">
         <div id="d3_container">
             <svg class="canvas transformable" id="canvas" style="width: 5760px; height: 3240px; z-index:0;" transform="matrix(1, 0, 0, 1, -2000, -1000)" xmlns="http://www.w3.org/2000/svg">
             </svg>
         </div>
-
         <transient>
-            <div id="content_container"> 
+            <div id="content_container">
                 <div id="toolSection" class="tabcontent">
                     <div onclick="showEdit()">
                         <h1>
@@ -75,14 +65,12 @@
                         </h1>
                     </div>
                     <div id="edit">
-
                         <!-- Working color switch, leave here for now
                         <label class="switch">
                           <input type="checkbox">
                           <span class="slider round"></span>
                         </label>
                         -->
-
                         <h2>Node</h2>
                         <span id="node_shape_container">
                             <button class="node_shape_button" id="rectangle_btn"></button>
@@ -128,13 +116,13 @@
                             <button id="label_text_bold" style="font-weight: bold; vertical-align: top;">B</button>
                             <button id="label_text_italics" style="font-weight: italic; vertical-align: top;">I</button>
                         </span>
-                      <div id="minimap-wrapper">
-                        <div id="minimap">
-                            <iframe id="minimap-bg" src="."></iframe>
-                            <div id="minimap-barrier"></div>
-                            <div id="minimap-placer"></div>
+                        <div id="minimap-wrapper">
+                            <div id="minimap">
+                                <iframe id="minimap-bg" src="."></iframe>
+                                <div id="minimap-barrier"></div>
+                                <div id="minimap-placer"></div>
+                            </div>
                         </div>
-                      </div>
                     </div>
                     <div onclick="showDraw()">
                         <h1>
@@ -168,30 +156,29 @@
                 </div>
             </div>
         </transient>
-    
-
-    <div id="contextMenu" role="menu">
-        <div>
-            <button class="contextMenuOption" id="increase_size">A</button>
-            <button class="contextMenuOption" id="decrease_size">a</button>
-            <button class="contextMenuOption" id="bold"><b>B</b></button>
-            <button class="contextMenuOption" id="italics"><i>I</i></button>
-        </div>
-        <div>
-            <button class="contextMenuOption blueFill"></button>
-            <button class="contextMenuOption redFill"></button>
-            <button class="contextMenuOption grayFill"></button>
-            <button class="contextMenuOption yellowFill"></button>
-        </div>
-        <div>
-            <button class="contextMenuOption blueBorder"></button>
-            <button class="contextMenuOption redBorder"></button>
-            <button class="contextMenuOption grayBorder"></button>
-            <button class="contextMenuOption yellowBorder"></button>
-        </div>
+        <transient>
+            <div id="contextMenu" role="menu">
+                <div>
+                    <button class="contextMenuOption" id="increase_size">A</button>
+                    <button class="contextMenuOption" id="decrease_size">a</button>
+                    <button class="contextMenuOption" id="bold"><b>B</b></button>
+                    <button class="contextMenuOption" id="italics"><i>I</i></button>
+                </div>
+                <div>
+                    <button class="contextMenuOption blueFill"></button>
+                    <button class="contextMenuOption redFill"></button>
+                    <button class="contextMenuOption grayFill"></button>
+                    <button class="contextMenuOption yellowFill"></button>
+                </div>
+                <div>
+                    <button class="contextMenuOption blueBorder"></button>
+                    <button class="contextMenuOption redBorder"></button>
+                    <button class="contextMenuOption grayBorder"></button>
+                    <button class="contextMenuOption yellowBorder"></button>
+                </div>
+            </div>
+        </transient>
     </div>
-
-  
-  </div>
 </body>
+
 </html>
