@@ -169,6 +169,8 @@ function nodePanListener(event){
 		node.links = findConnectedLinks(node);
 		node.prevPoint = new Point(0, 0);
 		translateSavePrevPosition(node);
+    action_done("dragNode", {id: node.getAttribute("id"),     
+                             position: getNodePosition(node)});
 	}
 
 	var deltaPoint = node.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
@@ -201,7 +203,6 @@ function nodePanListener(event){
 		node.links = null;
 		node.prevPoint = null;
 		logTranslate("pan", node);
-    action_done("pan", node);
 	}
 }
 

@@ -33,7 +33,6 @@ function undo(){
 			undoInsertNode(last_action.data);
 			break;
 		case "dragNode":
-		    // TODO: Implementing
 			undoDragNode(last_action.data);
 			break;
 		case "addEdge":
@@ -128,11 +127,14 @@ function undoInsertNode(data){
 function undoDragNode(data) {
   console.log("undo-ing node translation")
   
-  let prev_pos = prev_position[data.getAttribute("id")]
+  let node    = document.getElementById(data.id)
+  let currPos = getNodePosition(node)
+  let lastPos = data.position
   
-  console.log(prev_pos);
+  //restore prev position.
+  let delta = new Point(lastPos.x - currPos.x, lastPos.y - currPos.y)
+  translateNode(node, delta, true)
   
-  //TODO: restore prev position.
 }
 
 function undoDeleteNode(data){
