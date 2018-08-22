@@ -148,11 +148,17 @@ function keyDownListener(e){
   if ((e.ctrlKey || e.metaKey) && e.key == "z") {
     e.preventDefault();
     undo()
+    
+    getElementsWithEditedNote()
+    
     return false;
   }
   if ((e.ctrlKey || e.metaKey) && e.key == "y") {
     e.preventDefault();
     redo();
+    
+    getElementsWithEditedNote()
+    
     return false;
   }
   switch(key) {
@@ -186,6 +192,9 @@ function keyDownListener(e){
           removeLink(this)
         });
         d3.selectAll(".map-image.selected").remove();
+        
+        getElementsWithEditedNote()
+
       }
       break;
     case "ArrowRight":

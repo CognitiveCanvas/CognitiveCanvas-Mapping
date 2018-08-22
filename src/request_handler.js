@@ -1,7 +1,7 @@
 /* Handling Messages that have been post on the Webstrate */
 window.onmessage = function(e) {
   
-  //console.log("Handling Message");
+//  console.log("Handling Message");
   
   if (e.data.id == "search") {
     console.log("Message Type: Search");
@@ -9,17 +9,16 @@ window.onmessage = function(e) {
   } 
   else if (e.data.id == "trace") {
     console.log("Message Type: Trace");
-    let tracee = document.getElementById(e.data.query)
-    if (tracee) {
-      centerViewOnElement(tracee);
-      selectNode(tracee, true);
-    } 
-    else
-    {
-      console.log("204: Cannot find the element to trace")
-    }
-      
+    traceElementForContainer(e.data.query)   
   } 
+  else if (e.data.id == "edited") {
+    console.log("Message Type: Edited");
+    markElementAsNoteEdited(e.data.query)
+  }
+  else if (e.data.id == "reload_note_list") {
+    console.log("Message Type: Reload Note List!");
+    getElementsWithEditedNote()
+  }
   else {
     // 400: Message does not have id in Header
     //console.log("400: Message type is not recognized")
@@ -27,6 +26,7 @@ window.onmessage = function(e) {
   }
   
 }
+
 
 // Message Passing to the Container Code. Package include the id & label
 function sendSearchMsgToContainer() {
@@ -76,17 +76,58 @@ function sendRelatedEleToContainer(label) {
   }
 }
 
-// Use The id of the Element to find the label of the element!
+// Trace the related elements based on label received from container
+function traceElementForContainer(id) {
+  let tracee = document.getElementById(id)
+  if (tracee) {
+    centerViewOnElement(tracee);
+    selectNode(tracee, true);
+  } 
+  else
+  {
+    console.log("204: Cannot find the element to trace")
+  }   
+}
+
+// Mark elements' note as edited based on label received from container
+function markElementAsNoteEdited(id) {
+  let editee = document.getElementById(id)
+  editee.setAttribute("note_edited", true)
+  getElementsWithEditedNote()
+}
+
+// Send all the elements that has notes that are edited to container to load
+function getElementsWithEditedNote() {
+  let elementList = getAllObjects(["node", "link"]);
+  let editedElementList = elementList.filter(function(element) {
+    return element.note == "true" && element.deleted == false;
+  });
+  
+  let package = {
+    id: "edited_elements",
+    elements: editedElementList
+  } 
+  
+  //console.log("edited_elements", package)
+
+  if (window.parent) {
+    window.parent.postMessage(package, "*")
+  }
+}
+
+
+// Helper Function to use The id of the Element to find its label
+/**
+* Applied to both node labels and node inputs
+**/
 function labelFinder(nodeID) {
   let labelElement = document.getElementById(nodeID+"_text");
   let labelText;
   if (labelElement) {
     if (labelElement.getElementsByTagName("tspan")[0]) {
       labelText = labelElement.getElementsByTagName("tspan")[0].innerHTML;
-      //console.log("In View Mode, get label: " + labelText);
     } else {
       labelText = labelElement.innerHTML;
-      //console.log("In Edit Mode, get label: " + labelText);
     }
     return labelText;
   }

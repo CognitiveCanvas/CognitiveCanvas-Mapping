@@ -6,7 +6,7 @@
 {
   'id': String,
   'label': String,
-  'note': String - the id of the sticky note,
+  'note': Boolean - whether the sticky note is edited,
   'position': Point - contains x,y coordinates of node,
   'scale': [x,y] the amount of transformation on the object,
   'size': [x,y] the calculated size of the node,
@@ -38,7 +38,7 @@ var SHAPE_FUNCTIONS;
 
 var NODE_TEMPLATE = {
   'label': "Node Name",
-  'note': null,
+  'note': false,
   'position': {x: 50, y: 50},
   'scale': {x:1, y: 1},
   'groupId': null,
@@ -121,7 +121,7 @@ function changeShapeSize(node, width, height){
  *   'id': {string} the node's ID
  *   'type': {string} node/pin/link/image/etc,
  *   'label': {string} label,
- *   'note': {string} ID of any notes attached to this node,
+ *   'note': {boolean} whether the note attaching to this node is edited,
  *   'shape': {string} rectangle/circle,
  *   'position': [{float}, {float}] [centrx,centery],
  *   'scale': [{float}, {float}] [x,y],
@@ -182,6 +182,7 @@ function drawNode(nodeInfo){
       id: nodeInfo.id,
       class: "node" + (nodeInfo.reps.mapping.type !== "node" ? " " + nodeInfo.type : ""),
       shape: nodeInfo.shape,
+      note_edited: false,
     }).transform(Snap.matrix(1,0,0,1, nodeInfo.position.x, nodeInfo.position.y).toTransformString());
   
   if (nodeInfo.groupId) node.attr({'groupId': nodeInfo.groupId});
@@ -246,7 +247,8 @@ function nodeToObject(node){
   return {
     'id': node.id,
     'label': getNodeLabel(node),
-    'note': null,
+    'deleted': node.classList.contains("deleted"),
+    'note': node.getAttribute("note_edited"),
     'position': getNodePosition(node),
     'scale': node.transformer.localScale,
     'size': [node.transformer.localScale.x * DEFAULT_NODE_SIZE[0], node.transformer.localScale.y * DEFAULT_NODE_SIZE[1] ],
