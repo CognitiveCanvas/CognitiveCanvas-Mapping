@@ -129,7 +129,7 @@ function undoDragNode(data) {
   
   let node    = document.getElementById(data.id)
   let currPos = getNodePosition(node)
-  let lastPos = data.position
+  let lastPos = data.old_position
   
   //restore prev position.
   let delta = new Point(lastPos.x - currPos.x, lastPos.y - currPos.y)
