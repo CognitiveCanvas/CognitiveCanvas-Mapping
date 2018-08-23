@@ -109,7 +109,7 @@ function initTransformer() {
     window.Matrix = Transformer.Matrix; //Give Global access to Matrix
     window.Point = Transformer.Point;
 
-    canvas.addEventListener("wheel", updateMinimapPosition, {passive: false}) //So it fires before Hammerize's mouse scroll event stops propagation
+    canvas.addEventListener("wheel", updateMinimapPosition, {capture: true, passive: false}) //So it fires before Hammerize's mouse scroll event stops propagation
 
     hammerizeCanvas().then( ()=>{
 
