@@ -32,8 +32,8 @@ function redo(){
 			redoInsertNode(last_action.data);
 			break;
 		case "dragNode":
-		    // TODO: not yet implemented
-			redoDragNode();
+		    // TODO: implementing
+			redoDragNode(last_action.data);
 			break;
 		case "addEdge":
 			redoAddEdge(last_action.data);
