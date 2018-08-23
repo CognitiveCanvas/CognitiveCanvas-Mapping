@@ -169,3 +169,35 @@ function initMinimap(){
     });
   });
 }
+
+/**
+ * Initializes data structures needed to create nodes
+ */
+function initSnap(){
+  snap = Snap(canvas);
+
+  let pattern = document.getElementById("canvas-bg-pattern");
+
+  //Strate composer will sometimes remove attributes from the pattern element,
+  //so we check if this has happened and replace it onload
+  if(!pattern || !pattern.hasAttribute("patternUnits") || !pattern.hasAttribute("viewBox") ){
+    
+    if(pattern) {
+      pattern.remove();
+    }
+
+    pattern = snap.g().attr({
+      id: "canvas-bg-pattern",
+      xmlns: "http://www.w3.org/2000/svg"
+    });
+    pattern.line(0,10, 20, 10);
+    pattern.line(10,0, 10,20);
+
+    pattern = pattern.toPattern(0,0,20,20).attr({xmlns: "http://www.w3.org/2000/svg"});
+
+    let background = Snap(document.getElementById("canvas-bg"));
+    background.attr({
+      fill: pattern
+    });
+  }
+}

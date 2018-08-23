@@ -49,7 +49,6 @@ function hammerizeCanvas(){
 		hammer.get('pan').set({pointers: 2}); //Sets normal canvas pan to need two fingers on touch devices
 
 		hammer.get('doubletap').recognizeWith('singletap');
-		//hammer.get('singletap').requireFailure('doubletap');
 
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
@@ -112,7 +111,7 @@ function hammerizeNode(node){
 		var singleTap = new Hammer.Tap({ event: 'singletap' });
 		var prePanTap = new Hammer.Tap({ event: 'prepantap'});
 		var tapPan = new Hammer.Pan({event: 'tappan', enable: false });
-		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2});
+		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2,});
 
 		hammer.add([doubleTap, tapPan, singleTap, prePanTap, pan]);
 
@@ -256,7 +255,7 @@ function nodeDoubleTapListener(event){
 	//console.log("Double Tap on node");
 	var node = getParentMapElement(event.target);
 	selectNode( node );
-	addLabel(null, node);
+	addLabel(getNodeLabel(node), node, true, true, true);
 }
 
 function hammerizeLink(link){

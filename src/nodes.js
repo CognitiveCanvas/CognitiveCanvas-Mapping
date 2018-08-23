@@ -71,13 +71,6 @@ var NODE_TEMPLATE = {
 
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
 
-/**
- * Initializes data structures needed to create nodes
- */
-function initSnap(){
-  snap = Snap(canvas);
-}
-
 function createShape(shape, width=null, height=null){
   let s = Snap(0,0);
   let ele;
