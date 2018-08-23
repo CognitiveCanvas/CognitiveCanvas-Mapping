@@ -114,6 +114,18 @@ function redoInsertNode(data){
   	removeFromTransient(node_d3);
 }
 
+function redoDragNode(data) {
+  console.log("redo-ing node translation");
+  
+  let node    = document.getElementById(data.id)
+  let currPos = data.new_position
+  let lastPos = data.old_position
+  
+  //restore prev position.
+  let delta = new Point(currPos.x - lastPos.x, currPos.y - lastPos.y)
+  translateNode(node, delta, true)
+}
+
 function redoAddEdge(data){
 	console.log("redo-ing edge insertion");
 	let id = data.edge.id;

@@ -128,7 +128,7 @@ function undoDragNode(data) {
   console.log("undo-ing node translation")
   
   let node    = document.getElementById(data.id)
-  let currPos = getNodePosition(node)
+  let currPos = data.new_position
   let lastPos = data.old_position
   
   //restore prev position.
