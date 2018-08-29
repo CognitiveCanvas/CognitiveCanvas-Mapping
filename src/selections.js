@@ -57,21 +57,48 @@ deselectCurrentSelection: if true, will remove the selected class from all curre
 function selectNode(nodes, deselectCurrentSelection=true){
   //console.log("Nodes being selected: ", nodes);
 
-  nodes = nodes instanceof d3.selection ? nodes : d3.select(nodes);
+  nodes = nodes instanceof Node ? [nodes] : nodes;
   
   if( deselectCurrentSelection ){
     deselectAllObjects();
   }
 
-  if (nodes.classed("node")) {
-    var nodeTransform = getNodePosition(nodes);
-    quickAddX = nodeTransform.x;
-    quickAddY = nodeTransform.y;
-  }
+  nodes.forEach( (node)=>{
+    node.classList.add("selected");
+    Snap(node).attr({ filter: selectedFilter});
+  });
 
-  nodes.classed("selected", true);
-  nodes.node().focus();
-  
+  nodes[0].focus();  
+}
+
+function deselectNode(nodes){
+  nodes = nodes instanceof Node ? [nodes] : nodes;
+  nodes.forEach((node)=>{
+    node.classList.remove("selected");
+    node.removeAttribute("filter");
+  });
+}
+
+function toggleSelection(nodes){
+  nodes = nodes instanceof Node ? [nodes] : nodes;
+  nodes.forEach((node)=>{
+    if( node.classList.contains("selected")){
+      deselectNode(node);
+    } else{
+      selectNode(node, false);
+    }
+  });
+}
+
+function deselectAllObjects(removeSelectionArea=true){
+  deselectNode(document.querySelectorAll(".selected"));
+
+  if(removeSelectionArea){
+    let selectionArea = document.querySelector(".selection_area");
+    if(selectionArea){
+      selectionArea.remove();
+    }
+  }
 }
 
 function selectNodeByDirection(direction){
@@ -123,83 +150,74 @@ function selectNodeByDirection(direction){
   }
 }
 
-function deselectAllObjects(){
-  //console.log("deselecting all objects");
-  var allNodes = d3.selectAll(".selected");
-  allNodes.classed("selected", false);
-  if(!selection_area){
-    d3.select(".selection_area").remove();
-  }
-}
-
 function drawSelectionArea(canvasPoint){
     var canvasPoint;
-    //console.log("canvasPoint", canvasPoint);
+
     if (!selection_area){
-      ////console.log("Creating Selection Area");
-      d3.select(".selection_area").remove();
-      selection_area = d3.select(canvas).insert("rect", ":first-child")
-        .classed("selection_area", true)
-        .classed("group", true)
-        .attr("x", canvasPoint.x)
-        .attr("y", canvasPoint.y)
-        .attr("width", 0)
-        .attr("height", 0)
-      ////console.log("selection is created");
+      //If this is the first event, create the selection area
+      selection_area = document.querySelector(".selection_area");
+      if (selection_area) selection_area.remove();
+
+      selection_area = Snap(0,0).rect(canvasPoint.x, canvasPoint.y, 0, 0)
+        .addClass("selection_area group");
+      Snap(document.getElementById("canvas-bg")).after(selection_area);
+      selection_area = selection_area.node;
     }
-    var rectX = Number(selection_area.attr("x"));
-    var rectY = Number(selection_area.attr("y"));
-    var width = Number(selection_area.attr("width"));
-    var height = Number(selection_area.attr("height"));
+
+    //Update its position
+    var rectX = Number(selection_area.getAttribute("x"));
+    var rectY = Number(selection_area.getAttribute("y"));
+    var width = Number(selection_area.getAttribute("width"));
+    var height = Number(selection_area.getAttribute("height"));
     var midX = rectX + width / 2;
     var midY = rectY + height / 2;
 
     if( canvasPoint.x > midX ){
-      selection_area.attr("width", canvasPoint.x - rectX);
+      selection_area.setAttribute("width", canvasPoint.x - rectX);
     } else{
-      selection_area.attr("width", rectX - canvasPoint.x + width);
-      selection_area.attr("x", canvasPoint.x);
+      selection_area.setAttribute("width", rectX - canvasPoint.x + width);
+      selection_area.setAttribute("x", canvasPoint.x);
     }
     if( canvasPoint.y > midY ){
-      selection_area.attr("height", canvasPoint.y - rectY);
+      selection_area.setAttribute("height", canvasPoint.y - rectY);
     } else{
-      selection_area.attr("height", rectY - canvasPoint.y + height);
-      selection_area.attr("y", canvasPoint.y);
+      selection_area.setAttribute("height", rectY - canvasPoint.y + height);
+      selection_area.setAttribute("y", canvasPoint.y);
     }
-    ////console.log("selection area drawn");
 }
 
 function createGroup(){
-  ////console.log("creating group");
 
-  var group = selection_area.node();
-  //console.log("GROUP: ", group);
+  var group = selection_area;
 
-  deselectAllObjects();
+  deselectAllObjects(false);
 
-  var left = Number(selection_area.attr("x"));
-  var right = left + Number(selection_area.attr("width"));
-  var top = Number(selection_area.attr("y"));
-  var bottom = top + Number(selection_area.attr("height"));
+  var left = Number(group.getAttribute("x"));
+  var right = left + Number(group.getAttribute("width"));
+  var top = Number(group.getAttribute("y"));
+  var bottom = top + Number(group.getAttribute("height"));
 
-  var allNodes = d3.selectAll(".node")
+  var allNodes = document.querySelectorAll(".node");
   var children_ids = [];
-  ////console.log(grouped_nodes);
-  ////console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
-  var grouped_nodes = allNodes.filter( function() {
-    var position = getNodePosition(this);
+
+  var grouped_nodes = [];
+  allNodes.forEach( function(node) {
+    var position = getNodePosition(node);
     var x = position.x;
     var y = position.y;
-    ////console.log("x: ", x, ", y: ", y);
-    return x >= left && x <= right && y >= top && y <= bottom;
+    if( x >= left && x <= right && y >= top && y <= bottom ){
+      grouped_nodes.push(node);
+    }
   });
-  ////console.log(grouped_nodes)
-  grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
-  if(grouped_nodes.size() > 0){
-    selectNode(grouped_nodes);
-  }
-  selection_area.attr("children_ids", children_ids.join(" "));
+  
+  grouped_nodes.forEach(function(node){children_ids.push(node.getAttribute("id") ) } );
 
+  if(grouped_nodes.length > 0){
+    selectNode(grouped_nodes, false);
+  }
+  selection_area.setAttribute("children_ids", children_ids.join(" "));
+
+  console.log(group);
   hammerizeGroup(group);
 
   selection_area = null;
@@ -252,7 +270,7 @@ function addNodeToGroup(node, group){
 function getGroupedNodes(group){
    var nodes = [];
    var nodeIds = group.getAttribute("children_ids").split(" ").filter(x => x);
-   for(var i=0; i < nodeIds.length; i++){111
+   for(var i=0; i < nodeIds.length; i++){
       nodes.push(document.getElementById(nodeIds[i]));
    }
    //console.log("Grouped Nodes: " + nodes );

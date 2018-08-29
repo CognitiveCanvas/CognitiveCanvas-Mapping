@@ -39,15 +39,16 @@ function autoHammerize( element ){
 function hammerizeCanvas(){
 	return Transformer.hammerize(canvas, {pan: true, rotate: false, callback: canvasTransformerCallback}).then(function(transformer){
 		var hammer = canvas.hammer;
-		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5}) );
+		hammer.add( new Hammer.Tap({event: 'doubletap', taps: 2, posThreshold: 30, threshold: 5, interval: 300}) );
 		hammer.add( new Hammer.Tap({ event: 'singletap' }) );
 		hammer.add( new Hammer.Pan({ event: 'singlefingerpan', pointers: 1}) )
+
+		//Fires when the user taps on the canvas while inputing a label
 		hammer.add( new Hammer.Tap({ event: 'labelinputtap', enable: false }) );
 		
 		hammer.get('pan').set({pointers: 2}); //Sets normal canvas pan to need two fingers on touch devices
 
 		hammer.get('doubletap').recognizeWith('singletap');
-		hammer.get('singletap').requireFailure('doubletap');
 
 		hammer.on('singletap', canvasSingleTapListener);
 		hammer.on('doubletap', canvasDoubleTapListener);
@@ -88,24 +89,6 @@ function canvasDoubleTapListener(event){
   node = createNode( objFromTemplate("mapping", "node", {position: canvasPoint}) ).then( (node)=>{
   	logCreation("double tap", node);
   })
-
-  /*
-  var addedNode = addNode();
-  var node = drawNode(addedNode, canvasPoint.x, canvasPoint.y, defaultShape, radius, defaultColor);
-  hammerizeNode(node).then(
-    function(success){
-      selectNode(node);
-      addLabel("Node Name", node);
-      logCreation("double tap", node);
-	  let data = { 
-        "node"  : node,
-        "groups": getNodeGroups(node)
-      };
-      action_done("insertNode", data);
-    }, function(failure){
-      console.log(failure);
-    });
-    */
 }
 
 /**
@@ -128,7 +111,7 @@ function hammerizeNode(node){
 		var singleTap = new Hammer.Tap({ event: 'singletap' });
 		var prePanTap = new Hammer.Tap({ event: 'prepantap'});
 		var tapPan = new Hammer.Pan({event: 'tappan', enable: false });
-		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2});
+		var doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2,});
 
 		hammer.add([doubleTap, tapPan, singleTap, prePanTap, pan]);
 
@@ -215,7 +198,9 @@ function nodePanListener(event){
 function nodeSingleTapListener(event){
 	var node = getParentMapElement(event.target);
 
-	if( node.classList.contains("selected") ){
+	if(event.srcEvent.shiftKey){
+		toggleSelection(node);
+	} else if( node.classList.contains("selected") ){
 		let labelText = getNodeLabel(node); 
 		if( labelText ){ //Open a label edit div, insert the current name, and select it
 			addLabel(labelText, node, true, true, true);
@@ -277,7 +262,7 @@ function nodeDoubleTapListener(event){
 	//console.log("Double Tap on node");
 	var node = getParentMapElement(event.target);
 	selectNode( node );
-	addLabel(null, node);
+	addLabel(getNodeLabel(node), node, true, true, true);
 }
 
 function hammerizeLink(link){

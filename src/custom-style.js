@@ -55,7 +55,6 @@ $(document).bind("contextmenu", function (event) {
 });
 
 function closeContextMenu(){
-    console.log("closing context menu");
     let contextMenu = $("#contextMenu");
     contextMenu.css({
         display: "none"

@@ -6,8 +6,6 @@
     overflow: auto;
     background: white;
     z-index: 9999999;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 #addWindow {
@@ -34,6 +32,7 @@ html {
     height: 100%;
     width: 100%;
     margin: 0;
+    fill: white;
 }
 
 body {
@@ -74,7 +73,17 @@ h2 {
 
 #canvas {
     overflow: hidden;
-    fill: beige;
+    background: white;
+}
+
+#canvas-bg{
+    fill: url(#canvas-bg-pattern);
+}
+
+#canvas-bg-pattern{
+    width: 20px;
+    height: 20px;
+    fill: #D8D8D8;
 }
 
 #d3_container {
@@ -87,8 +96,6 @@ h2 {
 }
 
 #CogCanvas{
-    height: 100%;
-    width: 100%;
 }
 
 .pin .node-rep{

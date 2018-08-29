@@ -60,25 +60,6 @@ function initIDs(webstrateId, clientId) {
   this.editId = "edit_" + clientId;
 }
 
-//DEPRECATED
-/*
-function reloadElement() {
-  let NodeEleCollection = document.getElementsByClassName("node");
-  let EdgeEleCollection = document.getElementsByClassName("link"); 
-  
-  for (i = 0; i < NodeEleCollection.length; i++) {
-    let currNodeEle = NodeEleCollection[i];
-    let node = { type: "node", id: currNodeEle.id, content: currNodeEle.getAttribute("content") };
-    n = nodes.push(node);
-  }
-    
-  for (j = 0; j < EdgeEleCollection.length; j++) {
-    let currEdgeEle = EdgeEleCollection[j];
-    let link = { type: "link", id: currEdgeEle.id, sourceId: currEdgeEle.getAttribute("sourceId"), destId: currEdgeEle.getAttribute("targetId"), content: currEdgeEle.getAttribute("content") };
-    l = links.push(link);
-  }
-}*/
-
 function initDragLine() {
   drag_line = document.getElementById("drag_line");
   if (drag_line === null) {
@@ -128,7 +109,7 @@ function initTransformer() {
     window.Matrix = Transformer.Matrix; //Give Global access to Matrix
     window.Point = Transformer.Point;
 
-    canvas.addEventListener("wheel", updateMinimapPosition) //So it fires before Hammerize's mouse scroll event stops propagation
+    canvas.addEventListener("wheel", updateMinimapPosition, {capture: true, passive: false}) //So it fires before Hammerize's mouse scroll event stops propagation
 
     hammerizeCanvas().then( ()=>{
 
@@ -161,7 +142,6 @@ function initMinimap(){
     minimapIframe.webstrate.on("transcluded", (event)=>{
       var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
       iframeDoc.body.setAttribute("transient-is-minimap", true);
-      console.log(iframeDoc);
 
       hammerizeMinimap();
 
@@ -188,4 +168,18 @@ function initMinimap(){
       resolve();
     });
   });
+}
+
+/**
+ * Initializes snap, and creates a transient SVG tag containing only the
+ * definitions for SVG effects to be used in the canvas.  This is a workaround
+ * to Webstrate's problems with not recreating SVG patterns after they are
+ * first added to the DOM.
+ */
+function initSnap(){
+  snap = Snap(canvas);
+
+  createTransientDefsSVG();
+  createCanvasBackground();
+  createSelectedFilter();
 }
