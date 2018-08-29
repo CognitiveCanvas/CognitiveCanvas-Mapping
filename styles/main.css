@@ -76,9 +76,14 @@ h2 {
     background: white;
 }
 
+#canvas-bg{
+    fill: url(#canvas-bg-pattern);
+}
+
 #canvas-bg-pattern{
-    stroke: lightgray;
-    stroke-width: 1px;
+    width: 20px;
+    height: 20px;
+    fill: #D8D8D8;
 }
 
 #d3_container {

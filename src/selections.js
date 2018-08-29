@@ -57,21 +57,46 @@ deselectCurrentSelection: if true, will remove the selected class from all curre
 function selectNode(nodes, deselectCurrentSelection=true){
   //console.log("Nodes being selected: ", nodes);
 
-  nodes = nodes instanceof d3.selection ? nodes : d3.select(nodes);
+  nodes = nodes instanceof Node ? [nodes] : nodes;
   
   if( deselectCurrentSelection ){
     deselectAllObjects();
   }
 
-  if (nodes.classed("node")) {
-    var nodeTransform = getNodePosition(nodes);
-    quickAddX = nodeTransform.x;
-    quickAddY = nodeTransform.y;
-  }
+  nodes.forEach( (node)=>{
+    node.classList.add("selected");
+    Snap(node).attr({ filter: selectedFilter});
+  });
 
-  nodes.classed("selected", true);
-  nodes.node().focus();
-  
+  nodes[0].focus();  
+}
+
+function deselectNode(nodes){
+  nodes = nodes instanceof Node ? [nodes] : nodes;
+  nodes.forEach((node)=>{
+    node.classList.remove("selected");
+    node.removeAttribute("filter");
+  });
+}
+
+function toggleSelection(nodes){
+  nodes = nodes instanceof Node ? [nodes] : nodes;
+  nodes.forEach((node)=>{
+    if( node.classList.contains("selected")){
+      deselectNode(node);
+    } else{
+      selectNode(node, false);
+    }
+  });
+}
+
+function deselectAllObjects(){
+  deselectNode(document.querySelectorAll(".selected"));
+
+  let selectionArea = document.querySelector(".selection_area");
+  if(selectionArea){
+    selectionArea.remove();
+  }
 }
 
 function selectNodeByDirection(direction){
@@ -120,15 +145,6 @@ function selectNodeByDirection(direction){
     })[0];
   if(newSelection){
     selectNode(newSelection);
-  }
-}
-
-function deselectAllObjects(){
-  //console.log("deselecting all objects");
-  var allNodes = d3.selectAll(".selected");
-  allNodes.classed("selected", false);
-  if(!selection_area){
-    d3.select(".selection_area").remove();
   }
 }
 
@@ -182,20 +198,22 @@ function createGroup(){
   var top = Number(selection_area.attr("y"));
   var bottom = top + Number(selection_area.attr("height"));
 
-  var allNodes = d3.selectAll(".node")
+  var allNodes = document.querySelectorAll(".node");
   var children_ids = [];
-  ////console.log(grouped_nodes);
-  ////console.log("left: ", left, ", right: ", right, ", top: ", top, ", bottom: ", bottom);
-  var grouped_nodes = allNodes.filter( function() {
-    var position = getNodePosition(this);
+
+  var grouped_nodes = [];
+  allNodes.forEach( function(node) {
+    var position = getNodePosition(node);
     var x = position.x;
     var y = position.y;
-    ////console.log("x: ", x, ", y: ", y);
-    return x >= left && x <= right && y >= top && y <= bottom;
+    if( x >= left && x <= right && y >= top && y <= bottom ){
+      grouped_nodes.push(node);
+    }
   });
-  ////console.log(grouped_nodes)
-  grouped_nodes.each(function(){children_ids.push(d3.select(this).attr("id"))});
-  if(grouped_nodes.size() > 0){
+  
+  grouped_nodes.forEach(function(node){children_ids.push(node.getAttribute("id") ) } );
+
+  if(grouped_nodes.length > 0){
     selectNode(grouped_nodes);
   }
   selection_area.attr("children_ids", children_ids.join(" "));
@@ -252,7 +270,7 @@ function addNodeToGroup(node, group){
 function getGroupedNodes(group){
    var nodes = [];
    var nodeIds = group.getAttribute("children_ids").split(" ").filter(x => x);
-   for(var i=0; i < nodeIds.length; i++){111
+   for(var i=0; i < nodeIds.length; i++){
       nodes.push(document.getElementById(nodeIds[i]));
    }
    //console.log("Grouped Nodes: " + nodes );

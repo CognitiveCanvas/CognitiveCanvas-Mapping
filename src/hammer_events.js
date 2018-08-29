@@ -193,7 +193,9 @@ function nodePanListener(event){
 function nodeSingleTapListener(event){
 	var node = getParentMapElement(event.target);
 
-	if( node.classList.contains("selected") ){
+	if(event.srcEvent.shiftKey){
+		toggleSelection(node);
+	} else if( node.classList.contains("selected") ){
 		let labelText = getNodeLabel(node); 
 		if( labelText ){ //Open a label edit div, insert the current name, and select it
 			addLabel(labelText, node, true, true, true);
