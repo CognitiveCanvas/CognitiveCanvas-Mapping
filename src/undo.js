@@ -33,8 +33,7 @@ function undo(){
 			undoInsertNode(last_action.data);
 			break;
 		case "dragNode":
-		    // TODO: not yet implemented
-			undoDragNode();
+			undoDragNode(last_action.data);
 			break;
 		case "addEdge":
 			undoAddEdge(last_action.data);
@@ -123,6 +122,19 @@ function undoInsertNode(data){
   	removeNodeFromGroup(node);
   	node_d3.classed("deleted", true);
   	wrapInTransient(node_d3.node());
+}
+
+function undoDragNode(data) {
+  console.log("undo-ing node translation")
+  
+  let node    = document.getElementById(data.id)
+  let currPos = data.new_position
+  let lastPos = data.old_position
+  
+  //restore prev position.
+  let delta = new Point(lastPos.x - currPos.x, lastPos.y - currPos.y)
+  translateNode(node, delta, true)
+  
 }
 
 function undoDeleteNode(data){

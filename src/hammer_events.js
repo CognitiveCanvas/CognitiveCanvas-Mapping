@@ -200,7 +200,12 @@ function nodePanListener(event){
 	if(event.type === 'panend'){
 		node.links = null;
 		node.prevPoint = null;
+    
+    action_done("dragNode", {id: node.getAttribute("id"),     
+                             old_position: prev_position[node.getAttribute("id")],
+                             new_position: getNodePosition(node)});
 		logTranslate("pan", node);
+
 	}
 }
 
