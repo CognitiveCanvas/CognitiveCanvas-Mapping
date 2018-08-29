@@ -90,12 +90,14 @@ function toggleSelection(nodes){
   });
 }
 
-function deselectAllObjects(){
+function deselectAllObjects(removeSelectionArea=true){
   deselectNode(document.querySelectorAll(".selected"));
 
-  let selectionArea = document.querySelector(".selection_area");
-  if(selectionArea){
-    selectionArea.remove();
+  if(removeSelectionArea){
+    let selectionArea = document.querySelector(".selection_area");
+    if(selectionArea){
+      selectionArea.remove();
+    }
   }
 }
 
@@ -150,53 +152,50 @@ function selectNodeByDirection(direction){
 
 function drawSelectionArea(canvasPoint){
     var canvasPoint;
-    //console.log("canvasPoint", canvasPoint);
+
     if (!selection_area){
-      ////console.log("Creating Selection Area");
-      d3.select(".selection_area").remove();
-      selection_area = d3.select(canvas).insert("rect", ":first-child")
-        .classed("selection_area", true)
-        .classed("group", true)
-        .attr("x", canvasPoint.x)
-        .attr("y", canvasPoint.y)
-        .attr("width", 0)
-        .attr("height", 0)
-      ////console.log("selection is created");
+      //If this is the first event, create the selection area
+      selection_area = document.querySelector(".selection_area");
+      if (selection_area) selection_area.remove();
+
+      selection_area = Snap(0,0).rect(canvasPoint.x, canvasPoint.y, 0, 0)
+        .addClass("selection_area group");
+      Snap(document.getElementById("canvas-bg")).after(selection_area);
+      selection_area = selection_area.node;
     }
-    var rectX = Number(selection_area.attr("x"));
-    var rectY = Number(selection_area.attr("y"));
-    var width = Number(selection_area.attr("width"));
-    var height = Number(selection_area.attr("height"));
+
+    //Update its position
+    var rectX = Number(selection_area.getAttribute("x"));
+    var rectY = Number(selection_area.getAttribute("y"));
+    var width = Number(selection_area.getAttribute("width"));
+    var height = Number(selection_area.getAttribute("height"));
     var midX = rectX + width / 2;
     var midY = rectY + height / 2;
 
     if( canvasPoint.x > midX ){
-      selection_area.attr("width", canvasPoint.x - rectX);
+      selection_area.setAttribute("width", canvasPoint.x - rectX);
     } else{
-      selection_area.attr("width", rectX - canvasPoint.x + width);
-      selection_area.attr("x", canvasPoint.x);
+      selection_area.setAttribute("width", rectX - canvasPoint.x + width);
+      selection_area.setAttribute("x", canvasPoint.x);
     }
     if( canvasPoint.y > midY ){
-      selection_area.attr("height", canvasPoint.y - rectY);
+      selection_area.setAttribute("height", canvasPoint.y - rectY);
     } else{
-      selection_area.attr("height", rectY - canvasPoint.y + height);
-      selection_area.attr("y", canvasPoint.y);
+      selection_area.setAttribute("height", rectY - canvasPoint.y + height);
+      selection_area.setAttribute("y", canvasPoint.y);
     }
-    ////console.log("selection area drawn");
 }
 
 function createGroup(){
-  ////console.log("creating group");
 
-  var group = selection_area.node();
-  //console.log("GROUP: ", group);
+  var group = selection_area;
 
-  deselectAllObjects();
+  deselectAllObjects(false);
 
-  var left = Number(selection_area.attr("x"));
-  var right = left + Number(selection_area.attr("width"));
-  var top = Number(selection_area.attr("y"));
-  var bottom = top + Number(selection_area.attr("height"));
+  var left = Number(group.getAttribute("x"));
+  var right = left + Number(group.getAttribute("width"));
+  var top = Number(group.getAttribute("y"));
+  var bottom = top + Number(group.getAttribute("height"));
 
   var allNodes = document.querySelectorAll(".node");
   var children_ids = [];
@@ -214,10 +213,11 @@ function createGroup(){
   grouped_nodes.forEach(function(node){children_ids.push(node.getAttribute("id") ) } );
 
   if(grouped_nodes.length > 0){
-    selectNode(grouped_nodes);
+    selectNode(grouped_nodes, false);
   }
-  selection_area.attr("children_ids", children_ids.join(" "));
+  selection_area.setAttribute("children_ids", children_ids.join(" "));
 
+  console.log(group);
   hammerizeGroup(group);
 
   selection_area = null;
