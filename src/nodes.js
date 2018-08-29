@@ -416,6 +416,7 @@ function translateNode(node, vector, relative=false, links=null){
 
   node.translateTransform.set(x, y)
   node.transformer.reapplyTransforms().then((promise)=>{
+    nodePosition = getNodePosition(node);
     //update links to connect to this node
     updateLinkPositions( links, nodePosition);
   });

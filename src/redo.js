@@ -32,8 +32,8 @@ function redo(){
 			redoInsertNode(last_action.data);
 			break;
 		case "dragNode":
-		    // TODO: not yet implemented
-			redoDragNode();
+		    // TODO: implementing
+			redoDragNode(last_action.data);
 			break;
 		case "addEdge":
 			redoAddEdge(last_action.data);
@@ -112,6 +112,18 @@ function redoInsertNode(data){
   	insertNodeToGroup(node, groups);
   	node_d3.classed("deleted", false);
   	removeFromTransient(node_d3);
+}
+
+function redoDragNode(data) {
+  console.log("redo-ing node translation");
+  
+  let node    = document.getElementById(data.id)
+  let currPos = data.new_position
+  let lastPos = data.old_position
+  
+  //restore prev position.
+  let delta = new Point(currPos.x - lastPos.x, currPos.y - lastPos.y)
+  translateNode(node, delta, true)
 }
 
 function redoAddEdge(data){
