@@ -35,6 +35,7 @@ function onLoaded(webstrateId, clientId, user) {
     initToolPalette();
     initDrawing();
     initLog();
+    initToolPanel();
     initTransformer().then( ()=>{
       initSnap();
       initAddedNodeHandling();

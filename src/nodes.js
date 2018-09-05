@@ -36,6 +36,8 @@
  */
 var snap;
 
+var NODE_SHAPES = ["rectangle", "circle", "diamond"]
+
 var DEFAULT_NODE_SIZE = [100, 100]
 var DEFAULT_SHAPE_SIZES = {
   'rectangle': [100, 50],
@@ -191,7 +193,7 @@ function drawNode(nodeInfo){
  * Creates the SVG Shape nested inside the <g> tag that represents the node
  * @param  {SVGELEMENT || Snap.Paper} The <g> tag to add the node representation to.  
  * Can be a reference to an SVG <g> tag, or one selected by Snap()
- * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
+ * @param  {String} shape ["rectangle" | "circle" | "diamond"] the shape of the node 
  * @return none
  */
 function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
