@@ -195,8 +195,16 @@ function createRadioOptions(fieldName, fieldInfo){
 				radio.classList.add("shapeOption");
 				//Add the fontAwesome icon styles to the radio buttons
 				let optionIcon = fieldInfo.icons[optionValue];
-				radio.classList.add( ...faIcon( optionIcon.icon, optionIcon.style, true ))
-
+				radio.classList.add( ...faIcon( optionIcon.icon, optionIcon.style, true ));
+				break;
+			case "borders":
+				radio.classList.add("borderOption");
+				let id = optionValue + "BorderOption"
+				radio.id = id;
+				let label = createElement("label", null, "borderOptionLabel");
+				label.setAttribute("for", id);
+				label.appendChild(document.createTextNode(optionValue));				
+				option.appendChild(label);
 				break;
 			default:
 				break;

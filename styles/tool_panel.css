@@ -45,7 +45,8 @@
 
 .tabFieldContainer{
 	display: none;
-	line-height: 1.5;
+	font-size: 22px;
+	line-height: 66px;
 	padding-bottom: 10px;
 }
 
@@ -87,8 +88,8 @@
 
 .selectedBorder{
 	position: absolute;
-	top: 15px;
-	left: 15px;
+	top: 50%;
+	left: 50%;
 	z-index: -1;
 	background: white;
 	border-radius: 50%;
@@ -113,4 +114,26 @@
 
 .shapeOption[value="diamond"]{
 	transform: rotateZ(45deg) scale(0.707);
+}
+
+.borderOption{
+	width:89px;
+}
+
+.borderOptionLabel{
+	position: absolute;
+	width: 100%;
+	font-size: 14px;
+	text-align: center;
+	left:0px;
+}
+
+.borderOption[value="solid"]~label{
+	border: 2px solid black;
+	border-radius: 5px;
+}
+
+.borderOption:checked~.selectedBorder{
+	width: 105px;
+	border-radius: 158px;
 }
