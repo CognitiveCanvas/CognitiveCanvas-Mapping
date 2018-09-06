@@ -39,6 +39,13 @@ const NODE_SHAPE_ICONS = {
 	diamond:   {icon: "square", style: "far"}
 };
 
+const FONT_ICONS = {
+	bold: 	{icon: "bold", style: "fas"},
+	italic: {icon: "italic", style: "fas"}
+}
+
+const LABEL_FONTS = ["Roboto", "Raleway"];
+
 function getColorGroup(groupName){
 	let colorsInGroup = [];
 	THEME_COLORS.colorGroups[groupName].forEach( (colorName)=>{
@@ -48,18 +55,23 @@ function getColorGroup(groupName){
 }
 
 var toolPanelTabs = {
-	nodeTPTab: {text: "Node", icon: "pencil-alt", fields: {
-		elementType:{name: null, 		inputType: "selector", 	function: null,				options: ["node", "link", "group"]},
-		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shapes", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, elements:["node"] },
-		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "colors", options: getColorGroup("mapElements"), elements: ["node"]},
-		opacity: 	{name: "Opacity", 	inputType: "slider",	function: null,				range: {min: 0, max: 100, unit: "%"}, elements: ["node"] },
-		borderType: {name: "Border", 	inputType: "radio", 	function: null,				optionType: "borders", options: ["solid", "none"], elements: ["node", "link"] },
-		borderColor:{name: "Color", 	inputType: "radio", 	function: setBorderColor, 	optionType: "colors", options: getColorGroup("mapElements"), elements: ["node", "link"] },
-		label: 		{name: "Label", 	inputType: "font", 		function: null,				elements: ["node", "link"] },
-		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "colors", options: getColorGroup("text"), elements: ["node", "link"]}
+	nodeTPTab: {text: "Node", icon: "code-branch", fields: {
+		elementStyle:{subFields:{element: {inputType: "selector", function: setTPSelection,	options: ["node", "link"] },
+								 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
+									   }, visibleFor: ["node", "link"] },
+		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
+		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node"]},
+		opacity: 	{name: "Opacity", 	inputType: "slider",	function: null,				range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
+		borderType: {name: "Border", 	inputType: "radioLong", function: null,				optionType: "border", options: ["solid", "none"], visibleFor: ["node", "link"] },
+		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", function: null, options: LABEL_FONTS },
+					 							   fontStyle:{ inputType: "checkBox", function: null, options: ["bold", "italic"], icons: FONT_ICONS} 
+					 							  }, visibleFor: ["node", "link"] },
+		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
+		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},
+		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},		 
 	}}, 
-	drawTPTab: {text: "Draw", icon: "project-diagram", fields: {
-		lineColor:  {name: "Color", inputType: "radio", optionType: "colors", options: getColorGroup("mapElements")},
+	drawTPTab: {text: "Draw", icon: "pencil-alt", fields: {
+		lineColor:  {name: "Color", inputType: "radio", optionType: "color", options: getColorGroup("mapElements")},
 	}},
 	settingsTPTab: {text: null, icon: "cog", fields: {
 
@@ -130,7 +142,6 @@ function createTPTab(tabId, tabInfo){
  * @param {String} tabName ["node" or "draw"]
  */
 function setActiveTPTab(tabName){
-	if (!tabName.contains){}
 	let newActiveTab = document.getElementById(tabName + "TPTab");
 
 	//Deactivate a previously selected tab
@@ -144,67 +155,117 @@ function setActiveTPTab(tabName){
 }
 
 function createTPField(fieldId, fieldValues){
-	let fieldDiv = document.createElement("div");
-	fieldDiv.classList.add("toolPanelField");
-	fieldDiv.id = fieldId + "Field";
+	let fieldDiv = createElement("div", "toolPanelField", {id: fieldId + "Field"});
 
-	let fieldName = document.createElement("div");
-	fieldName.classList.add("fieldName");
-	fieldName.appendChild(document.createTextNode(fieldValues.name));
-	fieldDiv.appendChild(fieldName);
-
-	let fieldOptions;
-	switch(fieldValues.inputType){
-		case "radio":
-			fieldOptions = createRadioOptions(fieldId, fieldValues);
-			break;
-		default:
-			fieldOptions = document.createElement("span");
-			break;
+	if(fieldValues.hasOwnProperty("visibleFor")){
+		fieldDiv.setAttribute("visibleFor", fieldValues.visibleFor.join(" "));
 	}
-	fieldDiv.appendChild(fieldOptions);
+
+	if(fieldValues.name){
+		let fieldName = createElement("div", "fieldName", {}, fieldDiv);
+		fieldName.appendChild(document.createTextNode(fieldValues.name));
+	}
+
+	let subFields;
+	if (fieldValues.subFields) subFields = fieldValues.subFields;
+	else {
+		subFields = {}
+		subFields[fieldId] = fieldValues;
+	} 
+	Object.keys(subFields).forEach( (subFieldId)=>{
+		let fieldInfo = subFields[subFieldId];
+		let fieldOptions;
+		switch(fieldInfo.inputType){
+			case "selector":
+				fieldOptions = createSelector(subFieldId, fieldInfo);
+				break;
+			case "radio":
+			case "radioLong":
+				fieldOptions = createRadioOptions(subFieldId, fieldInfo);
+				break;
+			case "slider":
+				fieldOptions = createSliderOption(subFieldId, fieldInfo);
+				break;
+			case "checkBox":
+				fieldOptions = createCheckBoxOptions(subFieldId, fieldInfo);
+				break;
+			default:
+				fieldOptions = document.createElement("span");
+				break;
+		}
+		fieldDiv.appendChild(fieldOptions);
+	});
 
 	return fieldDiv;
 }
 
+function createSelector(fieldId, fieldValues){
+	let container = createElement("span");
+	let selector = createElement("select", "selectField", {id: fieldId + "Selector"}, container)
+	fieldValues.options.forEach( (optionName)=>{
+		let option = createElement("option", null, {value: optionName}, selector);
+		option.innerText = optionName;
+	});
+	selector.addEventListener("change", fieldValues.function);
+
+	if(fieldValues.optionType === "lineWeight"){
+		let lineExample = createElement("span", "lineOptionLabel", {}, container);
+		selector.addEventListener("change", (event)=>{
+			lineExample.style.borderWidth = event.target.value + "px";
+		});
+	}
+	return container;
+}
+
+
+function setTPSelection(elementType){
+	if( !document.getElementById("nodeTPTab").hasAttribute("active") ) setActiveTPTab("node");
+	document.querySelectorAll("#nodeTPTabFields .toolPanelField").forEach( (field)=>{
+		if(field.getAttribute("visibleFor").includes(elementType)){
+			field.removeAttribute("hidden");
+		} else{
+			field.setAttribute("hidden", "");
+		}
+	});
+}
+
+function setStyleSelection(elementType){
+
+}
+
 function createRadioOptions(fieldName, fieldInfo){
-	let options = createElement("span", null, "fieldOptions");
+	let options = createElement("span", "fieldOptions");
 
 	let optionValues = fieldInfo.options;
 	optionValues.forEach( (optionValue)=>{
-		let option = createElement("span", null, "fieldOption");
-		options.appendChild(option);
+		let option = createElement("span", "fieldOption", null, options);
+		let radio = createElement("input", "radioOption", {type: "radio", name: fieldName, value: optionValue}, option);
+		if (fieldInfo.inputType === "radioLong") radio.classList.add("long");
 
-		let radio = createElement("input", null, "radioOption");
-		radio.setAttribute("type", "radio");
-		radio.setAttribute("name", fieldName);
-		radio.setAttribute("value", optionValue);
-		option.appendChild(radio);
-
-		let selectedBorder = createElement("div", null, "selectedBorder");
-		option.appendChild(selectedBorder);
+		let selectedBorder = createElement("div", "selectedBorder", null, option);
 
 		switch (fieldInfo.optionType){
-			case "colors":
+			case "color":
 				radio.addEventListener("change", (e)=>{ fieldInfo.function(e.target.value) })
 				radio.classList.add("colorOption");
 				radio.style.backgroundColor = optionValue;
 				break;
-			case "shapes":
+			case "shape":
 				radio.addEventListener("change", (e)=>{ fieldInfo.function(e.target.value)});
 				radio.classList.add("shapeOption");
 				//Add the fontAwesome icon styles to the radio buttons
 				let optionIcon = fieldInfo.icons[optionValue];
 				radio.classList.add( ...faIcon( optionIcon.icon, optionIcon.style, true ));
 				break;
-			case "borders":
-				radio.classList.add("borderOption");
+			case "border":
+			case "line":
+				radio.classList.add(fieldInfo.optionType + "Option");
 				let id = optionValue + "BorderOption"
 				radio.id = id;
-				let label = createElement("label", null, "borderOptionLabel");
-				label.setAttribute("for", id);
-				label.appendChild(document.createTextNode(optionValue));				
-				option.appendChild(label);
+				let label = createElement("label", fieldInfo.optionType + "OptionLabel", {for: id}, option);
+				if (fieldInfo.optionType === "border"){
+					label.appendChild(document.createTextNode(optionValue));
+				}
 				break;
 			default:
 				break;
@@ -213,21 +274,65 @@ function createRadioOptions(fieldName, fieldInfo){
 	return options;
 }
 
+function createCheckBoxOptions(fieldId, fieldInfo){
+	let field = createElement("span", "fieldOptions", {id: fieldId});
+	fieldInfo.options.forEach( (optionName)=>{
+		let option = createElement("span", "fieldOption", {}, field);
+
+		let checkBox = createElement("input", "checkBoxOption", {id: optionName  + "Option", type: "checkbox", name: fieldId, value: optionName});
+
+		let icon = fieldInfo.icons[optionName];
+		checkBox.classList.add(...faIcon(icon.icon, icon.style, true));
+		option.appendChild(checkBox);
+
+		let selectedBorder = createElement("div", "selectedBorder", {}, option);
+	});
+	return field;
+}
+
+function createSliderOption(fieldId, fieldInfo){
+	let field = createElement("span", "fieldOptions");
+
+	let slider = createElement("input", "sliderField", {id: fieldId});
+	slider.setAttribute("type", "range");
+	slider.setAttribute("min", fieldInfo.range.min);
+	slider.setAttribute("max", fieldInfo.range.max);
+	field.appendChild(slider);
+
+	let readOut = createElement("label", "sliderReadOut", null, field);
+	readOut.innerText = slider.value + fieldInfo.range.unit;
+
+	slider.addEventListener("input", (e)=>{
+		readOut.innerText = e.target.value + fieldInfo.range.unit;
+		fieldInfo.function(e.target.value);
+	})
+
+	return field;
+}
+
 /**
  * Helper function to create a DOM element with optional Id and Classes
  * @param  {String} tagName The name of the DOM tag to be created
- * @param  {String} id      The ID of the Element
  * @param  {String} classes Classes of the element.  Can be a string or array
- *                          of strings
- * @return {HTMLELEMENT}    The created element
+ * @param  {Object} attributes An object of key-value pairs corresponding to
+ *                             attribute names and values
+ * @param {HTMLELEMENT} parentElement the element to append the created element to
+ * @return {HTMLELEMENT}    The created element if no parentElement was passed
  */
-function createElement(tagName, id, classes){
+function createElement(tagName, classes=null, attributes=null, parentElement=null){
 	let element = document.createElement(tagName);
-	if(id) element.setAttribute("id", id);
 	if (classes){
 		classes = typeof classes === "string" ? [classes] : classes;
 		element.classList.add(...classes);
 	}
+	if (attributes){
+		Object.keys(attributes).forEach( (attr)=>{
+			if (attributes.hasOwnProperty(attr)){
+				element.setAttribute(attr, attributes[attr]);
+			}
+		})
+	}
+	if (parentElement) parentElement.appendChild(element)
 	return element;
 }
 

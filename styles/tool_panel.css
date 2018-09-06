@@ -11,6 +11,7 @@
 	width: 375px;
 	background: #EDEEEE; /* theme color : Light; */
 
+	color: #2F323D;
 	font-size: 24pt;
 	font-family: Roboto, sans-serif;
 }
@@ -43,6 +44,10 @@
 	background: #D3D4D4; /* Theme color: June */
 }
 
+#nodeTPTab .icon{
+	transform: rotateZ(180deg);
+}
+
 .tabFieldContainer{
 	display: none;
 	font-size: 22px;
@@ -55,6 +60,24 @@
 }
 
 .toolPanelField{
+}
+
+#elementSelectorField{
+	background-color: #FFFFFF;
+	height: 78px;
+	padding-left: 13px;
+}
+
+#elementsTypeField{
+	font-size: 24px;
+	font-weight: bold;
+	width: 130px;
+}
+
+#stylesTypeField{
+	font-size: 14px;
+	width: 200px;
+	text-align: center;
 }
 
 .fieldName{
@@ -84,6 +107,15 @@
 	outline: none;
 	width: 30px;
 	height: 30px;
+	cursor: pointer;
+}
+
+.radioOption.long{
+	width:75px;
+}
+
+label{
+	cursor: pointer;
 }
 
 .selectedBorder{
@@ -99,28 +131,44 @@
   	transition:         all 600ms cubic-bezier(0.19, 1, 0.22, 1)
 }
 
-.radioOption:checked + .selectedBorder{
+.radioOption:checked + .selectedBorder, .checkBoxOption:checked + .selectedBorder{
 	width: 46px;
 	height: 46px;
 	top: -8px;
 	left: -8px;
 }
 
+.radioOption.long:checked~.selectedBorder{
+	width: 91px;
+	border-radius: 158px;
+}
+
 .colorOption{
 }
 
 .shapeOption{
+	font-size: 30px;
 }
 
 .shapeOption[value="diamond"]{
 	transform: rotateZ(45deg) scale(0.707);
 }
 
-.borderOption{
-	width:89px;
+.sliderField{
+	width: 165px;
+	margin-right: 15px;
 }
 
-.borderOptionLabel{
+.sliderReadOut{
+	font-size: 14px;
+	color: #1A1A1A;
+	vertical-align: middle;
+}
+
+.borderOption{
+}
+
+.radioOption.long~label{
 	position: absolute;
 	width: 100%;
 	font-size: 14px;
@@ -133,7 +181,37 @@
 	border-radius: 5px;
 }
 
-.borderOption:checked~.selectedBorder{
-	width: 105px;
-	border-radius: 158px;
+.lineOptionLabel{
+	height: 0px;
+	border-top: 2px solid #1A1A1A;
+	top:50%;
+}
+
+.lineOption[value="dashed"]~label{ border-style: dashed; }
+
+.selectField{
+	font-size: 20px;
+	width: 120px;
+	margin-right: 15px;
+	border: none;
+	background: transparent;
+}
+
+#lineWeightSelector{
+	width: 45px;
+}
+
+.selectField~.lineOptionLabel{
+	display: inline-block;
+	vertical-align: middle;
+	width: 90px;
+}
+
+.checkBoxOption{
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	outline: none;
+	width: 30px;
+	text-align: center;
 }
