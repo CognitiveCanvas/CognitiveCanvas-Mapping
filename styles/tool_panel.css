@@ -143,15 +143,19 @@ label{
 	border-radius: 158px;
 }
 
-.colorOption{
+.radioOption.color{
 }
 
-.shapeOption{
+.radioOption.shape{
 	font-size: 30px;
 }
 
-.shapeOption[value="diamond"]{
+.radioOption.shape[value="diamond"]{
 	transform: rotateZ(45deg) scale(0.707);
+}
+
+.radioOption.rightEnd.arrow{
+	transform: rotateZ(180deg);
 }
 
 .sliderField{

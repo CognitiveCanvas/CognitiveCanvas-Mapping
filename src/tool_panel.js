@@ -39,6 +39,11 @@ const NODE_SHAPE_ICONS = {
 	diamond:   {icon: "square", style: "far"}
 };
 
+const LINE_END_ICONS = {
+	arrow: {icon: "caret-left", style: "fas"},
+	none:  {icon: "minus", style: "fas"}
+}
+
 const FONT_ICONS = {
 	bold: 	{icon: "bold", style: "fas"},
 	italic: {icon: "italic", style: "fas"}
@@ -68,7 +73,10 @@ var toolPanelTabs = {
 					 							  }, visibleFor: ["node", "link"] },
 		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
 		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},
-		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},		 
+		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
+		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: null, options: ["arrow", "none"], icons: LINE_END_ICONS},
+													rightEnd:{ inputType: "radio", function: null, options: ["none", "arrow"], icons: LINE_END_ICONS},
+												  }, visibleFor: ["link"]},
 	}}, 
 	drawTPTab: {text: "Draw", icon: "pencil-alt", fields: {
 		lineColor:  {name: "Color", inputType: "radio", optionType: "color", options: getColorGroup("mapElements")},
@@ -238,30 +246,35 @@ function createRadioOptions(fieldName, fieldInfo){
 
 	let optionValues = fieldInfo.options;
 	optionValues.forEach( (optionValue)=>{
+		let id = optionValue + "Option"; 
+		let classes = ["radioOption", fieldName, optionValue];
+		if(fieldInfo.optionType) classes.push(fieldInfo.optionType);
+		let attributes = {id: id, type: "radio", name: fieldName, value: optionValue}
+
 		let option = createElement("span", "fieldOption", null, options);
-		let radio = createElement("input", "radioOption", {type: "radio", name: fieldName, value: optionValue}, option);
+		let radio = createElement("input", classes, attributes, option);
+		
 		if (fieldInfo.inputType === "radioLong") radio.classList.add("long");
 
 		let selectedBorder = createElement("div", "selectedBorder", null, option);
 
+		if(fieldInfo.function){
+			radio.addEventListener("change", (e)=>{ fieldInfo.function(e.target.value) })
+		}
+		//Add the fontAwesome icon styles to the radio buttons
+		if (fieldInfo.icons){
+			let optionIcon = fieldInfo.icons[optionValue];
+			radio.classList.add( ...faIcon( optionIcon.icon, optionIcon.style, true ));
+		}
+
 		switch (fieldInfo.optionType){
 			case "color":
-				radio.addEventListener("change", (e)=>{ fieldInfo.function(e.target.value) })
-				radio.classList.add("colorOption");
 				radio.style.backgroundColor = optionValue;
 				break;
 			case "shape":
-				radio.addEventListener("change", (e)=>{ fieldInfo.function(e.target.value)});
-				radio.classList.add("shapeOption");
-				//Add the fontAwesome icon styles to the radio buttons
-				let optionIcon = fieldInfo.icons[optionValue];
-				radio.classList.add( ...faIcon( optionIcon.icon, optionIcon.style, true ));
 				break;
 			case "border":
 			case "line":
-				radio.classList.add(fieldInfo.optionType + "Option");
-				let id = optionValue + "BorderOption"
-				radio.id = id;
 				let label = createElement("label", fieldInfo.optionType + "OptionLabel", {for: id}, option);
 				if (fieldInfo.optionType === "border"){
 					label.appendChild(document.createTextNode(optionValue));
