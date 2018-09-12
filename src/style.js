@@ -11,6 +11,33 @@ var current_font_size = 15;
 var FONT_NORMAL = 100;
 var FONT_BOLD = 700;
 
+/**
+ * Sets a style of a selection of nodes and logs it in the action logging and undo buffers
+ * @param {Number | String} value - the value to set the attribute to
+ * @param {String} childElementClass - the class of an element within the selected one to change the attribute on
+ * @param {HTMLCollection} nodes - If null, will grab selected nodes
+ */
+function setStyle(styleAttr, value, elements=null, childElementClass=null){
+	if(!elements) elements = document.getElementsByClassName("selected");
+	let oldStyleValues = [];
+	
+	for (let i = 0; i < elements.length; i++){
+		let element = childElementClass ? elements[i].getElementsByClassName(childElementClass)[0] : elements[i];
+		oldStyleValues.push(element.style[styleAttr]);
+		element.style[styleAttr] = value;
+	};
+
+	let data = {
+		"style_type": "change_" + styleAttr,
+		"style_name": styleAttr,
+		"old_value" : oldStyleValues,
+		"new_value" : value,
+		"elements"  : elements,
+	};
+	action_done("style", data);
+	logStyleChange(data);
+}
+
 function setColor(color) {
 	let nodes = d3.selectAll(".selected .node-rep");
 	let edges = d3.selectAll(".selected .link-rep");
@@ -42,6 +69,15 @@ function setNodeColor(color){
 	action_done ("style", data);
 	logColorChanges("fill", color);
 	nodes.style("fill", color)
+}
+
+/**
+ * Sets the opacity of selected nodes' fills
+ * @param {Number} opacity - the new node opacity from 0 to 100
+ * @param {HTMLCollection} nodes - If null, will grab selected nodes
+ */
+function setNodeOpacity(opacity, nodes=null){
+	setStyle("opacity", Number(opacity)/100, nodes, "node-rep");
 }
 
 function setLinkColor(color){

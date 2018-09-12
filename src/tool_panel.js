@@ -67,7 +67,7 @@ var toolPanelTabs = {
 		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
 		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
 		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node", "link"]},
-		opacity: 	{name: "Opacity", 	inputType: "slider",	function: null,				range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
+		opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,				range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
 		borderType: {name: "Border", 	inputType: "radioLong", function: null,				optionType: "border", options: ["solid", "none"], visibleFor: ["node"] },
 		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
 		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: null, options: ["arrow", "none"], icons: LINE_END_ICONS},

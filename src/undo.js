@@ -53,6 +53,10 @@ function undo(){
 
 function undoStyle(data){
 	console.log("undo-ing style");
+	//Use D3 to select elements
+	if ( data.elements && !(data.elements instanceof d3.selection) ){
+		data.elements = d3.selectAll(data.elements);
+	}
 	switch (data.style_type){
 		case "change_color":
 			data.nodes.style("fill", ""+data.old_color);
@@ -75,6 +79,13 @@ function undoStyle(data){
 			break;
 		case "change_edge_thickness":
 			data.elements.style("stroke-width", ""+data.old_size);
+			break;
+		case "change_opacity":
+			data.elements.style("opacity", data.old_value);
+			break;
+		default:
+			console.log("Could not recognize style being undone")
+			break;
 	}
 }
 
