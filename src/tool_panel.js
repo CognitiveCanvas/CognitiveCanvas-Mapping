@@ -65,21 +65,29 @@ var toolPanelTabs = {
 								 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
 									   }, visibleFor: ["node", "link"] },
 		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
-		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node"]},
+		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
+		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node", "link"]},
 		opacity: 	{name: "Opacity", 	inputType: "slider",	function: null,				range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
-		borderType: {name: "Border", 	inputType: "radioLong", function: null,				optionType: "border", options: ["solid", "none"], visibleFor: ["node", "link"] },
-		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", function: null, options: LABEL_FONTS },
-					 							   fontStyle:{ inputType: "checkBox", function: null, options: ["bold", "italic"], icons: FONT_ICONS} 
-					 							  }, visibleFor: ["node", "link"] },
-		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
-		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},
+		borderType: {name: "Border", 	inputType: "radioLong", function: null,				optionType: "border", options: ["solid", "none"], visibleFor: ["node"] },
 		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
 		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: null, options: ["arrow", "none"], icons: LINE_END_ICONS},
 													rightEnd:{ inputType: "radio", function: null, options: ["none", "arrow"], icons: LINE_END_ICONS},
 												  }, visibleFor: ["link"]},
+		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", function: null, options: LABEL_FONTS },
+					 							   fontStyle:{ inputType: "checkBox", function: null, options: ["bold", "italic"], icons: FONT_ICONS} 
+					 							  }, visibleFor: ["node", "link"] },
+		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
 	}}, 
 	drawTPTab: {text: "Draw", icon: "pencil-alt", fields: {
-		lineColor:  {name: "Color", inputType: "radio", optionType: "color", options: getColorGroup("mapElements")},
+		drawLine: 	{name: "Line", 	inputType: "radioLong", function: null,	optionType: "line", options: ["solid", "dashed"]},		
+		drawColor:  {name: "Color", inputType: "radio", function: null, optionType: "color", options: getColorGroup("mapElements")},
+		drawWeight: {name: "Weight",inputType: "selector",	function: null,	optionType: "lineWeight", options: [1,2,3,4,5]},
+		eraser: 	{name: null, 	inputType: "toggleButton", function:null, label: "ERASE", icon: {name: "eraser", style: "fas"}}
+
+	}},
+	pinningTPTab: {icon: "map-marker-alt", fields: {
+		uploadImage: {name: null, inputType: "button", function: null, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
+		pinImage: {name: null, inputType: "button", function: null, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
 	}},
 	settingsTPTab: {text: null, icon: "cog", fields: {
 
@@ -117,8 +125,8 @@ function initToolPanel(){
 			tabFields.appendChild(field);
 		});
 	});
-
 	document.body.appendChild(transientWrapper);
+	setTPSelection("node");
 }
 
 /**
@@ -197,6 +205,10 @@ function createTPField(fieldId, fieldValues){
 			case "checkBox":
 				fieldOptions = createCheckBoxOptions(subFieldId, fieldInfo);
 				break;
+			case "button":
+			case "toggleButton":
+				fieldOptions = createButton(subFieldId, fieldInfo);
+				break;
 			default:
 				fieldOptions = document.createElement("span");
 				break;
@@ -214,7 +226,7 @@ function createSelector(fieldId, fieldValues){
 		let option = createElement("option", null, {value: optionName}, selector);
 		option.innerText = optionName;
 	});
-	selector.addEventListener("change", fieldValues.function);
+	selector.addEventListener("change", (e)=>{fieldValues.function(e.target.value)});
 
 	if(fieldValues.optionType === "lineWeight"){
 		let lineExample = createElement("span", "lineOptionLabel", {}, container);
@@ -306,11 +318,8 @@ function createCheckBoxOptions(fieldId, fieldInfo){
 function createSliderOption(fieldId, fieldInfo){
 	let field = createElement("span", "fieldOptions");
 
-	let slider = createElement("input", "sliderField", {id: fieldId});
-	slider.setAttribute("type", "range");
-	slider.setAttribute("min", fieldInfo.range.min);
-	slider.setAttribute("max", fieldInfo.range.max);
-	field.appendChild(slider);
+	let slider = createElement("input", "sliderField", {id: fieldId, type: "range",
+		min: fieldInfo.range.min, max: fieldInfo.range.max}, field);
 
 	let readOut = createElement("label", "sliderReadOut", null, field);
 	readOut.innerText = slider.value + fieldInfo.range.unit;
@@ -321,6 +330,21 @@ function createSliderOption(fieldId, fieldInfo){
 	})
 
 	return field;
+}
+
+function createButton(fieldId, fieldInfo){
+	let span = createElement("span");
+
+	if(fieldInfo.inputType === "toggleButton"){
+		let checkBox = createElement("input", [fieldInfo.inputType + "Field"], {id: fieldId, type: "checkbox", name: fieldId, value: fieldId}, span );
+	}
+	let button = createElement("label", [fieldInfo.inputType], {for: fieldId}, span);
+	let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
+	button.appendChild(icon);
+
+	button.appendChild(document.createTextNode(fieldInfo.label));
+
+	return span;
 }
 
 /**
