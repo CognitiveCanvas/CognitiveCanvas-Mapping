@@ -1,18 +1,5 @@
-html {
-    overflow-x: hidden;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    fill: white;
-}
-
-body {
-    overflow-x: hidden;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-}
+/* ---FONTS--- */
+@import url('https://fonts.googleapis.com/css?family=Lato|Oswald|Raleway|Roboto+Condensed|Roboto+Slab|Roboto:400,700|Slabo+13px');
 
 @font-face {
   font-family: "Miso Bold";
@@ -27,6 +14,23 @@ body {
 @font-face {
   font-family: "Miso Regular";
   src: "styles/fonts/miso-regular-webfont.woff";
+}
+
+/* CONTAINERS */
+html {
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    fill: white;
+}
+
+body {
+    overflow-x: hidden;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    margin: 0;
 }
 
 h1 {

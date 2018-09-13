@@ -49,7 +49,7 @@ const FONT_ICONS = {
 	italic: {icon: "italic", style: "fas"}
 }
 
-const LABEL_FONTS = ["Roboto", "Raleway"];
+const LABEL_FONTS = ["Roboto Condensed", "Raleway", "Oswald", "Lato", "Slabo 13px"];
 
 function getColorGroup(groupName){
 	let colorsInGroup = [];
@@ -65,15 +65,15 @@ var toolPanelTabs = {
 								 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
 									   }, visibleFor: ["node", "link"] },
 		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
-		lineType: 	{name: "Line", 		inputType: "radioLong", function: null,				optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
+		lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
 		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node", "link"]},
-		opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,				range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
-		borderType: {name: "Border", 	inputType: "radioLong", function: null,				optionType: "border", options: ["solid", "none"], visibleFor: ["node"] },
-		lineWeight: {name: "Weight", 	inputType: "selector",	function: null,				optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
+		opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,	range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
+		borderType: {name: "Border", 	inputType: "radioLong", function: setBorderType,	optionType: "border", options: ["solid", "dashed", "none"], visibleFor: ["node"] },
+		lineWeight: {name: "Weight", 	inputType: "selector",	function: setLinkThickness,	optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
 		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: null, options: ["arrow", "none"], icons: LINE_END_ICONS},
 													rightEnd:{ inputType: "radio", function: null, options: ["none", "arrow"], icons: LINE_END_ICONS},
 												  }, visibleFor: ["link"]},
-		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", function: null, options: LABEL_FONTS },
+		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", optionType:"font", function: setLabelFont, options: LABEL_FONTS },
 					 							   fontStyle:{ inputType: "checkBox", function: null, options: ["bold", "italic"], icons: FONT_ICONS} 
 					 							  }, visibleFor: ["node", "link"] },
 		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
@@ -224,7 +224,9 @@ function createSelector(fieldId, fieldValues){
 	let selector = createElement("select", "selectField", {id: fieldId + "Selector"}, container)
 	fieldValues.options.forEach( (optionName)=>{
 		let option = createElement("option", null, {value: optionName}, selector);
-		option.innerText = optionName;
+		let optionText = optionName;
+		if (fieldValues.optionType === "font") optionText = optionName.split(" ")[0];
+		option.innerText = optionText;
 	});
 	selector.addEventListener("change", (e)=>{fieldValues.function(e.target.value)});
 
@@ -258,7 +260,7 @@ function createRadioOptions(fieldName, fieldInfo){
 
 	let optionValues = fieldInfo.options;
 	optionValues.forEach( (optionValue)=>{
-		let id = optionValue + "Option"; 
+		let id = fieldName + optionValue + "Option"; 
 		let classes = ["radioOption", fieldName, optionValue];
 		if(fieldInfo.optionType) classes.push(fieldInfo.optionType);
 		let attributes = {id: id, type: "radio", name: fieldName, value: optionValue}

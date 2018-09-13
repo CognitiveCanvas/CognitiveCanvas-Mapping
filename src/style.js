@@ -11,18 +11,29 @@ var current_font_size = 15;
 var FONT_NORMAL = 100;
 var FONT_BOLD = 700;
 
+const DASH_ARRAY_VALUES = {
+	"solid": "0",
+	"dashed": "9 6",
+	"none": "0 1"
+}
+
 /**
  * Sets a style of a selection of nodes and logs it in the action logging and undo buffers
  * @param {Number | String} value - the value to set the attribute to
- * @param {String} childElementClass - the class of an element within the selected one to change the attribute on
+ * @param {String} classNames - styles are only changed on elements with one of these classNames or with children with these classNames
  * @param {HTMLCollection} nodes - If null, will grab selected nodes
  */
-function setStyle(styleAttr, value, elements=null, childElementClass=null){
+function setStyle(styleAttr, value, elements=null, classNames=null){
+
 	if(!elements) elements = document.getElementsByClassName("selected");
-	let oldStyleValues = [];
 	
+	if (classNames){
+		elements = filterElementsAndChildrenByClasses(elements, classNames);
+	}
+
+	let oldStyleValues = [];
 	for (let i = 0; i < elements.length; i++){
-		let element = childElementClass ? elements[i].getElementsByClassName(childElementClass)[0] : elements[i];
+		element = elements[i];
 		oldStyleValues.push(element.style[styleAttr]);
 		element.style[styleAttr] = value;
 	};
@@ -36,6 +47,32 @@ function setStyle(styleAttr, value, elements=null, childElementClass=null){
 	};
 	action_done("style", data);
 	logStyleChange(data);
+}
+
+/**
+ * Takes a list of elements, and returns a list with only those with a matching class.
+ * If the element does not have one of the classes, it's children are searched for the class
+ * @param  {HTMLCollection} elements   Elements to filter and search through
+ * @param  {[String]} classNames	   An array of class names to search for
+ * @return {HTMLCollection}    A list of elements with one of the passed in classes
+ */
+function filterElementsAndChildrenByClasses(elements, classNames){
+	if (typeof classNames === "string") classNames = [classNames];
+	let filteredElements = [];
+	//Loop through the elements.  If it has one of the classes, return it, otherwise search it's children for the classes
+	for( let i = 0; i < elements.length; i++){
+		classNames.forEach( (className)=>{
+			if (elements[i].classList.contains(className)){
+				filteredElements.push(elements[i]);
+			} else{
+				let selection = elements[i].getElementsByClassName(className);
+				if(selection.length > 0){
+					filteredElements.push(selection[0]);
+				}
+			}
+		});
+	}
+	return filteredElements;
 }
 
 function setColor(color) {
@@ -78,6 +115,11 @@ function setNodeColor(color){
  */
 function setNodeOpacity(opacity, nodes=null){
 	setStyle("opacity", Number(opacity)/100, nodes, "node-rep");
+}
+
+function setBorderType(borderType, elements=null){
+	let dashLength = DASH_ARRAY_VALUES[borderType];
+	setStyle("stroke-dasharray", dashLength, elements, ["node-rep", "link-rep"]);
 }
 
 function setLinkColor(color){
@@ -245,7 +287,6 @@ function toggleLabelFontItalics() {
   logLabelToggle("italicized", italicized, 7);
 }
 
-
 function toggleLabelFontBold() {
   current_style = d3.select(".selected .label")
     .style("font-weight");
@@ -263,8 +304,6 @@ function toggleLabelFontBold() {
   logLabelToggle("bolded", bolded, 6);
 }
 
-function setLabelColor(color) {
-  logColorChanges("label", color);
-  current_style = d3.selectAll(".selected .label")
-    .style("fill", color);
+function setLabelFont(font, elements=null){
+	setStyle("fontFamily", "'" + font +  "', sans-serif", elements, ["label"]);
 }
