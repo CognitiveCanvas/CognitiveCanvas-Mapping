@@ -215,11 +215,14 @@ function toggleLabelFontItalics(){
 }
 
 
-function toggleLabelFontBold(){
+function toggleLabelFontBold(value=null){
 	current_style = d3.select(".selected .label")
 	  .style("font-weight");
 	let new_style = "";
-	if (current_style == "700"){
+
+	let makeBold = value !== null ? Boolean(value) : current_style == Number(FONT_BOLD);
+
+	if (!makeBold){
 		new_style = FONT_NORMAL;
 		d3.selectAll(".selected .label")
 	  		.style("font-weight", FONT_NORMAL); 	

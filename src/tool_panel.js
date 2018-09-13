@@ -74,7 +74,7 @@ var toolPanelTabs = {
 													rightEnd:{ inputType: "radio", function: null, options: ["none", "arrow"], icons: LINE_END_ICONS},
 												  }, visibleFor: ["link"]},
 		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", optionType:"font", function: setLabelFont, options: LABEL_FONTS },
-					 							   fontStyle:{ inputType: "checkBox", function: null, options: ["bold", "italic"], icons: FONT_ICONS} 
+					 							   fontStyle:{ inputType: "checkBox", functions: [toggleLabelFontBold, toggleLabelFontItalics], options: ["bold", "italic"], icons: FONT_ICONS }, 
 					 							  }, visibleFor: ["node", "link"] },
 		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
 	}}, 
@@ -303,10 +303,11 @@ function createRadioOptions(fieldName, fieldInfo){
 
 function createCheckBoxOptions(fieldId, fieldInfo){
 	let field = createElement("span", "fieldOptions", {id: fieldId});
-	fieldInfo.options.forEach( (optionName)=>{
+	fieldInfo.options.forEach( (optionName, index)=>{
 		let option = createElement("span", "fieldOption", {}, field);
 
 		let checkBox = createElement("input", "checkBoxOption", {id: optionName  + "Option", type: "checkbox", name: fieldId, value: optionName});
+		checkBox.addEventListener("change", ()=>{fieldInfo.functions[index](checkBox.checked)});
 
 		let icon = fieldInfo.icons[optionName];
 		checkBox.classList.add(...faIcon(icon.icon, icon.style, true));
