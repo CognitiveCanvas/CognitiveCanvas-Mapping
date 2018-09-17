@@ -224,6 +224,8 @@ function drawLinkEnds(links=null, source=null, target=null){
   if (!links) links = document.querySelectorAll(".link.selected");
   links.forEach( (link)=>{
     let ends = [];
+    let linkColor = link.getElementsByClassName("link-rep")[0].style.stroke;
+    console.log(linkColor);
     if (source !== null) ends.push({name: "source", isArrow: source});
     if (target !== null) ends.push({name: "target", isArrow: target});
     let arrow;
@@ -231,6 +233,7 @@ function drawLinkEnds(links=null, source=null, target=null){
       if (end.isArrow){
         arrow = Snap(0,0).polygon([0, 0])
           .addClass("link-end " + end.name);
+        if(linkColor) arrow.node.style.fill = linkColor;
         arrow.prependTo(link);
       } else{
         arrow = link.getElementsByClassName(end.name)[0];

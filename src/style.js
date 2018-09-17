@@ -123,7 +123,8 @@ function setBorderType(borderType, elements=null){
 }
 
 function setLinkColor(color){
-	let links = d3.selectAll(".selected .link-rep");
+	let links = d3.selectAll(".selected.link .link-rep");
+	let linkEnds = d3.selectAll(".selected.link .link-end");
 	let data = {
 		"style_type": "change_color", 
 		"old_color" : links.style("fill"),
@@ -134,6 +135,7 @@ function setLinkColor(color){
 	action_done ("style", data);
 	logColorChanges("fill", color);
 	links.style("stroke", color);
+	linkEnds.style("fill", color);
 }
 
 function setLinkThickness(thickness){
