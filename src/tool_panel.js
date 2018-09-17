@@ -49,7 +49,7 @@ const FONT_ICONS = {
 	italic: {icon: "italic", style: "fas"}
 }
 
-const LABEL_FONTS = ["Roboto Condensed", "Raleway", "Oswald", "Lato", "Slabo 13px"];
+const LABEL_FONTS = ["Roboto Condensed", "Raleway", "Lato", "Slabo 13px"];
 
 function getColorGroup(groupName){
 	let colorsInGroup = [];
@@ -66,12 +66,13 @@ var toolPanelTabs = {
 									   }, visibleFor: ["node", "link"] },
 		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
 		lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
-		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node", "link"]},
+		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node"]},
+		linkColor: 	{name: "Fill",		inputType: "radio",		function: setLinkColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["link"]},
 		opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,	range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
 		borderType: {name: "Border", 	inputType: "radioLong", function: setBorderType,	optionType: "border", options: ["solid", "dashed", "none"], visibleFor: ["node"] },
 		lineWeight: {name: "Weight", 	inputType: "selector",	function: setLinkThickness,	optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
-		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: null, options: ["arrow", "none"], icons: LINE_END_ICONS},
-													rightEnd:{ inputType: "radio", function: null, options: ["none", "arrow"], icons: LINE_END_ICONS},
+		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: setLeftLinkEnd, options: ["arrow", "none"], icons: LINE_END_ICONS},
+													rightEnd:{ inputType: "radio", function: setRightLinkEnd, options: ["none", "arrow"], icons: LINE_END_ICONS},
 												  }, visibleFor: ["link"]},
 		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", optionType:"font", function: setLabelFont, options: LABEL_FONTS },
 					 							   fontStyle:{ inputType: "checkBox", functions: [toggleLabelFontBold, toggleLabelFontItalics], options: ["bold", "italic"], icons: FONT_ICONS }, 

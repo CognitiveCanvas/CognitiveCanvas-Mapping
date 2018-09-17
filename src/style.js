@@ -253,8 +253,6 @@ function setLabelColor(color){
 	action_done ("style", data)
 
   logColorChanges("border", color);
-  d3.selectAll(".selected .node-rep")
-    .style("stroke", color);
 }
 
 function increaseLabelFontSize() {

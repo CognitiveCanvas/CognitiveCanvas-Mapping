@@ -97,8 +97,8 @@ function logCreation(interaction, element) {
       "id": element.getAttribute("id"),
       "label_text": "Link Name",
       "color": "lightgrey",
-      "sourceId": element.getAttribute("sourceId"),
-      "targetId": element.getAttribute("targetId")
+      "source_id": element.getAttribute("source_id"),
+      "target_id": element.getAttribute("target_id")
     };
   }
   let event_type = 0;
@@ -239,8 +239,8 @@ function logColorChanges(type, color){
       // "label": labelFinder(selectedEdges[j].getAttribute("id")),
       [prev_color]: selectedEdges[i].children[0].style.cssText,
       [curr_color]: color
-      // "sourceId": selectedEdges[j].getAttribute("sourceId"),
-      // "targetId": selectedEdges[j].getAttribute("targetId")
+      // "source_id": selectedEdges[j].getAttribute("source_id"),
+      // "target_id": selectedEdges[j].getAttribute("target_id")
     })
   }
 }
