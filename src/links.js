@@ -21,6 +21,8 @@ var LINK_TEMPLATE = {
 }
 
 const ARROW_LENGTH = 15;
+const ARROW_DEG = 50;
+const ARROW_ANGLE = ARROW_DEG / 180 * Math.PI;
 
 /**
  * creates a link element from a JSON object
@@ -252,13 +254,15 @@ function setLeftLinkEnd(type="arrow"){
 function updateLinkEnd(linkEnd, endPoint){
   let theta = endPoint.angle;
   let sideLength = ARROW_LENGTH / Math.sqrt(3) * 2;
+  let angles = [theta + Math.PI - ARROW_ANGLE / 2 ];
+  angles.push(angles[0] + ARROW_ANGLE);
   arrowPoints = [
     endPoint.x,
     endPoint.y,
-    endPoint.x - sideLength * Math.cos(theta + Math.PI * 0.75),
-    endPoint.y - sideLength * Math.sin(theta + Math.PI * 0.75),
-    endPoint.x - sideLength * Math.cos(theta + Math.PI * 1.25),
-    endPoint.y - sideLength * Math.sin(theta + Math.PI * 1.25)
+    roundToPlace(endPoint.x - sideLength * Math.cos(angles[0]), 2),
+    roundToPlace(endPoint.y - sideLength * Math.sin(angles[0]), 2),
+    roundToPlace(endPoint.x - sideLength * Math.cos(angles[1]), 2),
+    roundToPlace(endPoint.y - sideLength * Math.sin(angles[1]), 2)
   ];
   linkEnd.setAttribute("points", arrowPoints);
 }
