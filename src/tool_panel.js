@@ -88,7 +88,7 @@ var toolPanelTabs = {
 	}},
 	pinningTPTab: {icon: "map-marker-alt", fields: {
 		uploadImage: {name: null, inputType: "button", function: uploadImage, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
-		pinImage: {name: null, inputType: "button", function: null, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
+		pinImage: {name: null, inputType: "button", function: togglePinning, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
 	}},
 	settingsTPTab: {text: null, icon: "cog", fields: {
 

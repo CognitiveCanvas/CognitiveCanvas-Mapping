@@ -330,10 +330,15 @@ function hammerizeGroup(group){
 		hammer.remove(hammer.get('pan'));
 
 		var pan = new Hammer.Pan({event: 'pan'});
+		var singleTap = new Hammer.Tap( {event: 'singletap', taps: 1});
 		var doubleTap = new Hammer.Tap( {event: 'doubletap', taps : 2});
-		hammer.add([doubleTap, pan]);
+
+		doubleTap.recognizeWith(singleTap);
+
+		hammer.add([doubleTap, singleTap, pan]);
 
 		hammer.on('doubletap', groupDoubleTapListener);
+		hammer.on('singletap', groupSingleTapListener);
 		hammer.on('pan panstart panend', groupPanListener);
 	});
 }
@@ -364,6 +369,12 @@ function groupPanListener(event){
 	if(event.type === 'panend'){
 		group.nodes = null;
 		group.prevPoint = null;
+	}
+}
+
+function groupSingleTapListener(event){
+	if(isPinning){
+		groupDoubleTapListener(event);
 	}
 }
 
