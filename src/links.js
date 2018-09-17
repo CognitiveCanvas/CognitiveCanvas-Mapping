@@ -356,8 +356,8 @@ function findLinkEndPoints(node1, node2){
             width: points[4] - points[0],
             height: points[7] - points[3]
           }
-          width = rect.width / node.transformer.globalScale.x / 2.0 * Math.sign(Math.cos(theta));
-          height = rect.height / node.transformer.globalScale.y / 2.0 * Math.sign(Math.sin(theta));
+          width = rect.width * scale.x / 2.0 * Math.sign(Math.cos(theta));
+          height = rect.height * scale.y / 2.0 * Math.sign(Math.sin(theta));
           x = height / (Math.tan(theta) + height/width);
           y = Math.tan(theta) * x; 
         default:
