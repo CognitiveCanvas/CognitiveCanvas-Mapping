@@ -87,7 +87,7 @@ var toolPanelTabs = {
 
 	}},
 	pinningTPTab: {icon: "map-marker-alt", fields: {
-		uploadImage: {name: null, inputType: "button", function: null, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
+		uploadImage: {name: null, inputType: "button", function: uploadImage, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
 		pinImage: {name: null, inputType: "button", function: null, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
 	}},
 	settingsTPTab: {text: null, icon: "cog", fields: {
@@ -345,8 +345,9 @@ function createButton(fieldId, fieldInfo){
 	let button = createElement("label", [fieldInfo.inputType], {for: fieldId}, span);
 	let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
 	button.appendChild(icon);
-
 	button.appendChild(document.createTextNode(fieldInfo.label));
+
+	button.addEventListener("click", fieldInfo.function);
 
 	return span;
 }

@@ -4,11 +4,10 @@
  *@version 1.0
 */
 
-$("#uploadImageBtn").on("click", function(e){
-	console.log("clicked");
+var uploadImage = function(){
 	webstrate.on("asset", handleImageUpload)
 	webstrate.uploadAsset();
-});
+}
 
 //Handles the uploaded Image
 var handleImageUpload = function(asset){
@@ -45,7 +44,7 @@ function insertImage(width, height, imgSrc){
 	center = canvas.transformer.fromGlobalToLocal(center);
 
 	var pinnedImage = d3.select(canvas)
-		.insert("image", ":first-child")
+		.insert("image", "#canvas-bg::after")
 		.classed("map-image", true)
 		.classed("group", true)
 		.attr("xlink:href", imgSrc)
