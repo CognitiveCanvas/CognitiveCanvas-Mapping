@@ -3,13 +3,15 @@
 
 <head>
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1" />
+
     <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/hammerjs@2.0.8"></script>
     <script type="text/javascript" src="external/snap.svg-min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anoxnymous" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+    <!--
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"/>
+    <script type="text/javascript" src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    -->    
     <script id="constant.js" type="text/javascript" src="src/entity/constant.js"></script>
     <script id="init.js" type="text/javascript" src="src/init.js"></script>
     <script id="main.js" type="text/javascript" src="src/main.js"></script>
@@ -17,7 +19,6 @@
     <script id="nodes.js" type="text/javascript" src="src/nodes.js"></script>
     <script id="links.js" type="text/javascript" src="src/links.js"></script>
     <script id="data_interpreter.js" type="text/javascript" src="src/data_interpreter.js"></script>
-    <script id="tool_panel.js" type="text/javascript" src="src/tool_panel.js"></script>
     <script id="draw.js" type="text/javascript" src="src/draw.js"></script>
     <script id="data.js" type="text/javascript" src="src/data.js"></script>
     <script id="default-style.js" type="text/javascript" src="src/default-style.js"></script>
@@ -26,8 +27,9 @@
     <script id="style.js" type="text/javascript" src="src/style.js"></script>
     <script id="label.js" type="text/javascript" src="src/label.js"></script>
     <script id="selections.js" type="text/javascript" src="src/selections.js"></script>
-    <script id="minimap.js" type="text/javascript" src="src/minimap.js"></script>
     <script id="pinning.js" type="text/javascript" src="src/pinning.js"></script>
+    <script id="tool_panel.js" type="text/javascript" src="src/tool_panel.js"></script>
+    <script id="minimap.js" type="text/javascript" src="src/minimap.js"></script>
     <script id="logger.js" type="text/javascript" src="src/logger.js"></script>
     <script id="undo-redo.js" type="text/javascript" src="src/undo.js"></script>
     <script id="transformer_extensions.js" type="text/javascript" src="src/transformer_extensions.js"></script>
@@ -35,6 +37,10 @@
     <script id="svg_effects.js" type="text/javascript" src="src/svg_effects.js"></script>
     <script id="redo.js" type="text/javascript" src="src/redo.js"></script>
     <script id="transformer.js" type="text/javascript" src="external/transformer.demangled.min.js"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous"> 
+    
+    <link id="variables.css" rel="stylesheet" type="text/css" href="styles/variables.css" />
     <link id="main.css" rel="stylesheet" type="text/css" href="styles/main.css" />
     <link id="sidebar.css" rel="stylesheet" type="text/css" href="styles/sidebar.css" />
     <link id="tool_panel.css" rel="stylesheet" type="text/css" href="styles/tool_panel.css"/>

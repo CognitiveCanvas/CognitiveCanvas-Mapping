@@ -53,6 +53,10 @@ function undo(){
 
 function undoStyle(data){
 	console.log("undo-ing style");
+	//Use D3 to select elements
+	if ( data.elements && !(data.elements instanceof d3.selection) ){
+		data.elements = d3.selectAll(data.elements);
+	}
 	switch (data.style_type){
 		case "change_color":
 			data.nodes.style("fill", ""+data.old_color);
@@ -75,6 +79,13 @@ function undoStyle(data){
 			break;
 		case "change_edge_thickness":
 			data.elements.style("stroke-width", ""+data.old_size);
+			break;
+		case "change_opacity":
+			data.elements.style("opacity", data.old_value);
+			break;
+		default:
+			console.log("Could not recognize style being undone")
+			break;
 	}
 }
 
@@ -113,10 +124,10 @@ function undoInsertNode(data){
   	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
 
-  	d3.selectAll(`[sourceId=${node_id}]`)
+  	d3.selectAll(`[source_id=${node_id}]`)
     	.classed("deleted", true);
 
-  	d3.selectAll(`[targetId=${node_id}]`)
+  	d3.selectAll(`[target_id=${node_id}]`)
     	.classed("deleted", true);
 
   	removeNodeFromGroup(node);
@@ -144,10 +155,10 @@ function undoDeleteNode(data){
 	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
 
-  	d3.selectAll(`[sourceId=${node_id}]`)
+  	d3.selectAll(`[source_id=${node_id}]`)
     	.classed("deleted", false);
 
-  	d3.selectAll(`[targetId=${node_id}]`)
+  	d3.selectAll(`[target_id=${node_id}]`)
     	.classed("deleted", false);
 
     insertNodeToGroup(node, groups);

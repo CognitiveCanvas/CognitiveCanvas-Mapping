@@ -1,47 +1,5 @@
-#content_container {
-    position: absolute;
-    height: 100%;
-    width: 20%;
-    right:0px;
-    overflow: auto;
-    background: white;
-    z-index: 9999999;
-}
-
-#addWindow {
-    width: 95%; 
-    height: 350px;
-}
-
-#previewIframe {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    width: 300px;
-    height: 300px;
-}
-
-button {
-    width:100%;
-    height: 20px;
-    font-size: 13px !important;
-}
-
-html {
-    overflow-x: hidden;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    fill: white;
-}
-
-body {
-    overflow-x: hidden;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-}
+/* ---FONTS--- */
+@import url('https://fonts.googleapis.com/css?family=Lato|Oswald|Raleway|Roboto+Condensed|Roboto+Slab|Roboto:400,700|Slabo+13px');
 
 @font-face {
   font-family: "Miso Bold";
@@ -58,8 +16,21 @@ body {
   src: "styles/fonts/miso-regular-webfont.woff";
 }
 
-h1, h2, button, div {
-    font-family: 'Miso Regular';
+/* CONTAINERS */
+html {
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    fill: white;
+}
+
+body {
+    overflow-x: hidden;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    margin: 0;
 }
 
 h1 {
@@ -69,6 +40,35 @@ h1 {
 
 h2 {
     color: #FCE946;
+}
+
+button {
+    width:100%;
+    height: 20px;
+    font-size: 13px !important;
+}
+
+#content_container {
+    position: absolute;
+    height: 100%;
+    width: 20%;
+    right:0px;
+    overflow: auto;
+    background: white;
+    z-index: 99;
+}
+
+#addWindow {
+    width: 95%; 
+    height: 350px;
+}
+
+#previewIframe {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 300px;
+    height: 300px;
 }
 
 #canvas {
@@ -120,10 +120,6 @@ h2 {
     stroke-width: 5px;
 }
 
-.selected .link-rep{
-    stroke: #0099FA;
-}
-
 .drag_line {
     stroke: #999;
     stroke-width: 5;
@@ -145,7 +141,12 @@ h2 {
 }
 
 .link.selected .link-rep{
-    stroke: #ff7f0e !important; 
+
+}
+
+.link-end{
+    fill: gray;
+    stroke: none;
 }
 
 .node:hover {

@@ -36,6 +36,8 @@
  */
 var snap;
 
+var NODE_SHAPES = ["rectangle", "circle", "diamond"]
+
 var DEFAULT_NODE_SIZE = [100, 100]
 var DEFAULT_SHAPE_SIZES = {
   'rectangle': [100, 50],
@@ -191,7 +193,7 @@ function drawNode(nodeInfo){
  * Creates the SVG Shape nested inside the <g> tag that represents the node
  * @param  {SVGELEMENT || Snap.Paper} The <g> tag to add the node representation to.  
  * Can be a reference to an SVG <g> tag, or one selected by Snap()
- * @param  {String} shape ["rect" | "circle" | "triangle"] the shape of the node 
+ * @param  {String} shape ["rectangle" | "circle" | "diamond"] the shape of the node 
  * @return none
  */
 function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
@@ -231,6 +233,7 @@ function setNodeShape(shape, nodes=null){
     nodeInfo.reps.mapping.elements.node.shape = shape;
     node.querySelector(".node-rep").remove();
     drawNodeRep(node, nodeInfo);
+    updateLinkPositions(findConnectedLinks(node));
   });
 }
 
@@ -334,11 +337,11 @@ function addNode(x, y) {
 /**
  * @deprecated
  * @todo  remove
- * @param {[type]} sourceId [description]
- * @param {[type]} destId   [description]
+ * @param {[type]} source_id [description]
+ * @param {[type]} target_id   [description]
  */
-function addLink(sourceId, destId) {
-  let link = { type: "link", id: generateObjectId(), sourceId: sourceId, destId: destId, content: "false" };
+function addLink(source_id, target_id) {
+  let link = { type: "link", id: generateObjectId(), source_id: source_id, target_id: target_id, content: "false" };
   l = links.push(link);
 
   //console.log("add link", links);
@@ -364,10 +367,10 @@ function removeNode(node) {
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");
 
-  d3.selectAll(`[sourceId=${node_id}]`)
+  d3.selectAll(`[source_id=${node_id}]`)
     .classed("deleted", true);
 
-  d3.selectAll(`[targetId=${node_id}]`)
+  d3.selectAll(`[target_id=${node_id}]`)
     .classed("deleted", true);
 
   d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
@@ -416,9 +419,8 @@ function translateNode(node, vector, relative=false, links=null){
 
   node.translateTransform.set(x, y)
   node.transformer.reapplyTransforms().then((promise)=>{
-    nodePosition = getNodePosition(node);
     //update links to connect to this node
-    updateLinkPositions( links, nodePosition);
+    updateLinkPositions(links);
   });
   return new Promise((success, failure) => {success()});
 }
