@@ -400,3 +400,10 @@ function centerViewOnElement(element){
 
   translateCanvas( new Point(distance[0] * -1, distance[1] * -1) );
 }
+
+function roundToPlace(number, nPlaces){
+  number = Number(number);
+  let multiplier = Math.pow(10, nPlaces);
+  let rounded = Math.round(number * multiplier) / multiplier;
+  return rounded;
+}

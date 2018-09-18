@@ -103,7 +103,7 @@ function canvasPanListener(event){
 }
 
 function hammerizeNode(node){
-	return Transformer.hammerize(node, {pan: false}).then( function(transformer){
+	return Transformer.hammerize(node, {pan: false, callback: nodeTransformerCallback}).then( function(transformer){
 		var hammer = node.hammer;
 		
 		hammer.remove('pan');
@@ -142,6 +142,25 @@ function hammerizeNode(node){
 			}
 		})
 	});
+}
+
+/**
+ * When a node is transformed, checks if the scale has changed.  if so, update
+ * the link endpoints to match the border of the transformed node.
+ * @param  {Matrix} newMatrix Transformer passes the matrix that will be
+ *                            the new transformation on the element.
+ * @return {Boolean}          Returns true to confirm transformation
+ */
+function nodeTransformerCallback(newMatrix){
+	let transformer = this;
+	let oldMatrix = transformer.getTransformMatrix();
+	if(newMatrix.scaleX !== oldMatrix.scaleX || 
+	   newMatrix.scaleY !== oldMatrix.scaleY){
+	   	let node = transformer.element;
+	   	let links = findConnectedLinks(node);
+		updateLinkPositions(links);
+	}
+	return true;
 }
 
 function nodePanListener(event){
@@ -232,7 +251,7 @@ function nodeTapPanListener(event){
 		linkDest = getParentMapElement(linkDest);
 		if( $(linkDest).hasClass("node") && $(node).attr('id') != $(linkDest).attr('id') ){
 			
-			var linkObj = objFromTemplate("mapping", "link", {"sourceId": source_node.id, "targetId": linkDest.id})
+			var linkObj = objFromTemplate("mapping", "link", {"source_id": source_node.id, "target_id": linkDest.id})
 			createLink(linkObj).then( (link)=>{
 				action_done("addEdge", {"edge":link});
 				hideDragLine();
@@ -311,10 +330,15 @@ function hammerizeGroup(group){
 		hammer.remove(hammer.get('pan'));
 
 		var pan = new Hammer.Pan({event: 'pan'});
+		var singleTap = new Hammer.Tap( {event: 'singletap', taps: 1});
 		var doubleTap = new Hammer.Tap( {event: 'doubletap', taps : 2});
-		hammer.add([doubleTap, pan]);
+
+		doubleTap.recognizeWith(singleTap);
+
+		hammer.add([doubleTap, singleTap, pan]);
 
 		hammer.on('doubletap', groupDoubleTapListener);
+		hammer.on('singletap', groupSingleTapListener);
 		hammer.on('pan panstart panend', groupPanListener);
 	});
 }
@@ -345,6 +369,12 @@ function groupPanListener(event){
 	if(event.type === 'panend'){
 		group.nodes = null;
 		group.prevPoint = null;
+	}
+}
+
+function groupSingleTapListener(event){
+	if(isPinning){
+		groupDoubleTapListener(event);
 	}
 }
 

@@ -4,11 +4,25 @@
  *@version 1.0
 */
 
-$("#uploadImageBtn").on("click", function(e){
-	console.log("clicked");
+var isPinning = false;
+
+/**
+ * Turns "Pinning Mode" on or off.  When on, single clicks on a group will
+ * create "pins"
+ * @param  {Boolean} newValue If true, will be in pinning mode, else
+ *                            the amp will be have as normal
+ * @return {Boolean}          True if the map is now in pinning mode
+ */
+function togglePinning(newValue){
+	if (newValue === undefined) isPinning = !isPinning;
+	else isPinning = newValue; 
+	return isPinning;
+}
+
+var uploadImage = function(){
 	webstrate.on("asset", handleImageUpload)
 	webstrate.uploadAsset();
-});
+}
 
 //Handles the uploaded Image
 var handleImageUpload = function(asset){
@@ -45,7 +59,7 @@ function insertImage(width, height, imgSrc){
 	center = canvas.transformer.fromGlobalToLocal(center);
 
 	var pinnedImage = d3.select(canvas)
-		.insert("image", ":first-child")
+		.insert("image", "#canvas-bg::after")
 		.classed("map-image", true)
 		.classed("group", true)
 		.attr("xlink:href", imgSrc)
