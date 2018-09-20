@@ -63,6 +63,9 @@ function selectNode(nodes, deselectCurrentSelection=true){
     deselectAllObjects();
   }
 
+  let eleClass = nodes[0].classList.item(0);
+  if ( TP_ELEMENT_TYPES.includes(eleClass) ) setTPSelection(eleClass);
+
   nodes.forEach( (node)=>{
     node.classList.add("selected");
     Snap(node).attr({ filter: selectedFilter});

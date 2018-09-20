@@ -33,6 +33,8 @@ const THEME_COLORS = {
 	}
 };
 
+const TP_ELEMENT_TYPES = ["node", "link"];
+
 const NODE_SHAPE_ICONS = {
 	rectangle: {icon: "square", style: "far"},
 	circle:    {icon: "circle", style: "far"},
@@ -176,12 +178,34 @@ function setActiveTPTab(tabName){
 		case "node":
 			break;
 		case "draw":
+			deselectAllObjects();
 			break;
 		case "pinning":
 			break;
 		default:
 			break;
 	}
+}
+
+/**
+ * Sets the selection for the tool panel, changing tab and style selection as needed
+ * @param {String} elementType - "node" | "link"
+ */
+function setTPSelection(elementType){
+	if (!TP_ELEMENT_TYPES.includes(elementType)) return;
+	document.getElementById("elementSelector").value = elementType;
+	if( !document.getElementById("nodeTPTab").hasAttribute("active") ) setActiveTPTab("node");
+	document.querySelectorAll("#nodeTPTabFields .toolPanelField").forEach( (field)=>{
+		if(field.getAttribute("visibleFor").includes(elementType)){
+			field.removeAttribute("hidden");
+		} else{
+			field.setAttribute("hidden", "");
+		}
+	});
+}
+
+function setStyleSelection(elementType){
+
 }
 
 function createTPField(fieldId, fieldValues){
@@ -247,28 +271,10 @@ function createSelector(fieldId, fieldValues){
 	if(fieldValues.optionType === "lineWeight"){
 		let lineExample = createElement("span", "lineOptionLabel", {}, container);
 		selector.addEventListener("input", (event)=>{
-			console.log("CHANIGANIASNDSAODA ");
 			lineExample.style.borderWidth = event.target.value + "px";
 		});
-		console.log("THIS SHIT IS ADDED");
 	}
 	return container;
-}
-
-
-function setTPSelection(elementType){
-	if( !document.getElementById("nodeTPTab").hasAttribute("active") ) setActiveTPTab("node");
-	document.querySelectorAll("#nodeTPTabFields .toolPanelField").forEach( (field)=>{
-		if(field.getAttribute("visibleFor").includes(elementType)){
-			field.removeAttribute("hidden");
-		} else{
-			field.setAttribute("hidden", "");
-		}
-	});
-}
-
-function setStyleSelection(elementType){
-
 }
 
 function createRadioOptions(fieldName, fieldInfo){
