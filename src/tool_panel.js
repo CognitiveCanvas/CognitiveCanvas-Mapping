@@ -59,72 +59,70 @@ function getColorGroup(groupName){
 	return colorsInGroup;
 }
 
-var toolPanelTabs = {
-	nodeTPTab: {text: "Node", icon: "code-branch", fields: {
-		elementStyle:{subFields:{element: {inputType: "selector", function: setTPSelection,	options: ["node", "link"] },
-								 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
-									   }, visibleFor: ["node", "link"] },
-		nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
-		lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
-		nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node"]},
-		linkColor: 	{name: "Fill",		inputType: "radio",		function: setLinkColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["link"]},
-		opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,	range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
-		borderType: {name: "Border", 	inputType: "radioLong", function: setBorderType,	optionType: "border", options: ["solid", "dashed", "none"], visibleFor: ["node"] },
-		lineWeight: {name: "Weight", 	inputType: "selector",	function: setLinkThickness,	optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
-		lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: setLeftLinkEnd, options: ["arrow", "none"], icons: LINE_END_ICONS},
-													rightEnd:{ inputType: "radio", function: setRightLinkEnd, options: ["none", "arrow"], icons: LINE_END_ICONS},
-												  }, visibleFor: ["link"]},
-		label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", optionType:"font", function: setLabelFont, options: LABEL_FONTS },
-					 							   fontStyle:{ inputType: "checkBox", functions: [toggleLabelFontBold, toggleLabelFontItalics], options: ["bold", "italic"], icons: FONT_ICONS }, 
-					 							  }, visibleFor: ["node", "link"] },
-		labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
-	}}, 
-	drawTPTab: {text: "Draw", icon: "pencil-alt", fields: {
-		drawLine: 	{name: "Line", 	inputType: "radioLong", function: null,	optionType: "line", options: ["solid", "dashed"]},		
-		drawColor:  {name: "Color", inputType: "radio", function: null, optionType: "color", options: getColorGroup("mapElements")},
-		drawWeight: {name: "Weight",inputType: "selector",	function: null,	optionType: "lineWeight", options: [1,2,3,4,5]},
-		eraser: 	{name: null, 	inputType: "toggleButton", function:null, label: "ERASE", icon: {name: "eraser", style: "fas"}}
+var toolPanelTabs;
+function initToolPanelInfo(){
+	toolPanelTabs = {
+		nodeTPTab: {text: "Node", icon: "code-branch", fields: {
+			elementStyle:{subFields:{element: {inputType: "selector", function: setTPSelection,	options: ["node", "link"] },
+									 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
+										   }, visibleFor: ["node", "link"] },
+			nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
+			lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
+			nodeFill: 	{name: "Fill",		inputType: "radio",		function: setNodeColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["node"]},
+			linkColor: 	{name: "Fill",		inputType: "radio",		function: setLinkColor,		optionType: "color", options: getColorGroup("mapElements"), visibleFor: ["link"]},
+			opacity: 	{name: "Opacity", 	inputType: "slider",	function: setNodeOpacity,	range: {min: 0, max: 100, unit: "%"}, visibleFor: ["node"] },
+			borderType: {name: "Border", 	inputType: "radioLong", function: setBorderType,	optionType: "border", options: ["solid", "dashed", "none"], visibleFor: ["node"] },
+			lineWeight: {name: "Weight", 	inputType: "selector",	function: setLinkThickness,	optionType: "lineWeight", options: [1,2,3,4,5], visibleFor: ["link"]},
+			lineEnds: 	{name: "Ends",		subFields:{ leftEnd: { inputType: "radio", function: setLeftLinkEnd, options: ["arrow", "none"], icons: LINE_END_ICONS},
+														rightEnd:{ inputType: "radio", function: setRightLinkEnd, options: ["none", "arrow"], icons: LINE_END_ICONS},
+													  }, visibleFor: ["link"]},
+			label: 		{name: "Label", 	subFields:{fontFace: { inputType: "selector", optionType:"font", function: setLabelFont, options: LABEL_FONTS },
+						 							   fontStyle:{ inputType: "checkBox", functions: [toggleLabelFontBold, toggleLabelFontItalics], options: ["bold", "italic"], icons: FONT_ICONS }, 
+						 							  }, visibleFor: ["node", "link"] },
+			labelColor: {name: "Color", 	inputType: "radio", 	function: setLabelColor,	optionType: "color", options: getColorGroup("text"), visibleFor: ["node", "link"]},
+		}}, 
+		drawTPTab: {text: "Draw", icon: "pencil-alt", fields: {
+			//drawLine: 	{name: "Line", 	inputType: "radioLong", function: drawingToolFunctions.setLineType, optionType: "line", options: ["solid", "dashed"]},		
+			drawColor:  {name: "Color", inputType: "radio", 		function: drawingToolFunctions.setPenColor, 	optionType: "color", options: getColorGroup("mapElements")},
+			drawWeight: {name: "Weight",inputType: "selector",		function: drawingToolFunctions.setPenThickness,	optionType: "lineWeight", options: [1,2,3,4,5]},
+			eraser: 	{name: null, 	inputType: "toggleButton", 	function: drawingToolFunctions.toggleEraser, 	label: "ERASE", icon: {name: "eraser", style: "fas"}}
 
-	}},
-	pinningTPTab: {icon: "map-marker-alt", fields: {
-		uploadImage: {name: null, inputType: "button", function: uploadImage, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
-		pinImage: {name: null, inputType: "button", function: togglePinning, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
-	}},
-	settingsTPTab: {text: null, icon: "cog", fields: {
-
-	}}
-};
+		}},
+		pinningTPTab: {icon: "map-marker-alt", fields: {
+			uploadImage: {name: null, inputType: "button", function: uploadImage, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
+			pinImage: {name: null, inputType: "button", function: togglePinning, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
+		}},
+		anchor: {type: "anchor", text: null, icon: "cog", fields: null}
+	};
+}
 
 /**
  * Creates the Tool Panel on page load
  */
 function initToolPanel(){
-	var transientWrapper = document.createElement("transient");
-	transientWrapper.id = "toolPanelWrapper";
+	initToolPanelInfo();
 
-	var toolPanel = document.createElement("div");
-	toolPanel.id = "toolPanel";
-	transientWrapper.appendChild(toolPanel);
-
-	var TPHeader = document.createElement("div");
-	TPHeader.id = "toolPanelHeader";
-	toolPanel.appendChild(TPHeader);
+	var transientWrapper = createElement("transient", null, {id: "toolPanelWrapper"});
+	var toolPanel = createElement("div", null, {id: "toolPanel"}, transientWrapper);
+	var TPHeader = createElement("div", null, {id: "toolPanelHeader"}, toolPanel);
 
 	Object.keys(toolPanelTabs).forEach( (tabId)=>{
 		let tabInfo = toolPanelTabs[tabId];
+
 		let tab = createTPTab(tabId, tabInfo);
 		TPHeader.appendChild(tab);
 
-		let tabFields = document.createElement("div");
-		tabFields.classList.add("tabFieldContainer");
-		tabFields.id = tabId + "Fields";
-		toolPanel.appendChild( tabFields );
+		if(tabInfo.fields){
+			let tabFields = createElement("div", "tabFieldContainer", {id: tabId + "Fields"}, toolPanel);
 
-		Object.keys(tabInfo.fields).forEach( (fieldId)=>{
-			let fieldInfo = tabInfo.fields[fieldId];
-			let field = createTPField(fieldId, fieldInfo);
-			tabFields.appendChild(field);
-		});
+			Object.keys(tabInfo.fields).forEach( (fieldId)=>{
+				let fieldInfo = tabInfo.fields[fieldId];
+				let field = createTPField(fieldId, fieldInfo);
+				tabFields.appendChild(field);
+			});
+		} else if (tabInfo.type === "anchor"){
+
+		}
 	});
 	document.body.appendChild(transientWrapper);
 	setTPSelection("node");
@@ -156,7 +154,7 @@ function createTPTab(tabId, tabInfo){
 
 /**
  * Switches tabs on the tool panel
- * @param {String} tabName ["node" or "draw"]
+ * @param {String} tabName ["node" | "draw" | "pinning"]
  */
 function setActiveTPTab(tabName){
 	let newActiveTab = document.getElementById(tabName + "TPTab");
@@ -165,10 +163,25 @@ function setActiveTPTab(tabName){
 	let activeTab = document.querySelector(".toolPanelTab[active]");
 	if (activeTab){ 
 		activeTab.removeAttribute("active");
-		document.getElementById(activeTab.id + "Fields").removeAttribute("active");
+		let activeTabFields = document.getElementById(activeTab.id + "Fields");
+		if(activeTabFields) activeTabFields.removeAttribute("active");
 	};
 	newActiveTab.setAttribute("active", "");
-	document.getElementById(newActiveTab.id + "Fields").setAttribute("active", "");
+	let newActiveTabFields = document.getElementById(newActiveTab.id + "Fields");
+	if(newActiveTabFields) newActiveTabFields.setAttribute("active", "");
+
+	toggleDrawing(tabName === "draw");
+
+	switch(tabName){
+		case "node":
+			break;
+		case "draw":
+			break;
+		case "pinning":
+			break;
+		default:
+			break;
+	}
 }
 
 function createTPField(fieldId, fieldValues){
@@ -233,9 +246,11 @@ function createSelector(fieldId, fieldValues){
 
 	if(fieldValues.optionType === "lineWeight"){
 		let lineExample = createElement("span", "lineOptionLabel", {}, container);
-		selector.addEventListener("change", (event)=>{
+		selector.addEventListener("input", (event)=>{
+			console.log("CHANIGANIASNDSAODA ");
 			lineExample.style.borderWidth = event.target.value + "px";
 		});
+		console.log("THIS SHIT IS ADDED");
 	}
 	return container;
 }
@@ -350,6 +365,11 @@ function createButton(fieldId, fieldInfo){
 	button.addEventListener("click", fieldInfo.function);
 
 	return span;
+}
+
+function createDrawingPalette(){
+	let palette = createElement("div", null, {id: "drawing-palette"});
+	return palette;
 }
 
 /**

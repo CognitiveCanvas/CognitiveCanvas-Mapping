@@ -3,7 +3,7 @@ var initStatus = null;
 var isInitialized = false;
 
 webstrate.on("loaded", (webstrateId, clientId, user) => {
-  
+  console.log("Webstrate Loaded")
   if(isInitialized ) return;
 
   //If this is a minimap, don't run the initialization scripts
@@ -31,11 +31,10 @@ function onLoaded(webstrateId, clientId, user) {
     initIDs(webstrateId, clientId);
     initDragLine();
     initDataElement();
-    //reloadElement();
-    initToolPalette();
-    initDrawing();
+    initDrawing().then( () => {
+      initToolPanel() 
+    }); 
     initLog();
-    initToolPanel();
     initTransformer().then( ()=>{
       initSnap();
       initAddedNodeHandling();
@@ -45,7 +44,6 @@ function onLoaded(webstrateId, clientId, user) {
     });
   });
 }
-
 
 function initLog(){
   let logIntervalMinute = 3;
@@ -97,13 +95,6 @@ function getDefaultStyle() {
 function initDataElement() {
   initHTMLElement("body", DATA_COLLECTION, true)
 }
-
-function initToolPalette() {
-    let toolPalette = document.createElement("transient");
-    toolPalette.setAttribute("id", "tool-palette");
-    document.getElementById("content_container").appendChild(toolPalette);
-    document.getElementById("tool-palette").style.visibility = "hidden";
-} 
 
 function initTransformer() {
   return new Promise( (resolve, reject)=>{

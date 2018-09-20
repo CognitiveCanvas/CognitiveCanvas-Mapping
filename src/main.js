@@ -21,8 +21,6 @@ var singleClickTimer, doubleClickDragTimer = null;
 
 //var hoveredEle = null; //Deprecated Preview
 var addWindowOpen = false;
-var drawing_enabled = false;
-var eraser_enabled = false;
 var original_color = null;
 
 // drag_line & source_node are stored as html element
@@ -320,32 +318,6 @@ function quickAdd(key){
     logCreation(key,node);
     return node;
   });
-}
-
-function toggleDrawFunc() {
-  let pad = document.getElementById("d3_container");
-  let toggltBtn = document.getElementById("toggle_touch_drawing");
-  let toolPalette = document.getElementById("tool-palette");
-
-  if (drawing_enabled) {
-    toolPalette.style.visibility = "hidden";
-    pad.setAttribute("class", "");
-    toggltBtn.innerHTML = "Enable Drawing!";
-    eraser_enabled = false;
-  } 
-  else {
-    toolPalette.style.visibility = "visible";
-    pad.setAttribute("class", "drawable");
-    toggltBtn.innerHTML = "Disable Drawing!";
-    eraser_enabled = false;
-  }
-  drawing_enabled = !drawing_enabled;
-  toggleNonDrawingHammers(!drawing_enabled);
-  // Reset Eraser and Eraser Button Below;
-  eraser_enabled = false;
-  let eraser = document.querySelector(".drawing-instrument-tools .erase-drawing-canvas");
-  eraser.style.background = "darkgrey";
-  
 }
 
 function wrapInTransient(element){
