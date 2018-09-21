@@ -33,6 +33,8 @@ const THEME_COLORS = {
 	}
 };
 
+const INITIAL_UI_PADDING = 30;
+
 const TP_ELEMENT_TYPES = ["node", "link"];
 
 const NODE_SHAPE_ICONS = {
@@ -94,7 +96,7 @@ function initToolPanelInfo(){
 			uploadImage: {name: null, inputType: "button", function: uploadImage, label: "UPLOAD IMAGE", icon: {name: "image", style: "fas"}},
 			pinImage: {name: null, inputType: "button", function: togglePinning, label: "PIN LABEL", icon: {name: "map-marker-alt", style: "fas"}},
 		}},
-		anchor: {type: "anchor", text: null, icon: "cog", fields: null}
+		TPAnchor: {type: "anchor", text: null, icon: "cog", fields: null}
 	};
 }
 
@@ -123,11 +125,35 @@ function initToolPanel(){
 				tabFields.appendChild(field);
 			});
 		} else if (tabInfo.type === "anchor"){
-
 		}
 	});
+	makeUIDraggable(toolPanel, document.getElementById("TPAnchor"));
+
 	document.body.appendChild(transientWrapper);
+	toolPanel.style.left = document.documentElement.clientWidth - toolPanel.clientWidth - INITIAL_UI_PADDING + "px";
+	toolPanel.style.top = INITIAL_UI_PADDING + "px";
 	setTPSelection("node");
+}
+
+function makeUIDraggable(container){
+	let anchor = container.getElementsByClassName("anchor")[0];
+	let hammer = new Hammer.Manager(anchor);
+	hammer.add( new Hammer.Pan());
+	hammer.on( 'pan panstart panend', (event)=>{
+		if (event.type === "panstart"){
+			container.dragStartPos = {
+				x: Number(container.style.left.replace("px", "")), 
+				y: Number(container.style.top.replace("px", ""))
+			};
+		}
+		console.log(event.deltaX, ", ", event.deltaY);
+		container.style.left = container.dragStartPos.x + event.deltaX + "px";
+		container.style.top = container.dragStartPos.y + event.deltaY + "px";
+
+		if (event.type === "panend"){
+			container.dragStartPos = null;
+		}
+	})
 }
 
 /**
@@ -142,6 +168,8 @@ function createTPTab(tabId, tabInfo){
 	tab.id = tabId;
 	tab.classList.add("toolPanelTab");
 	tab.setAttribute("tabName", tabInfo.tabName);
+
+	if(tabInfo.type === "anchor") tab.classList.add("anchor");
 
 	if (tabInfo.icon) tab.appendChild( faIcon(tabInfo.icon) );
 	if (tabInfo.text) tab.appendChild(document.createTextNode(tabInfo.text));

@@ -6,8 +6,6 @@
 #toolPanel{
 	z-index: 9999;
 	position: fixed;
-	right: 20px;
-	top: 20px;
 	width: 375px;
 	background: #EDEEEE; /* theme color : Light; */
 
