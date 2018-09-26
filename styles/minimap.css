@@ -1,15 +1,26 @@
+/* Disable interactions on transcluded minimap */
+body[transient-is-minimap='true']{
+	pointer-events: none;
+}
+
+body[transient-is-minimap='true'] #canvas{
+	transform: none !important;
+}
+
+#minimap-panel{
+	height: auto;
+}
+
 #minimap-wrapper{
 	position: relative;
-	width : 100%;
-	padding-bottom: 50%;
-	border: 3px solid black;
+	padding: 10px 10px 0px 10px;
 }
 
 #minimap{
-	width: 100%;
+	width: 220px;
+	height: 124px;
 	overflow:hidden;
-	position: absolute;
-	top: 0; bottom: 0; left: 0; right: 0;
+	position: relative !important;
 }
 
 #minimap-bg{
@@ -33,13 +44,28 @@
 	z-index: 10;
 }
 
-body[transient-is-minimap='true']{
-	pointer-events: none;
+/* BUTTONS */
+
+.minimap-button{
+	display: inline-block;
+	width:25%;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 30px;
+	line-height: 60px;
+	cursor: pointer;
+	color: black;
 }
 
-body[transient-is-minimap='true'] #content_container{
-	display: none;
+.minimap-button .icon:hover{
+	color: var(--sea);
 }
-body[transient-is-minimap='true'] #canvas{
-	transform: none !important;
+
+.toolPanelTab.anchor{
+	color: var(--june);
+}
+
+#minimap-zoom-buttons .icon{
+	display: block;
+	font-size: 19px;
 }

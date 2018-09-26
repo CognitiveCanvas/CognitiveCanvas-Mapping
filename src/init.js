@@ -128,40 +128,6 @@ function initAddedNodeHandling(){
   });
 }
 
-function initMinimap(){
-  return new Promise( (resolve, reject) => {
-    var minimapIframe = document.getElementById("minimap-bg");
-    minimapIframe.webstrate.on("transcluded", (event)=>{
-      var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.body.setAttribute("transient-is-minimap", true);
-
-      hammerizeMinimap();
-
-      var minimapCanvas = iframeDoc.getElementById("canvas");
-      var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
-
-      var minimapHeight = parseInt( minimapCanvas.style.height, 10 );
-      var minimapWidth = parseInt( minimapCanvas.style.width, 10 );
-
-      var scale = {
-        x: minimapBBox.width / minimapWidth,
-        y: minimapBBox.height / minimapHeight
-      }
-
-      var transform = "scale(" + scale.x + "," + scale.y + ")";
-      
-      minimapIframe.style.transform = transform;
-
-      minimapIframe.style.height = (100 / scale.y) + "%";
-      minimapIframe.style.width = (100 / scale.x) + "%";
-
-      updateMinimapPosition();
-
-      resolve();
-    });
-  });
-}
-
 /**
  * Initializes snap, and creates a transient SVG tag containing only the
  * definitions for SVG effects to be used in the canvas.  This is a workaround

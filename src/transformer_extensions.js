@@ -3,6 +3,15 @@ function eventToCanvasPoint(e){
   return canvas.transformer.fromGlobalToLocal( eventPoint );
 }
 
+/**
+ * Checks if a new elementMatrix, when applied to an element, would create a
+ * bounding box that goes outside that of the element's parent node
+ * @param  {Node}  element           The element being tested
+ * @param  {Matrix}  elementMatrix   The new transform matrix to test for
+ * @param  {Boolean} isOutsideParent true if the parent needs to be smaller
+ *                                   than the element.  False if vice-versa
+ * @return {Boolean}                 True if the above condition is met
+ */
 function isContainingParent(element, elementMatrix, isOutsideParent = true ){
 
   var ele = element;

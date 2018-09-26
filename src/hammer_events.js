@@ -397,17 +397,11 @@ function hammerizeMinimap(){
 	var minimap = document.getElementById("minimap");
 	var minimapPlacer = document.getElementById("minimap-placer");
 	//Transformer.hammerize( minimap, {pan: false, rotate: false, pinch: false} );
-	return Transformer.hammerize( minimap, { pan: false, rotate: false, pinch: false, callback: minimapTransformerCallback}).then( (Transformer) =>{
-		var hammer = minimap.hammer;
+	let hammer = new Hammer.Manager(minimap, {recognizers: [ [Hammer.Pan, {threshold: 1}] ]})
+	minimap.hammer = hammer;
 
-		hammer.remove(hammer.get('pan'));
+	hammer.on("panstart panend pan", minimapPanListener);
 
-		var pan = new Hammer.Pan({event: 'pan', threshold: "1"});
-		hammer.add([pan]);
-
-		hammer.on("panstart panend panmove pancancel", minimapPanListener);
-
-	});
 }
 
 //Checks that the minimap place indicator is within the minimap.  If not, it cancels the transform
@@ -426,24 +420,21 @@ function minimapPanListener( event ){
 	var placer = document.getElementById("minimap-placer");
 	var placerBBox = placer.getBoundingClientRect();
 
-	if( event.type == "panstart" || !placer.prevPoint ) placer.prevPoint = new Point(0, 0);
+	if( event.type == "panstart" || !placer.startPoint ) placer.startPoint = new Point(placerBBox.left, placerBBox.top);
 
-	var deltaPoint = minimap.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
+	//var deltaPoint = minimap.transformer.fromGlobalToLocalDelta(new Point(event.deltaX, event.deltaY));
 
 	var newPos = {
-		left: (deltaPoint.x - placer.prevPoint.x + placerBBox.left - minimapBBox.left) / minimapBBox.width * 100,
-	 	top:  (deltaPoint.y - placer.prevPoint.y + placerBBox.top - minimapBBox.top) / minimapBBox.height * 100 
+		left: (event.deltaX + placer.startPoint.x - minimapBBox.left) / minimapBBox.width * 100,
+	 	top:  (event.deltaY + placer.startPoint.y - minimapBBox.top) / minimapBBox.height * 100 
 	}
 
-	//console.log("NEWPOS:", newPos, ", PREVPOINT:", placer.prevPoint, ", DELTAPOINT:", deltaPoint, ", CENTER:", new Point(event.center.x,event.center.y), ", MINIMAP:", minimapBBox, ", PLACER:", placerBBox);
+	//console.log("NEWPOS:", newPos, "startPoint:", placer.startPoint, ", deltaX:", event.deltaX, ", deltaY:", event.deltaY);
 
-	placer.style.left = newPos.left + "%";
-	placer.style.top = newPos.top + "%";
-
-	placer.prevPoint.x = deltaPoint.x;
-	placer.prevPoint.y = deltaPoint.y;
-
-	if( event.type == "panend" || event.type == "pancancel") placer.prevPoint = null;
+	placer.style.left = roundToPlace(newPos.left, 2) + "%";
+	placer.style.top = roundToPlace(newPos.top, 2) + "%";
 
 	updateMapPositionFromMinimap();
+
+	if( event.type == "panend") placer.startPoint = null;
 };
