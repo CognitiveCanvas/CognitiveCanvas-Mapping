@@ -61,7 +61,7 @@ body[transient-is-minimap='true'] #canvas{
 	color: var(--sea);
 }
 
-.toolPanelTab.anchor{
+.minimap-button.anchor{
 	color: var(--june);
 }
 

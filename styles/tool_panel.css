@@ -166,7 +166,7 @@ label{
 }
 
 .radioOption.rightEnd.arrow{
-	transform: rotateZ(180deg);
+	transform: rotateY(180deg);
 }
 
 .sliderField{
@@ -201,7 +201,7 @@ label{
 	top:50%;
 }
 
-.radioOption.lineType.dashed~.lineOptionLabel{ border-style: dashed; }
+.radioOption.lineType.dashed~.lineOptionLabel{ border-top-style: dashed; }
 
 .selectField{
 	font-size: 12px;
