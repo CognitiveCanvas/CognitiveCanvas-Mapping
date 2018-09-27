@@ -14,13 +14,24 @@ window.onmessage = function(e) {
     markElementAsNoteEdited(e.data.query)
   }
   else if (e.data.id == "reload_note_list") {
-    console.log("Message Type: Reload Note List!");
+    console.log("Message Type: Reload Note List");
+    getElementsWithEditedNote()
+  }
+  else if (e.data.id == "undo") {
+    console.log("Message Type: Undo");
+    undo()
+    getElementsWithEditedNote()
+  }
+  else if (e.data.id == "redo") {
+    console.log("Message Type: Redo");
+    redo()
     getElementsWithEditedNote()
   }
   else {
-    // 400: Message does not have id in Header
-    //console.log("400: Message type is not recognized")
-    //console.log(e.data)
+    if (e.data.id) {
+      // 400: Message has an id that cannot be recognized
+      console.log("400: Message type is not recognized: ", e.data.id)
+    }
   }
   
 }

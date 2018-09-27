@@ -389,7 +389,7 @@ function showDraw() {
  * @param  {DOMELEMENT} element - the dom element to center the view on
  */
 function centerViewOnElement(element){
-  viewport = document.getElementById("CogCanvas");
+  viewport = document.getElementById("d3_container");
   var viewDims = [viewport.clientWidth - document.getElementById("content_container").clientWidth, viewport.clientHeight]
   var viewCenter = [viewDims[0]/2, viewDims[1]/2]
   var eleDims = element.getBoundingClientRect();

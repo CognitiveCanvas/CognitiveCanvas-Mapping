@@ -84,6 +84,7 @@ Re-build & Deploy all the Servers (webstrate & container_server) & Apps (contain
 * **Xiangyu "Steve" Zhao**     
 * **Xinwei "Xavier" Wang**
     
-### User Interface Dev Team (Name Ranked by First Name)
+### User Interface Dev Team
+* **Issac Fehr**
 * **Helen Cheng**
 * **Joshua Tjong**
