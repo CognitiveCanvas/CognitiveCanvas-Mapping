@@ -64,7 +64,10 @@ function selectNode(nodes, deselectCurrentSelection=true){
   }
 
   let eleClass = nodes[0].classList.item(0);
-  if ( TP_ELEMENT_TYPES.includes(eleClass) ) setTPSelection(eleClass);
+  if ( TP_ELEMENT_TYPES.includes(eleClass) ){ 
+    setTPSelection(eleClass);
+    updateNodeTPOptions(nodes[0]);
+  }
 
   nodes.forEach( (node)=>{
     node.classList.add("selected");

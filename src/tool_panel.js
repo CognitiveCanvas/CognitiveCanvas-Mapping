@@ -384,9 +384,9 @@ function createCheckBoxOptions(fieldId, fieldInfo){
 }
 
 function createSliderOption(fieldId, fieldInfo){
-	let field = createElement("span", "fieldOptions");
+	let field = createElement("span", ["fieldOption", fieldId]);
 
-	let slider = createElement("input", "sliderField", {id: fieldId, type: "range",
+	let slider = createElement("input", ["sliderField", fieldId], {id: fieldId, type: "range",
 		min: fieldInfo.range.min, max: fieldInfo.range.max}, field);
 
 	let readOut = createElement("label", "sliderReadOut", null, field);
@@ -459,4 +459,76 @@ function faIcon(iconName, faStyle = "fas", returnClassesOnly=false){
 	icon.classList.add("icon", faStyle, ("fa-" + iconName) );
 	if (returnClassesOnly) return icon.classList;
 	else return icon;
+}
+
+function updateNodeTPOptions(element){
+	let label = element.getElementsByClassName("label")[0];
+
+	if (label && element.classList.contains("node") || element.classList.contains("link")){
+		//LABEL FONT OPTIONS
+		let fontFace = label.style.fontFamily.split(",")[0];
+		if(fontFace) document.getElementById("fontFaceSelector").value = fontFace;
+
+		let fontSize = label.style.fontSize.replace("px", "");
+		if(fontSize) document.getElementById("fontSizeSelector").value = fontSize;
+
+		let isBold = label.style.fontWeight === FONT_BOLD;
+		document.getElementById("boldOption").checked = isBold;
+
+		let isItalic = label.style.fontStyle === "italic";
+		document.getElementById("italicOption").checked = isItalic;
+
+		let labelColor = label.style.fill;
+		if (labelColor){ 
+			let labelColorOption = document.querySelector('.fieldOption .labelColor[value="'+labelColor+'"]')
+			if (labelColorOption) labelColorOption.checked = true;
+		}
+
+	}
+	if(element.classList.contains("node")){
+		let nodeRep = element.getElementsByClassName("node-rep")[0];
+
+		let shape = element.getAttribute("shape");
+		let shapeOption = document.querySelector('.fieldOption .nodeShape[value="'+shape+'"]');
+		if( shapeOption ) shapeOption.checked = true;
+
+		let fill = nodeRep.style.fill;
+		let fillOption = document.querySelector('.fieldOption .nodeFill[value="'+fill+'"]');
+		if( fillOption) fillOption.checked = true;
+
+		let opacity = nodeRep.style.opacity;
+		if (opacity) document.querySelector(".fieldOption .opacity").value = opacity;
+
+		let borderType = nodeRep.style.strokeDasharray;
+		if(borderType) borderType = Object.keys(DASH_ARRAY_VALUES).find( name=>DASH_ARRAY_VALUES[name]===borderType);
+		if(borderType){ 
+			let borderOption = document.querySelector('.fieldOption .borderType[value="'+borderType+'"]');
+			if (borderOption) borderOption.checked = true;
+		}
+
+	} else if(element.classList.contains("link")){
+		let linkRep = element.getElementsByClassName("link-rep")[0];
+
+		let lineType = linkRep.style.strokeDasharray;
+		if (lineType) lineType = Object.keys(DASH_ARRAY_VALUES).find( ( name=>DASH_ARRAY_VALUES[name]===lineType));
+		if (lineType){
+			let lineOption = document.querySelector('.fieldOption .lineType[value="'+lineType+'"]');
+			if (lineOption) lineOption.checked = true;
+		}
+
+		let color = linkRep.style.stroke;
+		let colorOption = document.querySelector('.fieldOption .linkColor[value="'+color+'"]');
+		if( colorOption) colorOption.checked = true;
+
+		let lineWeight = linkRep.style.strokeWidth;
+		if (lineWeight) document.getElementById("lineWeightSelector").value = lineWeight;
+
+		let sourceEnd = element.getElementsByClassName("link-end source")[0];
+		if (sourceEnd) document.querySelector(".fieldOption .leftEnd.arrow").checked = true;
+		else document.querySelector(".fieldOption .leftEnd.none").checked = true;
+
+		let targetEnd = element.getElementsByClassName("link-end target")[0];
+		if (targetEnd) document.querySelector(".fieldOption .rightEnd.arrow").checked = true;
+		else document.querySelector(".fieldOption .rightEnd.none").checked = true;
+	}
 }

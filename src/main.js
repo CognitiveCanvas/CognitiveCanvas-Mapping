@@ -264,19 +264,13 @@ function zoomCanvas(deltaZoom){
 
     let transform = canvas.scaleTransform;
 
-    //let oldCenterPoint = new Point( transform._centerPoint.x, transform._centerPoint.y);
-    console.log(newMatrix.scaleX, newMatrix.scaleY);
     transform.set(deltaZoom, deltaZoom);
     transform._centerPoint.x = centerPoint.x;
     transform._centerPoint.y = centerPoint.y;
     
     canvas.transformer.reapplyTransforms().then( ()=>{
       canvas.transformer.complete();
-      console.log(canvas.transformer.localScale);
       updateMinimapPosition();
-      //console.log("old centerPoint:", oldCenterPoint.x, ",", oldCenterPoint.y, "; new: ", transform._centerPoint.x, ",", transform.centerPoint.y)
-      //transform._centerPoint.x = oldCenterPoint.x;
-      //transform._centerPoint.y = oldCenterPoint.y;
     });
   } else{
     console.log("not zooming");
