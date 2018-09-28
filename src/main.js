@@ -174,28 +174,7 @@ function keyDownListener(e){
       if(!temp_label_div){
         e.preventDefault();
         e.stopImmediatePropagation();
-        
-        d3.selectAll(".node.selected").each(function(){
-          let data = {
-            "node": this, 
-            "groups": getNodeGroups(this)
-          };
-          action_done("deleteNode", data);
-          logDeletion("Backspace", this);
-          removeNode(this);
-        });
-        d3.selectAll(".link.selected").each(function(){
-          let data = {
-            "edge": this
-          }
-          action_done("removeEdge", data);
-          logDeletion("Backspace", this);
-          removeLink(this)
-        });
-        d3.selectAll(".map-image.selected").remove();
-        
-        getElementsWithEditedNote()
-
+        deleteSelectedElement();
       }
       break;
     case "ArrowRight":
@@ -210,7 +189,28 @@ function keyDownListener(e){
   }
 }
 
-
+function deleteSelectedElement(){
+  d3.selectAll(".node.selected").each(function(){
+    let data = {
+      "node": this, 
+      "groups": getNodeGroups(this)
+    };
+    action_done("deleteNode", data);
+    logDeletion("Backspace", this);
+    removeNode(this);
+  });
+  d3.selectAll(".link.selected").each(function(){
+    let data = {
+      "edge": this
+    }
+    action_done("removeEdge", data);
+    logDeletion("Backspace", this);
+    removeLink(this)
+  });
+  d3.selectAll(".map-image.selected").remove();
+  
+  getElementsWithEditedNote()
+}
 
 
 function resetState() {

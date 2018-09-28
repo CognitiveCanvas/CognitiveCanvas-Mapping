@@ -275,6 +275,13 @@ input:checked + .toggleButton{
 	box-shadow: none
 }
 
+.button.small{
+	width: auto;
+	padding: 0px 10px;
+	line-height: 30px;
+	vertical-align: middle;
+}
+
 #eraserField, #uploadImageField, #pinImageField{
 	background: none;
 }

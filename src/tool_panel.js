@@ -37,7 +37,8 @@ function initToolPanelInfo(){
 	toolPanelTabs = {
 		node: {icon: "code-branch", fields: {
 			elementStyle:{subFields:{element: {inputType: "selector", function: setTPSelection,	options: ["node", "link"] },
-									 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
+									 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]},
+									 deleteElement: {name: null, inputType: "button", size:"small", function: deleteSelectedElement, label: "Delete" }
 										   }, visibleFor: ["node", "link"] },
 			nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
 			lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
@@ -373,9 +374,13 @@ function createButton(fieldId, fieldInfo){
 	if(fieldInfo.inputType === "toggleButton"){
 		let checkBox = createElement("input", [fieldInfo.inputType + "Field"], {id: fieldId, type: "checkbox", name: fieldId, value: fieldId}, span );
 	}
-	let button = createElement("label", [fieldInfo.inputType], {for: fieldId}, span);
-	let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
-	button.appendChild(icon);
+	let button = createElement("label", [fieldInfo.inputType, fieldId], {for: fieldId}, span);
+	if(fieldInfo.size === "small")button.classList.add("small");
+
+	if(fieldInfo.icon){
+		let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
+		button.appendChild(icon);
+	}
 	button.appendChild(document.createTextNode(fieldInfo.label));
 
 	button.addEventListener("click", fieldInfo.function);
