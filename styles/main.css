@@ -127,7 +127,7 @@ button {
 }
 
 .link-rep, .drag_line{
-    stroke: black;
+    stroke: var(--darkGrey);
     stroke-width: 2px;
 }
 

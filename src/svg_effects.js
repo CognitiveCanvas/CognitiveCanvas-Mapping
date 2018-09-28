@@ -57,8 +57,9 @@ var selectedFilter;
  * selected objects on the canvas
  */
 function createSelectedFilter(){
-  let defsSVG = canvas;//document.getElementById("defs-svg");
-  selectedFilter = Snap(defsSVG).filter(Snap.filter.shadow(5, 5, 5, "#747678", .5)).attr({ //"Geisel color"
-      id: 'selected-filter'
+  let defsSVG = document.getElementById("defs-svg");
+  selectedFilter = Snap(defsSVG).filter(Snap.filter.shadow(5, 5, 5, "#747678", .7)).attr({ //"Geisel color"
+      id: 'selected-filter',
+      filterUnits: "objectBoundingBox"
   });
 }
