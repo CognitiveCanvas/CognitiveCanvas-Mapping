@@ -59,8 +59,8 @@ var NODE_TEMPLATE = {
           'repSize': DEFAULT_SHAPE_SIZES['rectangle'],
           'style': {
             'node-rep':{
-              'fill': 'rgba(46, 127, 195, 0.1)',
-              'stroke': "blue"
+              'fill': THEME_COLORS.colors.june,
+              'stroke': "none"
             },
             'label': {
             }

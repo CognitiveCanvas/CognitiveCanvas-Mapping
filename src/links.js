@@ -9,7 +9,7 @@ var LINK_TEMPLATE = {
           'target_id': null,
           'style':{
             'link-rep':{
-              'stroke': "gray"
+              'stroke': THEME_COLORS.colors.darkGrey
             },
             'label':{
             }

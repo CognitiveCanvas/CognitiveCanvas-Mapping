@@ -7,7 +7,7 @@ label{
 	cursor: pointer;
 }
 
-#toolPanel, #minimap-panel{
+#toolPanel{
 	z-index: 9999;
 	position: fixed;
 	width: 240px;

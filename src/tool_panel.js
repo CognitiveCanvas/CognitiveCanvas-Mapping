@@ -8,31 +8,6 @@
  * look like based on the selected styling options.
  */
 
-/**
- * An object containing all the colors and color groups from the theme.  It
- * also has a getter that will return an array of hex color codes for a color
- * group.
- * @getter {[String]} colorGroup - Takes in a {String} groupname and returns
- *         						   an array of color hex strings from that
- *         						   group
- */
-const THEME_COLORS = {
-	colors: { 
-		red: "#E68570", purple: "#CC6686", blue: "#5884B3", green: "#9DBE59",
-		yellow: "#E5CF6C", black: "#000000", geisel: "#747678", 
-		darkGrey: "#ACADAE", june: "#D3D4D4", lightGrey: "#EDEEEE", 
-		white: "#FFFFFF", sea: "#006A96", sun: "#FFCD00", grass: "#6E963B", 
-		night: "#182B49"
-	},
-	colorGroups: {
-		surfaces: ["geisel", "darkGrey", "june", "lightGrey", "white"],
-		brand: ["sea"],
-		accents: ["sun", "grass", "night", "black"],
-		mapElements : ["red", "purple", "blue", "green", "yellow", "darkGrey"],
-		text: ["black", "darkGrey", "white"]
-	}
-};
-
 const INITIAL_UI_PADDING = 30;
 
 const TP_ELEMENT_TYPES = ["node", "link"];
@@ -56,14 +31,6 @@ const FONT_ICONS = {
 const LABEL_FONTS = ["Roboto Condensed", "Raleway", "Lato", "Slabo 13px"];
 
 const LABEL_FONT_SIZES = [12, 14, 16, 18, 20];
-
-function getColorGroup(groupName){
-	let colorsInGroup = [];
-	THEME_COLORS.colorGroups[groupName].forEach( (colorName)=>{
-		colorsInGroup.push(THEME_COLORS.colors[colorName]);
-	});
-	return colorsInGroup;
-}
 
 var toolPanelTabs;
 function initToolPanelInfo(){
