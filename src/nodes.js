@@ -1,3 +1,10 @@
+import {generateObjectId, styleFromInfo} from './data_interpreter.js';
+import {hammerizeNode} from './hammer_events.js';
+import {selectNode} from './selections.js';
+import {addLabel, getNodeLabel} from './label.js';
+import {getNodeGroups, action_done} from './undo.js';
+import {updateLinkPositions} from './links.js';
+
 /**
  *@file
  *Defines the behavior of "nodes" on the concept map, along with how they are created, deleted, and acted upon
@@ -34,42 +41,6 @@
 }
  * }
  */
-var snap;
-
-var NODE_SHAPES = ["rectangle", "circle", "diamond"]
-
-var DEFAULT_NODE_SIZE = [100, 100]
-var DEFAULT_SHAPE_SIZES = {
-  'rectangle': [100, 50],
-  'circle': [100,100],
-  'diamond':[100,100]
-}
-
-var NODE_TEMPLATE = {
-  'label': "Node Name",
-  'note': false,
-  'position': {x: 50, y: 50},
-  'scale': {x:1, y: 1},
-  'groupId': null,
-  'reps': {
-    'mapping':{
-      'elements': {
-        'node' : {
-          'shape': "rectangle",
-          'repSize': DEFAULT_SHAPE_SIZES['rectangle'],
-          'style': {
-            'node-rep':{
-              'fill': THEME_COLORS.colors.june,
-              'stroke': "none"
-            },
-            'label': {
-            }
-          }
-        }
-      }
-    }
-  }
-}
 
 //All nodes have a base size of 100x100, and are scaled with the Transform property instead of svg attributes
 
@@ -100,7 +71,7 @@ function createShape(shape, width=null, height=null){
   return ele.node;
 }
 
-function changeShapeSize(node, width, height){
+export function changeShapeSize(node, width, height){
   var shapeType = node.getAttribute("shape");
   var nodeRep = node.getElementsByClassName("node-rep")[0];
 
@@ -134,7 +105,7 @@ function changeShapeSize(node, width, height){
  * @return {Promise} Returns a promise that will resolve to the created node once it has been 
  * rendered, inserted to the DOM, and has the apporpriate listeners attached.
  */
-function createNode(nodeInfo={}){
+export function createNode(nodeInfo={}){
   //Merge the input node info with defaults, and gives it a unique ID
   return new Promise((resolve, reject)=>{
     nodeInfo = Object.assign( {},
@@ -226,7 +197,7 @@ function drawNodeRep(node, nodeInfo=NODE_TEMPLATE){
  * @param {nodeList} nodes the nodes to change the shape of.  Default - change the shape of
  * selected nodes
  */
-function setNodeShape(shape, nodes=null){
+export function setNodeShape(shape, nodes=null){
   if (!nodes) nodes = document.querySelectorAll(".node.selected");
   nodes.forEach( (node)=>{
     var nodeInfo = nodeToObject(node);
@@ -243,7 +214,7 @@ function setNodeShape(shape, nodes=null){
  * @return {Object} a standard object representation of the information contained in a node.  See createNode() for structure
  * @todo Add note
  */
-function nodeToObject(node){
+export function nodeToObject(node){
   let nodeRep = node.getElementsByClassName("node-rep")[0]
   let label = node.getElementsByClassName("label")[0];
   return {
@@ -280,39 +251,6 @@ function nodeToObject(node){
       }
     }
   }
-}
-
-/**
- * [getAllNodeObjects description]
- * @param [String] - an array of strings containing the map elements to collect
- *                   Example: ["node", "link", "group"]
- * @return [Object] Objects representing all the selected map elements
- */
-function getAllObjects(types=["node", "link", "group"]){
-  var allNodes = []
-  document.querySelectorAll("."+types.join(",.") ).forEach( (node)=>{
-    if (node.classList.contains("node")){
-      allNodes.push(nodeToObject(node));
-    }
-    else if (node.classList.contains("link")){
-      allNodes.push(linkToObject(node));
-    }
-    else if (node.classList.contains("group")){
-      allNodes.push(groupToObject(node));
-    }
-  });
-  return allNodes;
-}
-
-/**
- * @todo Remove
- * @deprecated
- */
-function addNode() {
-  let node = { type: "node", id: generateObjectId(), content: "false" };
-  n = nodes.push(node);
-
-  return node;
 }
 
 /**
@@ -398,7 +336,7 @@ function removeNode(node) {
  * @return {Promise}            A promise which will resolve when the node and
  *                              its links are moved
  */
-function translateNode(node, vector, relative=false, links=null){
+export function translateNode(node, vector, relative=false, links=null){
   //console.log("Node: ", node, ", X: ", x, ", Y: ", y);
   if (!links) {
     links = findConnectedLinks(node);
@@ -430,13 +368,13 @@ function translateNode(node, vector, relative=false, links=null){
 *   @returns {sourceLinks, destLinks} nodeLists containing links for each
 **/
 
-function getNodePosition(node){
+export function getNodePosition(node){
   var node = node instanceof d3.selection ? node.node() : node;
   var transformMatrix = node.transformer.getTransformMatrix();
   return new Point(transformMatrix.tx, transformMatrix.ty)
 }
 
-function getParentMapElement(element){
+export function getParentMapElement(element){
   if ($(element).is(".node,.link,.group")) return element;
   return $(element).parents(".node,.link,.group").get(0) || element;
 }

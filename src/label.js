@@ -1,3 +1,9 @@
+import {setPrevLabel} from './logger.js';
+import {toggleNonDrawingHammers} from './hammer_events.js';
+import {keyPressListener, keyDownListener} from './main.js';
+import {sendSearchMsgToContainer} from './request_handler.js';
+import {changeShapeSize} from './nodes.js';
+
 var temp_label_div = null;
 
 const LABEL_LINE_SPACING = 20;
@@ -19,7 +25,7 @@ const MIN_INPUT_COLS = 5;
  * @param {Boolean} selectText   If true along with requireInput and insertText,
  *                               selects the inserted text so it will be replaced
  */
-function addLabel(text, node, requireInput=true, insertText=false, selectText=false){
+export function addLabel(text, node, requireInput=true, insertText=false, selectText=false){
   
   let labelText = getNodeLabel(node);
   setPrevLabel(labelText); //For Logging
@@ -41,7 +47,7 @@ function addLabel(text, node, requireInput=true, insertText=false, selectText=fa
  * @param  {SVGELEMENT} node the node to get the label of
  * @return {String}     The label as a string.  Multiline labels are combined
  */
-function getNodeLabel(node){
+export function getNodeLabel(node){
   var label = node.getElementsByClassName("label")[0];
   if (!label) return null;
 
@@ -233,7 +239,7 @@ function toggleListenersForLabelInput( isInputtingLabel ){
   }
 }
 
-function handleClickDuringLabelInput(){
+export function handleClickDuringLabelInput(){
   //console.log("Handling click during label input");
   
   if (!temp_label_div.nErrors) temp_label_div.nErrors = 0;

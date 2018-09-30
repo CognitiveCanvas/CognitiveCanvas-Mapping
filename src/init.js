@@ -1,4 +1,11 @@
-/* init.js */
+import {toggleDrawing, initDrawing} from './draw.js';
+import {initToolPanel} from './tool_panel.js';
+import {initSnap} from './svg_effects.js';
+import {initTransformer, canHammerize, autoHammerize} from './hammer_events.js';
+import {postLogs} from './logger';
+import {updateMinimapPosition, initMinimap} from './minimap.js';
+import {getElementsWithEditedNote} from './request_handler.js';
+
 var initStatus = null;
 var isInitialized = false;
 
@@ -31,9 +38,7 @@ function onLoaded(webstrateId, clientId, user) {
     initIDs(webstrateId, clientId);
     initDragLine();
     initDataElement();
-    initDrawing().then( () => {
-      initToolPanel() 
-    }); 
+    initDrawing().then(initToolPanel); 
     initLog();
     initTransformer().then( ()=>{
       initSnap();
@@ -54,13 +59,13 @@ function initLog(){
 
 
 function initIDs(webstrateId, clientId) {
-  this.webstrateId = webstrateId;
-  this.clientId = clientId;
-  this.editId = "edit_" + clientId;
+  Window.webstrateId = webstrateId;
+  Window.clientId = clientId;
+  Window.editId = "edit_" + clientId;
 }
 
 function initDragLine() {
-  drag_line = document.getElementById("drag_line");
+  let drag_line = document.getElementById("drag_line");
   if (drag_line === null) {
     d3.select(canvas)
       .append("line")
@@ -96,48 +101,8 @@ function initDataElement() {
   initHTMLElement("body", DATA_COLLECTION, true)
 }
 
-function initTransformer() {
-  return new Promise( (resolve, reject)=>{
-    window.Matrix = Transformer.Matrix; //Give Global access to Matrix
-    window.Point = Transformer.Point;
-
-    canvas.addEventListener("wheel", updateMinimapPosition, {capture: true, passive: false}) //So it fires before Hammerize's mouse scroll event stops propagation
-
-    hammerizeCanvas().then( ()=>{
-
-      let promises = [];
-
-      document.querySelectorAll(".link,.node,.group").forEach( (element) => {
-        promises.push( new Promise( resolveIter => {
-          let prom;
-          if( element.classList.contains("node")) prom = hammerizeNode(element);
-          else if ( element.classList.contains("link")) prom = hammerizeLink(element);
-          else if ( element.classList.contains("group")) prom = hammerizeGroup(element);
-          prom.then( ()=> resolveIter() );
-        }));
-      });
-
-      Promise.all(promises).then( ()=> resolve());
-    });
-  });
-}
-
 function initAddedNodeHandling(){
   canvas.webstrate.on("nodeAdded", function(node) {
     if(canHammerize(node)) autoHammerize(node);
   });
-}
-
-/**
- * Initializes snap, and creates a transient SVG tag containing only the
- * definitions for SVG effects to be used in the canvas.  This is a workaround
- * to Webstrate's problems with not recreating SVG patterns after they are
- * first added to the DOM.
- */
-function initSnap(){
-  snap = Snap(canvas);
-
-  createTransientDefsSVG();
-  createCanvasBackground();
-  createSelectedFilter();
 }

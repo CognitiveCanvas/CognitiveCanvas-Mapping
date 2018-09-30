@@ -1,12 +1,12 @@
-var drawing_enabled = false;
-var drawingToolFunctions;
+export var drawing_enabled = false;
+export var drawingToolFunctions;
 
 /**
  * Sets the flag for drawing events and functionality on the canvas.
  * @param  {Boolean} isEnabled [description]
  * @return {[type]}            [description]
  */
-function toggleDrawing(isEnabled) {
+export function toggleDrawing(isEnabled) {
   if (isEnabled === drawing_enabled) return;
 
   let pad = document.getElementById("d3_container");
@@ -20,7 +20,7 @@ function toggleDrawing(isEnabled) {
   toggleNonDrawingHammers(!drawing_enabled); //Turn off node interactions
 }
 
-function initDrawing() {
+export function initDrawing() {
   return new Promise( (resolve, reject)=> {
     let svg;
     let penColor = "black";

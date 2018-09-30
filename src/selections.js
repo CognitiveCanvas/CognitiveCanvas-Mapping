@@ -1,7 +1,8 @@
-var drag_offset = [0, 0];
+import {TP_ELEMENT_TYPES, setTPSelection, updateNodeTPOptions} from './tool_panel.js';
+
 var selection_area = null;
 
-var GROUP_TEMPLATE = {
+export var GROUP_TEMPLATE = {
   'label': null,
   'position': {x: 50, y: 50},
   'scale': {x:1, y: 1},
@@ -24,7 +25,7 @@ var GROUP_TEMPLATE = {
   }
 }
 
-function groupToObject(group){
+export function groupToObject(group){
   return {
     'id': group.id,
     'label': null,
@@ -54,7 +55,7 @@ function groupToObject(group){
 nodes: The node or selection of multiple nodes to be give the selected class
 deselectCurrentSelection: if true, will remove the selected class from all currently sected nodes before selecting the new one
 **/
-function selectNode(nodes, deselectCurrentSelection=true){
+export function selectNode(nodes, deselectCurrentSelection=true){
   //console.log("Nodes being selected: ", nodes);
 
   nodes = nodes instanceof Node ? [nodes] : nodes;
@@ -96,7 +97,7 @@ function toggleSelection(nodes){
   });
 }
 
-function deselectAllObjects(removeSelectionArea=true){
+export function deselectAllObjects(removeSelectionArea=true){
   deselectNode(document.querySelectorAll(".selected"));
 
   if(removeSelectionArea){

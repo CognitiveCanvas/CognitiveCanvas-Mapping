@@ -1,3 +1,6 @@
+import {createElement, faIcon, makeUIDraggable, roundToPlace, translateCanvas, zoomCanvas} from './main.js';
+import {hammerizeMinimap} from './hammer_events.js';
+
 const DEFAULT_ZOOM_INCREMENT = 0.25;
 
 function createMinimap(){
@@ -34,7 +37,7 @@ function createMinimap(){
 	return transient;
 }
 
-function initMinimap(){
+export function initMinimap(){
   return new Promise( (resolve, reject) => {
   	let minimap = createMinimap();
     var minimapIframe = document.getElementById("minimap-bg");
@@ -70,7 +73,7 @@ function initMinimap(){
 }
 
 //Uses the position of the viewport and the canvas to update the Minimap element
-function updateMinimapPosition(){
+export function updateMinimapPosition(){
 	var viewBBox = document.getElementById("d3_container").getBoundingClientRect();
 	var canvasBBox = canvas.getBoundingClientRect();
 
@@ -89,12 +92,12 @@ function updateMinimapPosition(){
 }
 
 //Uses the position of the place indicator on the Minimap to update the viewport's position over the canvas
-function updateMapPositionFromMinimap(){
+export function updateMapPositionFromMinimap(){
 	var minimapBBox = document.getElementById('minimap').getBoundingClientRect();
 	var placerBBox = document.getElementById('minimap-placer').getBoundingClientRect();
 	var canvasBBox = canvas.getBoundingClientRect();
 
-	newPoint = new Point( roundToPlace( (placerBBox.left - minimapBBox.left) / minimapBBox.width * canvasBBox.width, 2),
+	let newPoint = new Point( roundToPlace( (placerBBox.left - minimapBBox.left) / minimapBBox.width * canvasBBox.width, 2),
 						  roundToPlace( (placerBBox.top - minimapBBox.top) / minimapBBox.height * canvasBBox.height, 2) 
 						);
 

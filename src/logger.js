@@ -1,9 +1,11 @@
+import {getNodePosition} from './nodes.js';
+
 const DEFAULT_INTERACTION = "Single Tap";
 
-var temp_buffer = {};
+window.temp_buffer = {};
 temp_buffer["action_log"] = [];
-var prev_position = {};
-var prev_label = "";
+window.prev_position = {};
+window.prev_label = "";
 
 /*
  * General logger for each interaction
@@ -31,7 +33,7 @@ function log(level, interaction, event_type, content){
 /*
  * Sends a POST request to the cogcanvas server
  */
-function postLogs(current_log){
+export function postLogs(current_log){
   if (window.parent) {
     //console.log(window.parent);
     window.parent.postMessage("post_action_log", "*");
@@ -74,7 +76,7 @@ function logStyleChange(data){
 /*
  * Logs creation of a node/edge
  */
-function logCreation(interaction, element) {
+export function logCreation(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
@@ -120,7 +122,7 @@ function logDeletion(interaction, element) {
 /*
  * Logs element movement/translate
  */
-function logTranslate(interaction, element) {
+export function logTranslate(interaction, element) {
   if (prev_position.length === 0) {
     return;
   }
@@ -289,7 +291,7 @@ function logErasure(interaction, path) {
 /*
  * Saves previous position of each translated element
  */
-function translateSavePrevPosition(element) {
+export function translateSavePrevPosition(element) {
   if (!element) {
     return;
   }
@@ -320,6 +322,6 @@ function saveChildPrevPosition(element) {
 /*
  * Saves prev label
  */
-function setPrevLabel(label) {
+export function setPrevLabel(label) {
   prev_label = label;
 }

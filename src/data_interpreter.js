@@ -1,13 +1,13 @@
-REP_TEMPLATES = {
-	'mapping': {
-		'node': NODE_TEMPLATE,
-		'link': LINK_TEMPLATE
+import {LINK_TEMPLATE} from './links.js';
+import {GROUP_TEMPLATE} from './selections.js';
+
+var REP_TEMPLATES = {
+	mapping : {
+		node: NODE_TEMPLATE,
+		link: LINK_TEMPLATE,
+		group: GROUP_TEMPLATE
 	}
-};
-
-MASTER_TEMPLATE = {
-
-};
+}
 
 /**
  * Creates a new data object representing an element based on a template of a 
@@ -26,7 +26,7 @@ MASTER_TEMPLATE = {
  * template representation type and element type, merged with optional
  * attributes
  */
-function objFromTemplate(repType, eleType, eleInfo={}){
+export function objFromTemplate(repType, eleType, eleInfo={}){
 	let template = REP_TEMPLATES[repType][eleType];
 	let object = {}
 
@@ -55,7 +55,7 @@ function objFromTemplate(repType, eleType, eleInfo={}){
   * @return {string} ID
   *   a unique ID made from the current client ID and the timestamp
   */
-function generateObjectId() {
+export function generateObjectId() {
   return clientId + "_" + Date.now();
 }
 
@@ -82,7 +82,7 @@ function deepMerge(targetObject, sourceObject, overwrite=true){
 	iterate(targetObject, sourceObject);	
 }
 
-function styleFromInfo(element, eleInfo, repType, eleType, childElementClass=null){
+export function styleFromInfo(element, eleInfo, repType, eleType, childElementClass=null){
 	let classNames;
 	let style = eleInfo.reps[repType].elements[eleType].style;
 	

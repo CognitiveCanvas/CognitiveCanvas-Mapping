@@ -1,8 +1,6 @@
+import {updateMinimapPosition} from './minimap.js';
+import {isContainingParent} from './transformer_extensions.js';
 /* main.js */
-
-var clientId, webstrateId, clicked_object, dragged_object = null;
-
-var canvas = document.getElementById("canvas");
 var radius = 40;
 var height = 40;
 var width = 40;
@@ -24,8 +22,6 @@ var addWindowOpen = false;
 var original_color = null;
 
 // drag_line & source_node are stored as html element
-var drag_line = null; 
-var source_node = null;
 
 var zoom = null;
 
@@ -34,95 +30,81 @@ var quickAddDist = 10 + MAX_RADIUS;
 window.addEventListener("keypress", keyPressListener);
 window.addEventListener("keydown", keyDownListener);
 
-// Deprecated Preview of Notes
-/*
-function mouseOverListener(e) {
-  if (drawing_enabled) return;
-
-  if (e.target.tagName === "tspan") {
-    return;
+/**
+ * Helper function to create a DOM element with optional Id and Classes
+ * @param  {String} tagName The name of the DOM tag to be created
+ * @param  {String} classes Classes of the element.  Can be a string or array
+ * @param  {Object} attributes An object of key-value pairs corresponding to
+ *                             attribute names and values
+ * @param {HTMLELEMENT} parentElement the element to append the created element to
+ * @return {HTMLELEMENT}    The created element if no parentElement was passed
+ */
+export function createElement(tagName, classes=null, attributes=null, parentElement=null){
+  let element = document.createElement(tagName);
+  if (classes){
+    classes = typeof classes === "string" ? [classes] : classes;
+    element.classList.add(...classes);
   }
-  
-  let className = e.target.getAttribute("class").split(" ")[0];
-  
-  switch(className) {
-    case "node-rep":
-      hoveredEle = e.target.parentElement.getAttribute("id");
-      if (nodes.find(x => x.id === hoveredEle)){
-        if (nodes.find(x => x.id === hoveredEle).content === "true"){
-            previewContent(hoveredEle);
-        }
+  if (attributes){
+    Object.keys(attributes).forEach( (attr)=>{
+      if (attributes.hasOwnProperty(attr)){
+        element.setAttribute(attr, attributes[attr]);
       }
-      break;
-    case "label":
-      hoveredEle = e.target.parentElement.getAttribute("id");
-      if (nodes.find(x => x.id === hoveredEle)){
-        if (nodes.find(x => x.id === hoveredEle).content === "true"){
-            previewContent(hoveredEle);
-        }
-      }
-      break;
-    case "link-rep":
-      hoveredEle = e.target.parentElement.getAttribute("id");
-      if (links.find(x => x.id === hoveredEle)){
-        if (links.find(x => x.id === hoveredEle).content === "true"){
-          previewContent(hoveredEle);
-        }
-      }
-      break;
-    default:
-      break;
+    })
   }
+  if (parentElement) parentElement.appendChild(element)
+  return element;
 }
 
-function mouseOutListener(e) {
-  if (drawing_enabled) return;    
-
-  if (e.target.tagName === "tspan") {
-    return;
-  }
-  
-  let className = e.target.getAttribute("class").split("-")[0];
-
-  switch(className) {
-    case "node":
-      if (nodes.find(x => x.id === hoveredEle)) {
-        if (nodes.find(x => x.id === hoveredEle).content){
-          var elem = document.getElementById("previewing");
-          if (elem) {
-            elem.parentNode.removeChild(elem);
-          }
-        }
-      }
-      break;
-    case "label":
-      if (nodes.find(x => x.id === hoveredEle)) {
-        if (nodes.find(x => x.id === hoveredEle).content){
-          var elem = document.getElementById("previewing");
-          if (elem) {
-            elem.parentNode.removeChild(elem);
-          }
-        }
-      }
-      break;
-    case "link":
-      if (links.find(x => x.id === hoveredEle)) {
-        if (links.find(x => x.id === hoveredEle).content){
-          var elem = document.getElementById("previewing");
-          if (elem) {
-            elem.parentNode.removeChild(elem);
-          }
-        }
-      }
-      break;
-    default:
-      break;
-  }
-  hoveredEle = null;
+/**
+ * Creates a FontAwesome icon element from an icon name
+ * @param {String} iconName The name of the icon without any prefixes ("Cog")
+ * @param {String} faStyle  The fontAwesome style prefix to use ("fas" | "far")
+ * @param {Boolean} returnClassesOnly If true, returns the classlist
+ * @return {HTMLELEMENT}     A span element containing the icon
+ */
+export function faIcon(iconName, faStyle = "fas", returnClassesOnly=false){
+  var icon = document.createElement("span");
+  icon.classList.add("icon", faStyle, ("fa-" + iconName) );
+  if (returnClassesOnly) return icon.classList;
+  else return icon;
 }
-*/
 
-function keyPressListener(e) {
+/**
+ * Searches the UI element for a child element with the class "anchor" and
+ * adds a Hammer Pan listener to it that moves the parent element's position
+ * with the CSS "left" and "top" attributes
+ * @param  {HTMLELEMENT} container The element to reposition.  This element
+ *                                 must have a child with class "anchor"
+ * @return none
+ */
+export function makeUIDraggable(container){
+  let anchor = container.getElementsByClassName("anchor")[0];
+  anchor.isDragging = false;
+
+  if(!anchor.hammer){
+    anchor.hammer = new Hammer.Manager(anchor, { recognizers: [ [Hammer.Tap] ] });
+  }
+
+  let hammer = anchor.hammer;
+  hammer.add( new Hammer.Pan());
+  hammer.on( 'pan panstart panend', (event)=>{
+    if (event.type === "panstart"){
+      container.dragStartPos = {
+        x: Number(container.style.left.replace("px", "")), 
+        y: Number(container.style.top.replace("px", ""))
+      };
+    }
+    container.style.left = container.dragStartPos.x + event.deltaX + "px";
+    container.style.top = container.dragStartPos.y + event.deltaY + "px";
+
+    if (event.type === "panend") {
+      container.dragStartPos = null;
+    };
+  })
+}
+
+export function keyPressListener(e) {
   var key = e.key;
   if (e.ctrlKey || e.metaKey)
     return;
@@ -142,7 +124,7 @@ function keyPressListener(e) {
   }
 }
 
-function keyDownListener(e){
+export function keyDownListener(e){
   var key = e.key;
   var selectedNode = document.querySelector(".node.selected");
   //console.log("keyDown: " + key);
@@ -189,7 +171,7 @@ function keyDownListener(e){
   }
 }
 
-function deleteSelectedElement(){
+export function deleteSelectedElement(){
   d3.selectAll(".node.selected").each(function(){
     let data = {
       "node": this, 
@@ -213,16 +195,11 @@ function deleteSelectedElement(){
 }
 
 
-function resetState() {
+export function resetState() {
   //console.log("state was reset");
-  mouseDown = 0;
-  mouseUp = 0;
-  mouseMoved = false;
   source_node = null;
   dragged_object = null;
-  clicked_object = null;
   dragStartPos = null;
-  drag_offset = [0,0];
   clearTimeout(singleClickTimer);
   clearTimeout(doubleClickDragTimer);
 }
@@ -233,7 +210,7 @@ function resetState() {
 *                corner of the viewport relative to the canvas
 * @param isRelative: If true, translates by a vector.  If false, sets the upper left corner equal to vector
 */
-function translateCanvas(vector, isRelative=true ){
+export function translateCanvas(vector, isRelative=true ){
   var currentTranslate = canvas.translateTransform;
   var newTranslate;
 
@@ -252,7 +229,7 @@ function translateCanvas(vector, isRelative=true ){
   });
 }
 
-function zoomCanvas(deltaZoom){
+export function zoomCanvas(deltaZoom){
 
   let oldMatrix = canvas.transformer.elementMatrix;
   let newMatrix = oldMatrix.copy();
@@ -399,7 +376,7 @@ function centerViewOnElement(element){
   translateCanvas( new Point(distance[0] * -1, distance[1] * -1) );
 }
 
-function roundToPlace(number, nPlaces){
+export function roundToPlace(number, nPlaces){
   number = Number(number);
   let multiplier = Math.pow(10, nPlaces);
   let rounded = Math.round(number * multiplier) / multiplier;

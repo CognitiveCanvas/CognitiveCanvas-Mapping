@@ -1,4 +1,4 @@
-function eventToCanvasPoint(e){
+export function eventToCanvasPoint(e){
   var eventPoint = e.center ? new Point(e.center.x, e.center.y) : new Point(e.clientX, e.clientY);
   return canvas.transformer.fromGlobalToLocal( eventPoint );
 }
@@ -12,7 +12,7 @@ function eventToCanvasPoint(e){
  *                                   than the element.  False if vice-versa
  * @return {Boolean}                 True if the above condition is met
  */
-function isContainingParent(element, elementMatrix, isOutsideParent = true ){
+export function isContainingParent(element, elementMatrix, isOutsideParent = true ){
 
   var ele = element;
   var oldElementMatrix = element.transformer.getTransformMatrix();
@@ -23,7 +23,7 @@ function isContainingParent(element, elementMatrix, isOutsideParent = true ){
   var newBB = getBBoxFromCorners(newCorners);
 
   var parentEle = element.parentNode;
-  parentBB = parentEle.getBoundingClientRect();
+  var parentBB = parentEle.getBoundingClientRect();
 
   var isContained;
 
