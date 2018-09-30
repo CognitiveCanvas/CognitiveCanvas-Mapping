@@ -1,8 +1,34 @@
-function initDrawing() {
+var drawing_enabled = false;
+var drawingToolFunctions;
 
+/**
+ * Sets the flag for drawing events and functionality on the canvas.
+ * @param  {Boolean} isEnabled [description]
+ * @return {[type]}            [description]
+ */
+function toggleDrawing(isEnabled) {
+  if (isEnabled === drawing_enabled) return;
+
+  let pad = document.getElementById("d3_container");
+
+  if(isEnabled !== undefined) drawing_enabled = isEnabled;
+  else drawing_enabled = !drawing_enabled;
+
+  if (drawing_enabled) pad.classList.add("drawable");
+  else pad.classList.remove("drawable");
+  
+  toggleNonDrawingHammers(!drawing_enabled); //Turn off node interactions
+}
+
+function initDrawing() {
+  return new Promise( (resolve, reject)=> {
     let svg;
     let penColor = "black";
     let penThickness = 3;
+    let penLineType = "solid";
+    let dashLength = 5;
+    let eraser_enabled;
+    const thicknesses = [ 3, 6, 9, 12 ];
 
     /**
      * Calculates the mid-point between the two points A and B and then returns
@@ -107,6 +133,7 @@ function initDrawing() {
 
       path.setAttribute("d", generatePath(points));
       path.setAttribute("fill", pen.color);
+      path.setAttribute("stroke-dasharray", penLineType === "dashed" ? dashLength : "")
 
       svg.appendChild(path);
     }
@@ -120,12 +147,68 @@ function initDrawing() {
       path.setAttribute("d", generatePath(points));
     }
 
+    const createToolFunctions = () =>{
+      let toolFunctions = {};
+
+      toolFunctions.clearCanvas = () => {
+        Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
+          svg.remove();
+        });
+      };
+
+      toolFunctions.toggleEraser = (isEnabled) => {
+        eraser_enabled = isEnabled !== undefined ? isEnabled : !eraser_enabled;
+      }
+
+      toolFunctions.setPenThickness = (thickness) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
+        eraser_enabled = false;
+
+        penThickness = thickness;
+      }
+
+      toolFunctions.setPenColor = (color) => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          penColor = color;
+          console.log("PenColor: ", penColor);
+      }
+
+      /**
+       * Sets the pen's settings to make solid or dashed lines
+       * @param  {String} type "solid" or "dashed"
+       * @return none
+       */
+      toolFunctions.setPenLineType = (type) => {
+        switch(type){
+          case "solid":
+          case "dashed":
+            penLineType = type;
+            break;
+          default:
+            penLineType = "solid";
+            break
+        }
+      }
+
+      return toolFunctions;
+    };
+    console.log("CREATING TOOL FUNCTIONS");
+    drawingToolFunctions = createToolFunctions();
+
+    /*
     const createToolPalette = () => {
 
-      const toolPalette = document.querySelector('#tool-palette');
+      const toolPalette = document.querySelector('#drawing-palette');
       const drawingTools = document.createElement("div");
       drawingTools.setAttribute("class", "drawing-instrument-tools");
 
+      /**
       const clearCanvas = document.createElement("div");
       clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
       clearCanvas.addEventListener("touchstart", event => {
@@ -139,7 +222,9 @@ function initDrawing() {
         });
       });
       drawingTools.appendChild(clearCanvas);
+      */
       
+      /*
       const eraser = document.createElement("div");
       eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
       eraser.addEventListener("click", event => {
@@ -149,7 +234,9 @@ function initDrawing() {
         else eraser.style.background = "darkgrey";
       });
       drawingTools.appendChild(eraser);
+      */
 
+      /**
       const thicknesses = [ 3, 6, 9, 12 ];
       
       const thicknessesElement = document.createElement("div");
@@ -206,7 +293,9 @@ function initDrawing() {
           activeThickness = thicknessElement;
         }
       });
-      
+      */
+
+      /**      
       const colors = [
         "black",
         "grey",
@@ -216,7 +305,9 @@ function initDrawing() {
         "orange",
         "yellow"
       ];
+      */
 
+      /**
       const colorsElement = document.createElement("div");
       colorsElement.setAttribute("class", "colors");
       drawingTools.appendChild(colorsElement);
@@ -267,7 +358,8 @@ function initDrawing() {
           activeColor = colorElement;
         }
       });
-
+      */
+      /*
       let isVisible = true;
       drawingTools.show = () => {
         drawingTools.style.opacity = 1.0;
@@ -284,12 +376,13 @@ function initDrawing() {
       drawingTools.isVisible = () => {
         return isVisible;
       }
-
-      toolPalette.appendChild(drawingTools);
+      
+      //toolPalette.appendChild(drawingTools);
 
       return drawingTools;
     }
-    const toolPalette = createToolPalette();
+    **/
+    //const toolPalette = createToolPalette();
 
 
     const getMousePenPoint = (event) => {
@@ -613,5 +706,6 @@ function initDrawing() {
       // logDrawing("touch", path);
     }, {capture: true, passive: true});
 
-
+    resolve(true);
+  });
 }

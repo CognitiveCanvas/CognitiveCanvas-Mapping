@@ -257,6 +257,14 @@ function setLabelColor(color){
   logColorChanges("border", color);
 }
 
+function setLabelSize(fontSize){
+	let labels = document.querySelectorAll(".selected .label"); 
+	logFontChanges(labels[0].style.fontSize || 16, fontSize);
+	for(let i = 0; i < labels.length; i++){
+		labels[i].style.fontSize = fontSize + "px";
+	}
+}
+
 function increaseLabelFontSize() {
   logFontChanges(current_font_size, current_font_size + 2);
   current_font_size = current_font_size + 2;

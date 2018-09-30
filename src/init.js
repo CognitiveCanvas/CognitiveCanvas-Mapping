@@ -3,7 +3,7 @@ var initStatus = null;
 var isInitialized = false;
 
 webstrate.on("loaded", (webstrateId, clientId, user) => {
-  
+  console.log("Webstrate Loaded")
   if(isInitialized ) return;
 
   //If this is a minimap, don't run the initialization scripts
@@ -31,11 +31,10 @@ function onLoaded(webstrateId, clientId, user) {
     initIDs(webstrateId, clientId);
     initDragLine();
     initDataElement();
-    //reloadElement();
-    initToolPalette();
-    initDrawing();
+    initDrawing().then( () => {
+      initToolPanel() 
+    }); 
     initLog();
-    initToolPanel();
     initTransformer().then( ()=>{
       initSnap();
       initAddedNodeHandling();
@@ -45,7 +44,6 @@ function onLoaded(webstrateId, clientId, user) {
     });
   });
 }
-
 
 function initLog(){
   let logIntervalMinute = 3;
@@ -98,13 +96,6 @@ function initDataElement() {
   initHTMLElement("body", DATA_COLLECTION, true)
 }
 
-function initToolPalette() {
-    let toolPalette = document.createElement("transient");
-    toolPalette.setAttribute("id", "tool-palette");
-    document.getElementById("content_container").appendChild(toolPalette);
-    document.getElementById("tool-palette").style.visibility = "hidden";
-} 
-
 function initTransformer() {
   return new Promise( (resolve, reject)=>{
     window.Matrix = Transformer.Matrix; //Give Global access to Matrix
@@ -134,40 +125,6 @@ function initTransformer() {
 function initAddedNodeHandling(){
   canvas.webstrate.on("nodeAdded", function(node) {
     if(canHammerize(node)) autoHammerize(node);
-  });
-}
-
-function initMinimap(){
-  return new Promise( (resolve, reject) => {
-    var minimapIframe = document.getElementById("minimap-bg");
-    minimapIframe.webstrate.on("transcluded", (event)=>{
-      var iframeDoc = minimapIframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.body.setAttribute("transient-is-minimap", true);
-
-      hammerizeMinimap();
-
-      var minimapCanvas = iframeDoc.getElementById("canvas");
-      var minimapBBox = document.getElementById("minimap").getBoundingClientRect();
-
-      var minimapHeight = parseInt( minimapCanvas.style.height, 10 );
-      var minimapWidth = parseInt( minimapCanvas.style.width, 10 );
-
-      var scale = {
-        x: minimapBBox.width / minimapWidth,
-        y: minimapBBox.height / minimapHeight
-      }
-
-      var transform = "scale(" + scale.x + "," + scale.y + ")";
-      
-      minimapIframe.style.transform = transform;
-
-      minimapIframe.style.height = (100 / scale.y) + "%";
-      minimapIframe.style.width = (100 / scale.x) + "%";
-
-      updateMinimapPosition();
-
-      resolve();
-    });
   });
 }
 
