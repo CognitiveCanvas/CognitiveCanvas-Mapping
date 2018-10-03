@@ -1,10 +1,12 @@
+import {generateObjectId} from './data_interpreter.js';
+import {hammerizeGroup} from './hammer_events.js';
+import {logImage} from './logger.js';
+
 /**
  *@file Uploading Images and Pinning to them
  *@author Isaac Fehr <ifehr@ucsd.edu>
  *@version 1.0
 */
-
-export var isPinning = false;
 
 /**
  * Turns "Pinning Mode" on or off.  When on, single clicks on a group will

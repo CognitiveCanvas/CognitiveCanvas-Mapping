@@ -1,3 +1,6 @@
+import {action_done} from './undo.js';
+import {logColorChanges, logStyleChange, logFontChanges, logLabelToggle} from './logger.js';
+
 var current_font_size = 15;
 
 /**
@@ -16,7 +19,7 @@ function setStyle(styleAttr, value, elements=null, classNames=null){
 
 	let oldStyleValues = [];
 	for (let i = 0; i < elements.length; i++){
-		element = elements[i];
+		let element = elements[i];
 		oldStyleValues.push(element.style[styleAttr]);
 		element.style[styleAttr] = value;
 	};
@@ -103,6 +106,14 @@ export function setNodeOpacity(opacity, nodes=null){
 export function setBorderType(borderType, elements=null){
 	let dashLength = DASH_ARRAY_VALUES[borderType];
 	setStyle("stroke-dasharray", dashLength, elements, ["node-rep", "link-rep"]);
+	
+	let strokeWidth, strokeColor;
+	if (borderType === "dashed" || borderType === "solid"){
+		strokeColor = "black";
+	} else{
+		strokeColor = "none";
+	}
+	setStyle("stroke", strokeColor, elements, ["node-rep"]);
 }
 
 export function setLinkColor(color){
@@ -148,8 +159,8 @@ export function setBorderColor(color) {
 }
 
 export function toggleLabelFontItalics(){
-	logLabelToggle("italicized", italicized, 7);
-	current_style = d3.select(".selected .label")
+	logLabelToggle("italicized", "italicized", 7);
+	let current_style = d3.select(".selected .label")
 	  .style("font-style");
 	let new_style = "";
 	if (current_style != 'italic'){
@@ -173,7 +184,7 @@ export function toggleLabelFontItalics(){
 
 
 export function toggleLabelFontBold(value=null){
-	current_style = d3.select(".selected .label")
+	let current_style = d3.select(".selected .label")
 	  .style("font-weight");
 	let new_style = "";
 
@@ -196,11 +207,11 @@ export function toggleLabelFontBold(value=null){
 		"elements"   : d3.selectAll(".selected .label")
 	}
 	action_done("style", data);
-	logLabelToggle("bolded", bolded, 6);
+	logLabelToggle("bolded", "bolded", 6);
 }
 
 export function setLabelColor(color){
-	current_style = d3.selectAll(".selected .label")
+	let current_style = d3.selectAll(".selected .label")
 		.style("fill", color);
 	let data = {
 		"style_type": "label_font_color", 

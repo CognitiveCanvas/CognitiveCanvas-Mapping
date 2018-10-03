@@ -3,6 +3,7 @@ import {setNodeShape} from './nodes.js';
 import {setLeftLinkEnd, setRightLinkEnd} from './links.js';
 import {drawing_enabled, drawingToolFunctions, toggleDrawing} from './draw.js';
 import {togglePinning, uploadImage} from './pinning.js';
+import {deselectAllObjects} from './selections.js';
 import {setNodeColor, setNodeOpacity, setBorderType, setLinkColor, setLinkThickness, setBorderColor, toggleLabelFontItalics, toggleLabelFontBold, setLabelColor, setLabelSize, setLabelFont} from './style.js';
 
 /**
@@ -354,7 +355,7 @@ function createButton(fieldId, fieldInfo){
 	}
 	button.appendChild(document.createTextNode(fieldInfo.label));
 
-	button.addEventListener("click", fieldInfo.function);
+	button.addEventListener("click", ()=>{fieldInfo.function()});
 
 	return span;
 }

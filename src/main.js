@@ -1,31 +1,12 @@
 import {updateMinimapPosition} from './minimap.js';
 import {isContainingParent} from './transformer_extensions.js';
-/* main.js */
-var radius = 40;
-var height = 40;
-var width = 40;
-var defaultSize = null;
-var defaultRadius = 20;
-var defaultShape = "circle";
-var defaultColor = "rgba(46, 127, 195, 0.1)";
-var styleNode = null;
-
-/* interact.js */
-var mouseUp = 0;
-var mouseDown = 0;
-var delay = 300;
-var mouseMoved = false;
-var singleClickTimer, doubleClickDragTimer = null;
-
-//var hoveredEle = null; //Deprecated Preview
-var addWindowOpen = false;
-var original_color = null;
-
-// drag_line & source_node are stored as html element
-
-var zoom = null;
-
-var quickAddDist = 10 + MAX_RADIUS;
+import {addLabel} from './label.js';
+import {action_done, getNodeGroups} from './undo.js';
+import {logDeletion, logCreation} from './logger.js';
+import {removeNode, getParentMapElement, createNode} from './nodes.js';
+import {removeLink} from './links.js';
+import {getElementsWithEditedNote} from './request_handler.js';
+import {selectNodeByDirection} from './selections.js';
 
 window.addEventListener("keypress", keyPressListener);
 window.addEventListener("keydown", keyDownListener);
@@ -197,11 +178,11 @@ export function deleteSelectedElement(){
 
 export function resetState() {
   //console.log("state was reset");
+  mouseUp = 0;
+  mouseDown = 0;
   source_node = null;
   dragged_object = null;
   dragStartPos = null;
-  clearTimeout(singleClickTimer);
-  clearTimeout(doubleClickDragTimer);
 }
 
 /*
@@ -284,7 +265,7 @@ function checkIntersectionWithNodes(nodePoint, radius=null){
  */
 function quickAdd(key){
   let selectedNode = document.querySelector(".selected.node");
-  var quickAddX, quixkAddY;
+  var quickAddX, quickAddY;
   if(selectedNode){
     var nodeDims = selectedNode.getBoundingClientRect();
     if(key == "Enter"){

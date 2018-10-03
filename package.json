@@ -5,9 +5,8 @@
   "private": true,
   "main": "src/entry.js",
   "scripts": {
-    "build": "webpack --mode=production",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": " webpack --watch --mode=development"
+    "build": "webpack --config webpack.prod.js",
+    "dev": "webpack --config webpack.dev.js"
   },
   "repository": {
     "type": "git",
@@ -25,10 +24,13 @@
     "css-loader": "^1.0.0",
     "html-webpack-plugin": "^3.2.0",
     "imports-loader": "^0.8.0",
+    "mini-css-extract-plugin": "^0.4.3",
     "script-loader": "^0.7.2",
     "style-loader": "^0.23.0",
     "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.1"
+    "webpack-cli": "^3.1.1",
+    "webpack-merge": "^4.1.4",
+    "webpack-shell-plugin": "^0.5.0"
   },
   "dependencies": {
     "snapsvg": "^0.5.1"

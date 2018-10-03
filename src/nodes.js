@@ -3,7 +3,7 @@ import {hammerizeNode} from './hammer_events.js';
 import {selectNode} from './selections.js';
 import {addLabel, getNodeLabel} from './label.js';
 import {getNodeGroups, action_done} from './undo.js';
-import {updateLinkPositions} from './links.js';
+import {updateLinkPositions, findConnectedLinks} from './links.js';
 
 /**
  *@file
@@ -266,7 +266,7 @@ function addNode(x, y) {
                y: y,
                shape: defaultShape,
                color:defaultColor,
-               radius: radius,
+               radius: defaultRadius,
                content: false };
   n = nodes.push(node);
   return node;
@@ -286,21 +286,7 @@ function addLink(source_id, target_id) {
   return link;
 }
 
-/**
- * @deprecated Remove
- * [deleteEntity description]
- * @param  {[type]} entities [description]
- * @param  {[type]} id       [description]
- * @return {[type]}          [description]
- */
-function deleteEntity(entities, id) {
-  let index = entities.findIndex((n) => n.id === id);
-  if (index > -1) {
-    entities.splice(index, 1);
-  }
-}
-
-function removeNode(node) {
+export function removeNode(node) {
   //console.log(node);
   let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   let node_id = node_d3.attr("id");

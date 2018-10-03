@@ -143,7 +143,7 @@ function drawLink(link) {
     return linkG.node();
 }
 
-function removeLink(link) {
+export function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   link.classed("deleted", true);
@@ -266,7 +266,7 @@ function updateLinkEnd(linkEnd, endPoint){
   let sideLength = ARROW_LENGTH / Math.sqrt(3) * 2;
   let angles = [theta + Math.PI - ARROW_ANGLE / 2 ];
   angles.push(angles[0] + ARROW_ANGLE);
-  arrowPoints = [
+  let arrowPoints = [
     endPoint.x,
     endPoint.y,
     roundToPlace(endPoint.x - sideLength * Math.cos(angles[0]), 2),

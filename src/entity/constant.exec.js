@@ -45,7 +45,14 @@ var source_node = null;
 var dragged_object = null;
 var dragStartPos = null;
 
+var temp_label_div = null;
 var drag_line = null; 
+var hoveredEle = null;
+var isPinning = false;
+
+//Interaction counters
+var mouseUp = 0;
+var mouseDown = 0;
 
 var DRAG_TOLERANCE = 5;
 
@@ -58,7 +65,18 @@ var INITIAL_UI_PADDING = 30;
 var FONT_NORMAL = 100;
 var FONT_BOLD = 700;
 
-const DASH_ARRAY_VALUES = {
+var defaultRadius = 40;
+var defaultShape = "circle";
+var defaultColor = "rgba(46, 127, 195, 0.1)";
+
+var addWindowOpen = false;
+var original_color = null;
+
+// drag_line & source_node are stored as html element
+
+var quickAddDist = 10 + MAX_RADIUS;
+
+var DASH_ARRAY_VALUES = {
 	"solid": "0",
 	"dashed": "9 6",
 	"none": "0 1"

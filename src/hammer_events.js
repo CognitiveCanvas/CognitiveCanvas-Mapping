@@ -3,8 +3,8 @@ import {updateMinimapPosition, updateMapPositionFromMinimap} from './minimap.js'
 import {isContainingParent, eventToCanvasPoint} from './transformer_extensions.js';
 import {createNode, getParentMapElement, getNodePosition, translateNode} from './nodes.js';
 import {findConnectedLinks, updateLinkPositions, selectSrcNode, drawDragLine, hideDragLine, createLink} from './links.js';
-import {handleClickDuringLabelInput, getNodeLabel} from './label.js';
-import {deselectAllObjects, selectNode} from './selections.js';
+import {handleClickDuringLabelInput, getNodeLabel, addLabel} from './label.js';
+import {deselectAllObjects, selectNode, drawSelectionArea, createGroup, getGroupedNodes, moveGroup, toggleSelection, addNodeToGroup} from './selections.js';
 import {objFromTemplate} from './data_interpreter.js';
 import {sendSearchMsgToContainer} from './request_handler.js';
 import {logCreation, logTranslate, translateSavePrevPosition} from './logger.js';
@@ -360,7 +360,7 @@ function linkDoubleTapListener(event){
 	addLabel(null, link);
 }
 
-function hammerizeGroup(group){
+export function hammerizeGroup(group){
 	return Transformer.hammerize(group, {pan:false}).then((transformer)=>{
 		var hammer = group.hammer;
 

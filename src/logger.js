@@ -1,4 +1,5 @@
 import {getNodePosition} from './nodes.js';
+import {generateObjectId} from './data_interpreter.js';
 
 const DEFAULT_INTERACTION = "Single Tap";
 
@@ -49,7 +50,7 @@ export function postLogs(current_log){
  *                      }
  * @return {None}
  */
-function logStyleChange(data){
+export function logStyleChange(data){
   let levelNames = [];
   let interaction = "Tool Panel";
   let eventType = 12; //An arbitrary number to differentiate event types
@@ -110,7 +111,7 @@ export function logCreation(interaction, element) {
 /*
  * Logs deletion of a node
  */
-function logDeletion(interaction, element) {
+export function logDeletion(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let event_type = 1;
   log(levelName, interaction, event_type, {
@@ -171,7 +172,7 @@ function logLabel(interaction, element) {
 /*
  * Logs font size changes
  */
-function logFontChanges(prev_size, curr_size){
+export function logFontChanges(prev_size, curr_size){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
   let event_type = (prev_size < curr_size) ? 4 : 5;
@@ -196,7 +197,7 @@ function logFontChanges(prev_size, curr_size){
 /*
  * Logs toggle for bold/italics
  */
-function logLabelToggle(type, setting, event_type){
+export function logLabelToggle(type, setting, event_type){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
@@ -218,7 +219,7 @@ function logLabelToggle(type, setting, event_type){
 /*
  * Logs changes for each node when color is changed
  */
-function logColorChanges(type, color){
+export function logColorChanges(type, color){
   let selectedNodes = document.querySelectorAll(".node.selected");
   // let selectedNodeShapes = document.querySelectorAll(".selected .node-rep");
   let selectedEdges = document.querySelectorAll(".link.selected");
@@ -250,7 +251,7 @@ function logColorChanges(type, color){
 /*
  * Logs image upload
  */
-function logImage(width, height, src, id) {
+export function logImage(width, height, src, id) {
   let event_type = 9;
   log("image", DEFAULT_INTERACTION, event_type, {
     "location": "(0,0)",
@@ -264,9 +265,9 @@ function logImage(width, height, src, id) {
 /*
  * Logs stroke paths
  */
-function logDrawing(interaction, path) {
+export function logDrawing(interaction, path) {
   let event_type = 10;
-  path.setAttribute("id", this.generateObjectId());
+  path.setAttribute("id", generateObjectId());
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),
     "path": path.getAttribute("d"),
@@ -277,7 +278,7 @@ function logDrawing(interaction, path) {
 /*
  * Logs drawing erasures
  */
-function logErasure(interaction, path) {
+export function logErasure(interaction, path) {
   let event_type = 11;
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),

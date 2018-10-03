@@ -1,4 +1,6 @@
 import {TP_ELEMENT_TYPES, setTPSelection, updateNodeTPOptions} from './tool_panel.js';
+import {getNodePosition, translateNode} from './nodes.js';
+import {hammerizeGroup} from './hammer_events.js';
 
 var selection_area = null;
 
@@ -86,7 +88,7 @@ function deselectNode(nodes){
   });
 }
 
-function toggleSelection(nodes){
+export function toggleSelection(nodes){
   nodes = nodes instanceof Node ? [nodes] : nodes;
   nodes.forEach((node)=>{
     if( node.classList.contains("selected")){
@@ -108,7 +110,7 @@ export function deselectAllObjects(removeSelectionArea=true){
   }
 }
 
-function selectNodeByDirection(direction){
+export function selectNodeByDirection(direction){
   var node = d3.select(".node.selected");
   var nodePos = getNodePosition(node);
   var minAngle, maxAngle;
@@ -157,7 +159,7 @@ function selectNodeByDirection(direction){
   }
 }
 
-function drawSelectionArea(canvasPoint){
+export function drawSelectionArea(canvasPoint){
     var canvasPoint;
 
     if (!selection_area){
@@ -193,7 +195,7 @@ function drawSelectionArea(canvasPoint){
     }
 }
 
-function createGroup(){
+export function createGroup(){
 
   var group = selection_area;
 
@@ -224,7 +226,6 @@ function createGroup(){
   }
   selection_area.setAttribute("children_ids", children_ids.join(" "));
 
-  console.log(group);
   hammerizeGroup(group);
 
   selection_area = null;
@@ -239,7 +240,7 @@ function createGroup(){
  * @param  {SVGELEMENT} group  The element representing the group
  * @param  {Point} vector - a vector in global space representing the movement to be done
  */
-function moveGroup(group, vector){
+export function moveGroup(group, vector){
 
   var nodes = group.nodes;
 
@@ -248,7 +249,7 @@ function moveGroup(group, vector){
     nodes = group.nodes;
   }
 
-  localVector = group.transformer.fromGlobalToLocalDelta(vector);
+  let localVector = group.transformer.fromGlobalToLocalDelta(vector);
 
   var oldGroupTranslate = new Point( group.translateTransform.x, group.translateTransform.y);
   var xMove = oldGroupTranslate.x + localVector.x;
@@ -262,7 +263,7 @@ function moveGroup(group, vector){
   });
 }
 
-function addNodeToGroup(node, group){
+export function addNodeToGroup(node, group){
   let new_children_ids = String(group.getAttribute("children_ids"))
     .split(" ")
     .filter(x => x);
@@ -274,7 +275,7 @@ function addNodeToGroup(node, group){
 /*
  *@param group - the group or image whose children wil be selected
  */
-function getGroupedNodes(group){
+export function getGroupedNodes(group){
    var nodes = [];
    var nodeIds = group.getAttribute("children_ids").split(" ").filter(x => x);
    for(var i=0; i < nodeIds.length; i++){

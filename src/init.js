@@ -59,9 +59,9 @@ function initLog(){
 
 
 function initIDs(webstrateId, clientId) {
-  Window.webstrateId = webstrateId;
-  Window.clientId = clientId;
-  Window.editId = "edit_" + clientId;
+  window.webstrateId = webstrateId;
+  window.clientId = clientId;
+  window.editId = "edit_" + clientId;
 }
 
 function initDragLine() {
