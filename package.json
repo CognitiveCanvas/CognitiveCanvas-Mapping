@@ -1,0 +1,39 @@
+{
+  "name": "CognitiveCanvas",
+  "version": "1.0.0",
+  "description": "CognitiveCanvas - ConceptMapping is a collaborative concept mapping tool built on webstrates, which serves as the lowerlevel webapp for (iframed by) CognitiveCanvas. CognitiveCanvas - ConceptMapping facilitates mapping, drawing, styling, and passing node/edge information to the upperlevel container webapp.",
+  "private": true,
+  "main": "src/entry.js",
+  "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "dev": "webpack --config webpack.dev.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CognitiveCanvas/CognitiveCanvas-Mapping.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CognitiveCanvas/CognitiveCanvas-Mapping/issues"
+  },
+  "homepage": "https://github.com/CognitiveCanvas/CognitiveCanvas-Mapping#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "imports-loader": "^0.8.0",
+    "mini-css-extract-plugin": "^0.4.3",
+    "script-loader": "^0.7.2",
+    "style-loader": "^0.23.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "webpack-merge": "^4.1.4",
+    "webpack-shell-plugin": "^0.5.0",
+    "webstrates-file-system": "^2.0.8"
+  },
+  "dependencies": {
+    "snapsvg": "^0.5.1"
+  }
+}

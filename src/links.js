@@ -1,4 +1,11 @@
-var LINK_TEMPLATE = {
+import {getNodeLabel, addLabel} from './label.js';
+import {getNodePosition} from './nodes.js';
+import {selectNode} from './selections.js';
+import {roundToPlace} from './main.js';
+import {generateObjectId, styleFromInfo} from './data_interpreter.js';
+import {hammerizeLink} from './hammer_events.js';
+
+export var LINK_TEMPLATE = {
   'label': "Link Name",
   'note': false,
   'reps': {
@@ -30,7 +37,7 @@ const ARROW_ANGLE = ARROW_DEG / 180 * Math.PI;
  * values to overwrite the template with.  See LINK_TEMPLATE for attribute names
  * @return {DOMELEMENT} link - the G element representing the link
  */
-function createLink(linkObj){
+export function createLink(linkObj){
   return new Promise( (resolve, reject) =>{
   	let linkInfo = linkObj.reps.mapping.elements.link;
   	let srcNode = document.getElementById(linkInfo.source_id);
@@ -76,7 +83,7 @@ function createLink(linkObj){
  * @param  {DOMELEMENT} link - A reference to the link <g class="link"> to make into na object
  * @return {object} A JSON object representing the link
  */
-function linkToObject(link){
+export function linkToObject(link){
   var linkRep = link.getElementsByClassName("link-rep")[0];
   return {
     'id': link.id,
@@ -136,7 +143,7 @@ function drawLink(link) {
     return linkG.node();
 }
 
-function removeLink(link) {
+export function removeLink(link) {
   link = link instanceof d3.selection ? link : d3.select(link);
   let link_id = link.attr("id");
   link.classed("deleted", true);
@@ -179,12 +186,12 @@ function selectLineDest(node) {
 }
 
 function revealDragLine() {
-  d3.select(drag_line)
+  d3.select("#drag_line")
     .classed({"drag_line": true, "drag_line_hidden": false});
 }
 
-function hideDragLine() {
-  let dragLine = d3.select(drag_line)
+export function hideDragLine() {
+  let dragLine = d3.select("#drag_line")
   dragLine.classed({"drag_line_hidden": true, "drag_line": false})
           .attr("x1", 0)
           .attr("y1", 0)
@@ -192,7 +199,7 @@ function hideDragLine() {
           .attr("y2", 0)
 }
 
-function selectSrcNode(node) {
+export function selectSrcNode(node) {
   source_node = node;
   revealDragLine();
 }
@@ -200,9 +207,9 @@ function selectSrcNode(node) {
 /** Draws a temporary link between a source node and a point on the canvas
   * @param canvasPoint: a local point {x,y} in the canvas space, usually the mouse, move the end of the link to
 **/
-function drawDragLine(endPoint) {
+export function drawDragLine(endPoint) {
   let sourceNode = source_node;
-  let dragLine = drag_line;
+  let dragLine = document.getElementById("drag_line");
   let endPoints = findLinkEndPoints(sourceNode, endPoint);
   let sourcePoint = endPoints[0];
   let targetPoint = endPoints[1];
@@ -214,7 +221,7 @@ function drawDragLine(endPoint) {
   dragLine.setAttribute("y2", endPoint.y);
 }
 
-function findConnectedLinks(node){
+export function findConnectedLinks(node){
   var id = node.getAttribute('id');
   var links = document.querySelectorAll(`[source_id=${id}],[target_id=${id}]`)
   return links;
@@ -244,12 +251,12 @@ function drawLinkEnds(links=null, source=null, target=null){
   });
 }
 
-function setRightLinkEnd(type="arrow"){
+export function setRightLinkEnd(type="arrow"){
   let isArrow = type === "arrow";
   drawLinkEnds(null, null, isArrow);
 }
 
-function setLeftLinkEnd(type="arrow"){
+export function setLeftLinkEnd(type="arrow"){
   let isArrow = type === "arrow";
   drawLinkEnds(null, isArrow, null);
 }
@@ -259,7 +266,7 @@ function updateLinkEnd(linkEnd, endPoint){
   let sideLength = ARROW_LENGTH / Math.sqrt(3) * 2;
   let angles = [theta + Math.PI - ARROW_ANGLE / 2 ];
   angles.push(angles[0] + ARROW_ANGLE);
-  arrowPoints = [
+  let arrowPoints = [
     endPoint.x,
     endPoint.y,
     roundToPlace(endPoint.x - sideLength * Math.cos(angles[0]), 2),
@@ -275,7 +282,7 @@ function updateLinkEnd(linkEnd, endPoint){
 *  match their source and target nodes
 *  @param links: [HTMLELEMENTS] an array of links to update
 **/
-function updateLinkPositions(links){
+export function updateLinkPositions(links){
   if ( links instanceof Node) links = [links];
   links.forEach(link=>{
     let linkRep = link.getElementsByClassName("link-rep")[0];

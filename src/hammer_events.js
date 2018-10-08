@@ -1,9 +1,47 @@
+import {roundToPlace, resetState} from './main.js';
+import {updateMinimapPosition, updateMapPositionFromMinimap} from './minimap.js';
+import {isContainingParent, eventToCanvasPoint} from './transformer_extensions.js';
+import {createNode, getParentMapElement, getNodePosition, translateNode} from './nodes.js';
+import {findConnectedLinks, updateLinkPositions, selectSrcNode, drawDragLine, hideDragLine, createLink} from './links.js';
+import {handleClickDuringLabelInput, getNodeLabel, addLabel} from './label.js';
+import {deselectAllObjects, selectNode, drawSelectionArea, createGroup, getGroupedNodes, moveGroup, toggleSelection, addNodeToGroup} from './selections.js';
+import {objFromTemplate} from './data_interpreter.js';
+import {sendSearchMsgToContainer} from './request_handler.js';
+import {logCreation, logTranslate, translateSavePrevPosition} from './logger.js';
+import {action_done} from './undo.js';
+
+export function initTransformer() {
+  return new Promise( (resolve, reject)=>{
+    window.Matrix = Transformer.Matrix; //Give Global access to Matrix
+    window.Point = Transformer.Point;
+
+    canvas.addEventListener("wheel", updateMinimapPosition, {capture: true, passive: false}) //So it fires before Hammerize's mouse scroll event stops propagation
+
+    hammerizeCanvas().then( ()=>{
+
+      let promises = [];
+
+      document.querySelectorAll(".link,.node,.group").forEach( (element) => {
+        promises.push( new Promise( resolveIter => {
+          let prom;
+          if( element.classList.contains("node")) prom = hammerizeNode(element);
+          else if ( element.classList.contains("link")) prom = hammerizeLink(element);
+          else if ( element.classList.contains("group")) prom = hammerizeGroup(element);
+          prom.then( ()=> resolveIter() );
+        }));
+      });
+
+      Promise.all(promises).then( ()=> resolve());
+    });
+  });
+}
+
 /**
 *	Enables/disables all touch interactions from a hammerized element
 *	@param enable boolean: true for enabling interactions, false for disabling
 *	@param element: the element to toggle; if null, acts on all hammerizable elements
 */
-function toggleNonDrawingHammers( enable, elements=null ){
+export function toggleNonDrawingHammers( enable, elements=null ){
 	//console.log("Toggling all non-drawing hammers to: ", enable, " for ", elements);
 	elements = elements || document.querySelectorAll("#canvas,.node,.link,.group");
 	elements = (elements instanceof Element) ? [elements] : elements; 
@@ -20,11 +58,11 @@ function toggleNonDrawingHammers( enable, elements=null ){
 	});
 }
 
-function canHammerize( element ){
+export function canHammerize( element ){
 	return $(element).is('.canvas,.node,.link,.group');
 }
 
-function autoHammerize( element ){
+export function autoHammerize( element ){
 	var ele = $(element);
 
 	if( ele.hasClass("canvas") ) hammerizeCanvas();
@@ -78,7 +116,6 @@ function canvasTransformerCallback( elementMatrix ){
 function canvasSingleTapListener(event){
 	//console.log("CANVAS SINGLE TAP");
 	deselectAllObjects();
-	closeContextMenu();
 }
 
 /**
@@ -86,7 +123,7 @@ function canvasSingleTapListener(event){
 **/
 function canvasDoubleTapListener(event){
   var canvasPoint = eventToCanvasPoint(event);
-  node = createNode( objFromTemplate("mapping", "node", {position: canvasPoint}) ).then( (node)=>{
+  let node = createNode( objFromTemplate("mapping", "node", {position: canvasPoint}) ).then( (node)=>{
   	logCreation("double tap", node);
   })
 }
@@ -102,7 +139,7 @@ function canvasPanListener(event){
 	}
 }
 
-function hammerizeNode(node){
+export function hammerizeNode(node){
 	return Transformer.hammerize(node, {pan: false, callback: nodeTransformerCallback}).then( function(transformer){
 		var hammer = node.hammer;
 		
@@ -284,7 +321,7 @@ function nodeDoubleTapListener(event){
 	addLabel(getNodeLabel(node), node, true, true, true);
 }
 
-function hammerizeLink(link){
+export function hammerizeLink(link){
 	return Transformer.hammerize(link, {pan: false, pinch: false, rotate: false}).then(function (transformer){
 		
 		var hammer = link.hammer;
@@ -323,7 +360,7 @@ function linkDoubleTapListener(event){
 	addLabel(null, link);
 }
 
-function hammerizeGroup(group){
+export function hammerizeGroup(group){
 	return Transformer.hammerize(group, {pan:false}).then((transformer)=>{
 		var hammer = group.hammer;
 
@@ -393,7 +430,7 @@ function groupDoubleTapListener(event){
   return node;
 }
 
-function hammerizeMinimap(){
+export function hammerizeMinimap(){
 	var minimap = document.getElementById("minimap");
 	var minimapPlacer = document.getElementById("minimap-placer");
 	//Transformer.hammerize( minimap, {pan: false, rotate: false, pinch: false} );

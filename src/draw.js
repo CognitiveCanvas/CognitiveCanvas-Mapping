@@ -1,12 +1,16 @@
-var drawing_enabled = false;
-var drawingToolFunctions;
+import {toggleNonDrawingHammers} from './hammer_events.js';
+import {logDrawing, logErasure} from './logger.js';
+import {resetState} from './main.js';
+
+export var drawing_enabled = false;
+export var drawingToolFunctions;
 
 /**
  * Sets the flag for drawing events and functionality on the canvas.
  * @param  {Boolean} isEnabled [description]
  * @return {[type]}            [description]
  */
-function toggleDrawing(isEnabled) {
+export function toggleDrawing(isEnabled) {
   if (isEnabled === drawing_enabled) return;
 
   let pad = document.getElementById("d3_container");
@@ -20,7 +24,7 @@ function toggleDrawing(isEnabled) {
   toggleNonDrawingHammers(!drawing_enabled); //Turn off node interactions
 }
 
-function initDrawing() {
+export function initDrawing() {
   return new Promise( (resolve, reject)=> {
     let svg;
     let penColor = "black";
@@ -200,190 +204,6 @@ function initDrawing() {
     };
     console.log("CREATING TOOL FUNCTIONS");
     drawingToolFunctions = createToolFunctions();
-
-    /*
-    const createToolPalette = () => {
-
-      const toolPalette = document.querySelector('#drawing-palette');
-      const drawingTools = document.createElement("div");
-      drawingTools.setAttribute("class", "drawing-instrument-tools");
-
-      /**
-      const clearCanvas = document.createElement("div");
-      clearCanvas.setAttribute("class", "instrument-tool clear-drawing-canvas");
-      clearCanvas.addEventListener("touchstart", event => {
-        Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
-          svg.remove();
-        });
-      }, {passive: false});
-      clearCanvas.addEventListener("click", event => {
-        Array.from(document.querySelector("#canvas").querySelectorAll("path")).forEach(svg => {
-          svg.remove();
-        });
-      });
-      drawingTools.appendChild(clearCanvas);
-      */
-      
-      /*
-      const eraser = document.createElement("div");
-      eraser.setAttribute("class", "instrument-tool erase-drawing-canvas");
-      eraser.addEventListener("click", event => {
-        eraser_enabled = !eraser_enabled;
-//        console.log("eraser_enabled = " + eraser_enabled);
-        if (eraser_enabled) eraser.style.background="black";
-        else eraser.style.background = "darkgrey";
-      });
-      drawingTools.appendChild(eraser);
-      */
-
-      /**
-      const thicknesses = [ 3, 6, 9, 12 ];
-      
-      const thicknessesElement = document.createElement("div");
-      thicknessesElement.setAttribute("class", "thicknesses");
-      drawingTools.appendChild(thicknessesElement);
-      
-      let activeThickness;
-      thicknesses.forEach((thickness, index) => {
-        const thicknessElement = document.createElement("li");
-        thicknessElement.setAttribute("class", "instrument-tool thickness");
-        thicknessElement.style.background = "darkgrey";
-        thicknessElement.style.fontSize = thickness/2*0.25 + "em";
-        thicknessesElement.appendChild(thicknessElement);
-
-        thicknessElement.addEventListener("touchstart", event => {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          if (activeThickness) {
-            activeThickness.removeAttribute("active");
-          }
-          
-          eraser_enabled = false;
-          eraser.style.background = "darkgrey";
-
-          thicknessElement.setAttribute("active", "true");
-          activeThickness = thicknessElement;
-
-          penThickness = thickness;
-        }, {capture: true, passive: false});
-        
-        thicknessElement.addEventListener("click", event => {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          if (activeThickness) {
-            activeThickness.removeAttribute("active");
-          }
-          
-          eraser_enabled = false;
-          eraser.style.background = "darkgrey";
-
-          thicknessElement.setAttribute("active", "true");
-          activeThickness = thicknessElement;
-
-          penThickness = thickness;
-        }, true);
-
-        if (index === 0) {
-          penThickness = thickness;
-          thicknessElement.setAttribute("active", "true");
-          activeThickness = thicknessElement;
-        }
-      });
-      */
-
-      /**      
-      const colors = [
-        "black",
-        "grey",
-        "darkred",
-        "green",
-        "blue",
-        "orange",
-        "yellow"
-      ];
-      */
-
-      /**
-      const colorsElement = document.createElement("div");
-      colorsElement.setAttribute("class", "colors");
-      drawingTools.appendChild(colorsElement);
-
-      let activeColor;
-      colors.forEach((color, index) => {
-        const colorElement = document.createElement("li");
-        colorElement.setAttribute("class", "instrument-tool color");
-        colorElement.style.background = color;
-        colorsElement.appendChild(colorElement);
-
-        colorElement.addEventListener("touchstart", event => {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          if (activeColor) {
-            activeColor.removeAttribute("active");
-          }
-
-          colorElement.setAttribute("active", "true");
-          activeColor = colorElement;
-
-          penColor = color;
-        }, {capture: true, passive: false});
-        
-        colorElement.addEventListener("click", event => {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          if (activeColor) {
-            activeColor.removeAttribute("active");
-          }
-          
-          eraser_enabled = false;
-          eraser.style.background = "darkgrey";
-
-          colorElement.setAttribute("active", "true");
-          activeColor = colorElement;
-
-          penColor = color;
-        }, true);
-
-        if (index === 0) {
-          penColor = color;
-          colorElement.setAttribute("active", "true");
-          activeColor = colorElement;
-        }
-      });
-      */
-      /*
-      let isVisible = true;
-      drawingTools.show = () => {
-        drawingTools.style.opacity = 1.0;
-        drawingTools.style.pointerEvents = "all";
-        isVisible = true;
-      };
-
-      drawingTools.hide = () => {
-        drawingTools.style.pointerEvents = "none";
-        drawingTools.style.opacity = 0.0;
-        isVisible = false;
-      };
-
-      drawingTools.isVisible = () => {
-        return isVisible;
-      }
-      
-      //toolPalette.appendChild(drawingTools);
-
-      return drawingTools;
-    }
-    **/
-    //const toolPalette = createToolPalette();
-
 
     const getMousePenPoint = (event) => {
       let transformable = event.target.closest('.transformable') || event.target.closest('.transformable-local');

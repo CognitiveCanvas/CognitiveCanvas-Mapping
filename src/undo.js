@@ -3,7 +3,7 @@ const queue_length = 30;
 
 
 
-function action_done (type, data){
+export function action_done (type, data){
 	if (undo_redo_buffer.length < queue_length){
 		undo_redo_buffer.push({ "type": type, "data":data } );	
 	}
@@ -99,10 +99,10 @@ function removeNodeFromGroup(node){
     }
 }
 
-function getNodeGroups(node){
+export function getNodeGroups(node){
 	let node_d3 = node instanceof d3.selection ?  node : d3.select(node);
   	let node_id = node_d3.attr("id");
-  	groups = [];
+  	let groups = [];
   	d3.selectAll(".selection_area[children_ids~=" + node_id + "]")
   		.each(()=>{groups.push(d3.select(this));});
   	return groups;

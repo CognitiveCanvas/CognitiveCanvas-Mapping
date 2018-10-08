@@ -1,10 +1,12 @@
+import {generateObjectId} from './data_interpreter.js';
+import {hammerizeGroup} from './hammer_events.js';
+import {logImage} from './logger.js';
+
 /**
  *@file Uploading Images and Pinning to them
  *@author Isaac Fehr <ifehr@ucsd.edu>
  *@version 1.0
 */
-
-var isPinning = false;
 
 /**
  * Turns "Pinning Mode" on or off.  When on, single clicks on a group will
@@ -13,13 +15,13 @@ var isPinning = false;
  *                            the amp will be have as normal
  * @return {Boolean}          True if the map is now in pinning mode
  */
-function togglePinning(newValue){
+export function togglePinning(newValue){
 	if (newValue === undefined) isPinning = !isPinning;
 	else isPinning = newValue; 
 	return isPinning;
 }
 
-var uploadImage = function(){
+export var uploadImage = function(){
 	webstrate.on("asset", handleImageUpload)
 	webstrate.uploadAsset();
 }

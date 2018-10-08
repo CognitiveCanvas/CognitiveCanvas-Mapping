@@ -1,3 +1,7 @@
+import {nodeToObject} from './nodes.js';
+import {linkToObject} from './links.js';
+import {groupToObject} from './selections.js';
+
 /* Handling Messages that have been post on the Webstrate */
 window.onmessage = function(e) {
   
@@ -37,20 +41,20 @@ window.onmessage = function(e) {
 }
 
 
-// Message Passing to the Container Code. Package include the id & label
-function sendSearchMsgToContainer() {
+// Message Passing to the Container Code. data_package include the id & label
+export function sendSearchMsgToContainer() {
   if (window.parent) {
     //console.log(window.parent);
     let selected = d3.select(".selected");
     if (!selected.empty()) {
       let nodeID = selected.attr("id");
       let labelText = labelFinder(nodeID);
-      let package = {
+      let data_package = {
         id: "selected_element",
         uid: nodeID,
         label: labelText
       };
-      window.parent.postMessage(package, "*");
+      window.parent.postMessage(data_package, "*");
     }
   }
 }
@@ -98,6 +102,28 @@ function traceElementForContainer(id) {
   }   
 }
 
+/**
+ * [getAllNodeObjects description]
+ * @param [String] - an array of strings containing the map elements to collect
+ *                   Example: ["node", "link", "group"]
+ * @return [Object] Objects representing all the selected map elements
+ */
+export function getAllObjects(types=["node", "link", "group"]){
+  var allNodes = []
+  document.querySelectorAll("."+types.join(",.") ).forEach( (node)=>{
+    if (node.classList.contains("node")){
+      allNodes.push(nodeToObject(node));
+    }
+    else if (node.classList.contains("link")){
+      allNodes.push(linkToObject(node));
+    }
+    else if (node.classList.contains("group")){
+      allNodes.push(groupToObject(node));
+    }
+  });
+  return allNodes;
+}
+
 // Mark elements' note as edited based on label received from container
 function markElementAsNoteEdited(id) {
   let editee = document.getElementById(id)
@@ -106,21 +132,21 @@ function markElementAsNoteEdited(id) {
 }
 
 // Send all the elements that has notes that are edited to container to load
-function getElementsWithEditedNote() {
+export function getElementsWithEditedNote() {
   let elementList = getAllObjects(["node", "link"]);
   let editedElementList = elementList.filter(function(element) {
     return element.note == "true" && element.deleted == false;
   });
   
-  let package = {
+  let data_package = {
     id: "edited_elements",
     elements: editedElementList
   } 
   
-  //console.log("edited_elements", package)
+  //console.log("edited_elements", data_package)
 
   if (window.parent) {
-    window.parent.postMessage(package, "*")
+    window.parent.postMessage(data_package, "*")
   }
 }
 

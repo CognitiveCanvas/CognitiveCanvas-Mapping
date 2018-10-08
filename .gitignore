@@ -4,4 +4,5 @@
 CognitiveCanvas.sublime-project
 CognitiveCanvas.sublime-workspace
 \.idea/
-file_system/
+node_modules/
+dist/

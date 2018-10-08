@@ -98,6 +98,15 @@ button {
 #CogCanvas{
 }
 
+.deleted{
+    display: none;
+}
+
+.node-rep{
+    stroke: none;
+    stroke-width: 3px;
+}
+
 .pin .node-rep{
     stroke: none;
     fill-opacity:.8;
@@ -127,7 +136,7 @@ button {
 }
 
 .link-rep, .drag_line{
-    stroke: black;
+    stroke: var(--darkGrey);
     stroke-width: 2px;
 }
 

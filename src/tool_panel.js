@@ -1,3 +1,11 @@
+import {createElement, deleteSelectedElement, faIcon, makeUIDraggable} from './main.js';
+import {setNodeShape} from './nodes.js';
+import {setLeftLinkEnd, setRightLinkEnd} from './links.js';
+import {drawing_enabled, drawingToolFunctions, toggleDrawing} from './draw.js';
+import {togglePinning, uploadImage} from './pinning.js';
+import {deselectAllObjects} from './selections.js';
+import {setNodeColor, setNodeOpacity, setBorderType, setLinkColor, setLinkThickness, setBorderColor, toggleLabelFontItalics, toggleLabelFontBold, setLabelColor, setLabelSize, setLabelFont} from './style.js';
+
 /**
  * @file tool_panel.js defines the behavior of the in-map tool panel.
  *
@@ -8,9 +16,7 @@
  * look like based on the selected styling options.
  */
 
-const INITIAL_UI_PADDING = 30;
-
-const TP_ELEMENT_TYPES = ["node", "link"];
+export var TP_ELEMENT_TYPES = ["node", "link"];
 
 const NODE_SHAPE_ICONS = {
 	rectangle: {icon: "square", style: "far"},
@@ -37,7 +43,8 @@ function initToolPanelInfo(){
 	toolPanelTabs = {
 		node: {icon: "code-branch", fields: {
 			elementStyle:{subFields:{element: {inputType: "selector", function: setTPSelection,	options: ["node", "link"] },
-									 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]}
+									 style:   {inputType: "selector", function: setStyleSelection,options: ["default"]},
+									 deleteElement: {name: null, inputType: "button", size:"small", function: deleteSelectedElement, label: "Delete" }
 										   }, visibleFor: ["node", "link"] },
 			nodeShape: 	{name: "Shape", 	inputType: "radio", 	function: setNodeShape,		optionType: "shape", options: NODE_SHAPES, icons: NODE_SHAPE_ICONS, visibleFor:["node"] },
 			lineType: 	{name: "Line", 		inputType: "radioLong", function: setBorderType,	optionType: "line", options: ["solid", "dashed"], visibleFor: ["link"]},		
@@ -73,7 +80,7 @@ function initToolPanelInfo(){
 /**
  * Creates the Tool Panel on page load
  */
-function initToolPanel(){
+export function initToolPanel(){
 	initToolPanelInfo();
 
 	var transientWrapper = createElement("transient", null, {id: "toolPanelWrapper"});
@@ -103,40 +110,6 @@ function initToolPanel(){
 	toolPanel.style.left = document.documentElement.clientWidth - toolPanel.clientWidth - INITIAL_UI_PADDING + "px";
 	toolPanel.style.top = INITIAL_UI_PADDING + "px";
 	setTPSelection("node");
-}
-
-/**
- * Searches the UI element for a child element with the class "anchor" and
- * adds a Hammer Pan listener to it that moves the parent element's position
- * with the CSS "left" and "top" attributes
- * @param  {HTMLELEMENT} container The element to reposition.  This element
- *                                 must have a child with class "anchor"
- * @return none
- */
-function makeUIDraggable(container){
-	let anchor = container.getElementsByClassName("anchor")[0];
-	anchor.isDragging = false;
-
-	if(!anchor.hammer){
-		anchor.hammer = new Hammer.Manager(anchor, { recognizers: [ [Hammer.Tap] ] });
-	}
-
-	let hammer = anchor.hammer;
-	hammer.add( new Hammer.Pan());
-	hammer.on( 'pan panstart panend', (event)=>{
-		if (event.type === "panstart"){
-			container.dragStartPos = {
-				x: Number(container.style.left.replace("px", "")), 
-				y: Number(container.style.top.replace("px", ""))
-			};
-		}
-		container.style.left = container.dragStartPos.x + event.deltaX + "px";
-		container.style.top = container.dragStartPos.y + event.deltaY + "px";
-
-		if (event.type === "panend") {
-			container.dragStartPos = null;
-		};
-	})
 }
 
 /**
@@ -201,7 +174,7 @@ function setActiveTPTab(tabName){
  * Sets the selection for the tool panel, changing tab and style selection as needed
  * @param {String} elementType - "node" | "link"
  */
-function setTPSelection(elementType){
+export function setTPSelection(elementType){
 	if (!TP_ELEMENT_TYPES.includes(elementType)) return;
 	document.getElementById("elementSelector").value = elementType;
 	if( !document.getElementById("nodeTPTab").hasAttribute("active") ) setActiveTPTab("node");
@@ -373,12 +346,16 @@ function createButton(fieldId, fieldInfo){
 	if(fieldInfo.inputType === "toggleButton"){
 		let checkBox = createElement("input", [fieldInfo.inputType + "Field"], {id: fieldId, type: "checkbox", name: fieldId, value: fieldId}, span );
 	}
-	let button = createElement("label", [fieldInfo.inputType], {for: fieldId}, span);
-	let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
-	button.appendChild(icon);
+	let button = createElement("label", [fieldInfo.inputType, fieldId], {for: fieldId}, span);
+	if(fieldInfo.size === "small")button.classList.add("small");
+
+	if(fieldInfo.icon){
+		let icon = faIcon(fieldInfo.icon.name, fieldInfo.icon.style);
+		button.appendChild(icon);
+	}
 	button.appendChild(document.createTextNode(fieldInfo.label));
 
-	button.addEventListener("click", fieldInfo.function);
+	button.addEventListener("click", ()=>{fieldInfo.function()});
 
 	return span;
 }
@@ -388,47 +365,7 @@ function createDrawingPalette(){
 	return palette;
 }
 
-/**
- * Helper function to create a DOM element with optional Id and Classes
- * @param  {String} tagName The name of the DOM tag to be created
- * @param  {String} classes Classes of the element.  Can be a string or array
- * @param  {Object} attributes An object of key-value pairs corresponding to
- *                             attribute names and values
- * @param {HTMLELEMENT} parentElement the element to append the created element to
- * @return {HTMLELEMENT}    The created element if no parentElement was passed
- */
-function createElement(tagName, classes=null, attributes=null, parentElement=null){
-	let element = document.createElement(tagName);
-	if (classes){
-		classes = typeof classes === "string" ? [classes] : classes;
-		element.classList.add(...classes);
-	}
-	if (attributes){
-		Object.keys(attributes).forEach( (attr)=>{
-			if (attributes.hasOwnProperty(attr)){
-				element.setAttribute(attr, attributes[attr]);
-			}
-		})
-	}
-	if (parentElement) parentElement.appendChild(element)
-	return element;
-}
-
-/**
- * Creates a FontAwesome icon element from an icon name
- * @param {String} iconName The name of the icon without any prefixes ("Cog")
- * @param {String} faStyle	The fontAwesome style prefix to use ("fas" | "far")
- * @param {Boolean} returnClassesOnly If true, returns the classlist
- * @return {HTMLELEMENT}     A span element containing the icon
- */
-function faIcon(iconName, faStyle = "fas", returnClassesOnly=false){
-	var icon = document.createElement("span");
-	icon.classList.add("icon", faStyle, ("fa-" + iconName) );
-	if (returnClassesOnly) return icon.classList;
-	else return icon;
-}
-
-function updateNodeTPOptions(element){
+export function updateNodeTPOptions(element){
 	let label = element.getElementsByClassName("label")[0];
 
 	if (label && element.classList.contains("node") || element.classList.contains("link")){

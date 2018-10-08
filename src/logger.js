@@ -1,9 +1,12 @@
+import {getNodePosition} from './nodes.js';
+import {generateObjectId} from './data_interpreter.js';
+
 const DEFAULT_INTERACTION = "Single Tap";
 
-var temp_buffer = {};
+window.temp_buffer = {};
 temp_buffer["action_log"] = [];
-var prev_position = {};
-var prev_label = "";
+window.prev_position = {};
+window.prev_label = "";
 
 /*
  * General logger for each interaction
@@ -31,7 +34,7 @@ function log(level, interaction, event_type, content){
 /*
  * Sends a POST request to the cogcanvas server
  */
-function postLogs(current_log){
+export function postLogs(current_log){
   if (window.parent) {
     //console.log(window.parent);
     window.parent.postMessage("post_action_log", "*");
@@ -47,7 +50,7 @@ function postLogs(current_log){
  *                      }
  * @return {None}
  */
-function logStyleChange(data){
+export function logStyleChange(data){
   let levelNames = [];
   let interaction = "Tool Panel";
   let eventType = 12; //An arbitrary number to differentiate event types
@@ -74,7 +77,7 @@ function logStyleChange(data){
 /*
  * Logs creation of a node/edge
  */
-function logCreation(interaction, element) {
+export function logCreation(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let content;
   if (levelName === "node") {
@@ -108,7 +111,7 @@ function logCreation(interaction, element) {
 /*
  * Logs deletion of a node
  */
-function logDeletion(interaction, element) {
+export function logDeletion(interaction, element) {
   let levelName = element.getAttribute("class").split(" ")[0];
   let event_type = 1;
   log(levelName, interaction, event_type, {
@@ -120,7 +123,7 @@ function logDeletion(interaction, element) {
 /*
  * Logs element movement/translate
  */
-function logTranslate(interaction, element) {
+export function logTranslate(interaction, element) {
   if (prev_position.length === 0) {
     return;
   }
@@ -169,7 +172,7 @@ function logLabel(interaction, element) {
 /*
  * Logs font size changes
  */
-function logFontChanges(prev_size, curr_size){
+export function logFontChanges(prev_size, curr_size){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
   let event_type = (prev_size < curr_size) ? 4 : 5;
@@ -194,7 +197,7 @@ function logFontChanges(prev_size, curr_size){
 /*
  * Logs toggle for bold/italics
  */
-function logLabelToggle(type, setting, event_type){
+export function logLabelToggle(type, setting, event_type){
   let selectedNodes = document.querySelectorAll(".node.selected");
   let selectedEdges = document.querySelectorAll(".link.selected");
 
@@ -216,7 +219,7 @@ function logLabelToggle(type, setting, event_type){
 /*
  * Logs changes for each node when color is changed
  */
-function logColorChanges(type, color){
+export function logColorChanges(type, color){
   let selectedNodes = document.querySelectorAll(".node.selected");
   // let selectedNodeShapes = document.querySelectorAll(".selected .node-rep");
   let selectedEdges = document.querySelectorAll(".link.selected");
@@ -248,7 +251,7 @@ function logColorChanges(type, color){
 /*
  * Logs image upload
  */
-function logImage(width, height, src, id) {
+export function logImage(width, height, src, id) {
   let event_type = 9;
   log("image", DEFAULT_INTERACTION, event_type, {
     "location": "(0,0)",
@@ -262,9 +265,9 @@ function logImage(width, height, src, id) {
 /*
  * Logs stroke paths
  */
-function logDrawing(interaction, path) {
+export function logDrawing(interaction, path) {
   let event_type = 10;
-  path.setAttribute("id", this.generateObjectId());
+  path.setAttribute("id", generateObjectId());
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),
     "path": path.getAttribute("d"),
@@ -275,7 +278,7 @@ function logDrawing(interaction, path) {
 /*
  * Logs drawing erasures
  */
-function logErasure(interaction, path) {
+export function logErasure(interaction, path) {
   let event_type = 11;
   log("drawing", interaction, event_type, {
     "id": path.getAttribute("id"),
@@ -289,7 +292,7 @@ function logErasure(interaction, path) {
 /*
  * Saves previous position of each translated element
  */
-function translateSavePrevPosition(element) {
+export function translateSavePrevPosition(element) {
   if (!element) {
     return;
   }
@@ -320,6 +323,6 @@ function saveChildPrevPosition(element) {
 /*
  * Saves prev label
  */
-function setPrevLabel(label) {
+export function setPrevLabel(label) {
   prev_label = label;
 }

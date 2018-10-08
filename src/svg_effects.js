@@ -1,4 +1,18 @@
 /**
+ * Initializes snap, and creates a transient SVG tag containing only the
+ * definitions for SVG effects to be used in the canvas.  This is a workaround
+ * to Webstrate's problems with not recreating SVG patterns after they are
+ * first added to the DOM.
+ */
+export function initSnap(){
+  window.snap = Snap(canvas);
+
+  createTransientDefsSVG();
+  createCanvasBackground();
+  createSelectedFilter();
+}
+
+/**
  * Appends a transient SVG tag to the body which will contain only filters and
  * patterns to be used in the canvas SVG.  This is done as a workaround to
  * Webstrates not correctly recreating SVG patterns from the DOM.
@@ -57,8 +71,9 @@ var selectedFilter;
  * selected objects on the canvas
  */
 function createSelectedFilter(){
-  let defsSVG = canvas;//document.getElementById("defs-svg");
-  selectedFilter = Snap(defsSVG).filter(Snap.filter.shadow(5, 5, 5, "#747678", .5)).attr({ //"Geisel color"
-      id: 'selected-filter'
+  let defsSVG = document.getElementById("defs-svg");
+  window.selectedFilter = Snap(defsSVG).filter(Snap.filter.shadow(5, 5, 5, "#747678", .7)).attr({ //"Geisel color"
+      id: 'selected-filter',
+      filterUnits: "objectBoundingBox"
   });
 }
